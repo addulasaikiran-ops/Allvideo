@@ -7,13 +7,13 @@ const DEFAULT_BINDINGS=Object.freeze({
 export function createInput({target=globalThis.window,getGamepads=()=>globalThis.navigator?.getGamepads?.()??[],bufferSeconds=.12,onDeviceChange=()=>{}}={}){
  const bindings=new Map(Object.entries(DEFAULT_BINDINGS).map(([k,v])=>[k,{keys:[...(v.keys??[])],gamepadButtons:[...(v.gamepadButtons??[])],axis:v.axis}]));
  const downKeys=new Set(),buffers=new Map(),listeners=[],deviceListeners=new Set();
- let device='keyboard',touchAxis=0,touchJumpDown=false,previousGamepadButtons=new Set(),destroyed=false;
+ let device='keyboard',touchAxis=0,touchJumpDown=false,touchPulseDown=false,previousGamepadButtons=new Set(),destroyed=false;
  function setDevice(next){if(device===next)return;device=next;onDeviceChange(next);for(const fn of [...deviceListeners])fn(next);}
  function actionsForKey(code){return [...bindings].filter(([,b])=>b.keys.includes(code)).map(([a])=>a);}
  function press(action){buffers.set(action,Math.max(bufferSeconds,buffers.get(action)??0));}
  function keydown(event){setDevice('keyboard');if([...bindings.values()].some(b=>b.keys.includes(event.code))||event.code==='F2')event.preventDefault?.();if(downKeys.has(event.code))return;downKeys.add(event.code);actionsForKey(event.code).forEach(press);}
  function keyup(event){downKeys.delete(event.code);}
- function blur(){downKeys.clear();touchAxis=0;touchJumpDown=false;buffers.clear();previousGamepadButtons.clear();}
+ function blur(){downKeys.clear();touchAxis=0;touchJumpDown=false;touchPulseDown=false;buffers.clear();previousGamepadButtons.clear();}
  function listen(type,fn){if(!target?.addEventListener)return;target.addEventListener(type,fn);listeners.push(()=>target.removeEventListener(type,fn));}
  listen('keydown',keydown);listen('keyup',keyup);listen('blur',blur);listen('pointerdown',e=>{if(e.pointerType==='touch')setDevice('touch');});listen('gamepadconnected',()=>setDevice('gamepad'));
  function pollGamepad(){const pad=getGamepads()?.find?.(p=>p&&p.connected!==false)??null;if(!pad){previousGamepadButtons.clear();return null;}
@@ -27,12 +27,12 @@ export function createInput({target=globalThis.window,getGamepads=()=>globalThis
   read(){const pad=pollGamepad(),axis=pad?.axes?.[0]??0;const keyboard=[...bindings].reduce((sum,[,b])=>b.axis===-1&&b.keys.some(k=>downKeys.has(k))?sum-1:b.axis===1&&b.keys.some(k=>downKeys.has(k))?sum+1:sum,0);
    const held=action=>bindings.get(action)?.keys.some(k=>downKeys.has(k))??false;
    return {horizontal:Math.abs(axis)>.22?Math.sign(axis):Math.max(-1,Math.min(1,keyboard||touchAxis)),jumpPressed:this.isBuffered('jump'),jumpHeld:held('jump')||touchJumpDown||Boolean(pad?.buttons?.[0]?.pressed),
-    pausePressed:this.isBuffered('pause'),interactPressed:this.isBuffered('interact'),pulsePressed:this.isBuffered('pulse'),restPressed:this.isBuffered('rest'),victoryPressed:this.isBuffered('victory')};},
+    pausePressed:this.isBuffered('pause'),interactPressed:this.isBuffered('interact'),pulsePressed:this.isBuffered('pulse')||touchPulseDown,restPressed:this.isBuffered('rest'),victoryPressed:this.isBuffered('victory')};},
   advance(dt){for(const [a,remaining] of buffers){const next=remaining-Math.max(0,dt);if(next<=0)buffers.delete(a);else buffers.set(a,next);}},
   isBuffered(action){return (buffers.get(action)??0)>0;},consume(action){return buffers.delete(action);},
   setTouchAxis(value){const next=Math.max(-1,Math.min(1,Number(value)||0));if(next!==0)setDevice('touch');touchAxis=next;},
-  setTouchJump(value){const next=Boolean(value);if(next&&!touchJumpDown){setDevice('touch');press('jump');}touchJumpDown=next;},
+  setTouchJump(value){const next=Boolean(value);if(next&&!touchJumpDown){setDevice('touch');press('jump');}touchJumpDown=next;},\n  setTouchPulse(value){const next=Boolean(value);if(next&&!touchPulseDown){setDevice('touch');press('pulse');}touchPulseDown=next;},
   onDeviceChange(callback){deviceListeners.add(callback);return()=>deviceListeners.delete(callback);},
-  destroy(){if(destroyed)return;destroyed=true;listeners.splice(0).forEach(fn=>fn());downKeys.clear();buffers.clear();previousGamepadButtons.clear();deviceListeners.clear();touchAxis=0;touchJumpDown=false;},
+  destroy(){if(destroyed)return;destroyed=true;listeners.splice(0).forEach(fn=>fn());downKeys.clear();buffers.clear();previousGamepadButtons.clear();deviceListeners.clear();touchAxis=0;touchJumpDown=false;touchPulseDown=false;},
  };
 }
