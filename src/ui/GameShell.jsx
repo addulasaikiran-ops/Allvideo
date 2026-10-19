@@ -6,22 +6,23 @@ import styles from './GameShell.module.css';
 
 export function GameShell() {
   const canvasRef = useRef(null);
-  const engineRef = useRef(null);
+  const [engine, setEngine] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
-  const engine = engineRef.current;
 
   useEffect(() => {
     const gameEngine = createGameEngine();
-    engineRef.current = gameEngine;
+    setEngine(gameEngine);
     return () => gameEngine.destroy();
   }, []);
 
-  return <GameSurface
-    canvasRef={canvasRef}
-    engine={engine}
-    showHelp={showHelp}
-    onToggleHelp={() => setShowHelp((visible) => !visible)}
-  />;
+  return (
+    <GameSurface
+      canvasRef={canvasRef}
+      engine={engine}
+      showHelp={showHelp}
+      onToggleHelp={() => setShowHelp((visible) => !visible)}
+    />
+  );
 }
 
 function GameSurface({ canvasRef, engine, showHelp, onToggleHelp }) {
