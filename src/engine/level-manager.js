@@ -15,7 +15,7 @@ export class LevelManager {
       stuckTimer: 0, hintShown: false, calmTimer: 0, projectileTimer: entity.projectileInterval ?? 3,
     }));
     this.completedHints = new Set(); this.switches = new Set(); this.events = []; this.lastPlayerX = null;
-    this.clearedKnots = new Set(); this.heartTotalAtLoad = this.entities.filter((entity) => entity.type === 'collectible' && entity.kind === 'heart').length;
+    this.clearedKnots = new Set(); this.slowTimer = 0; this.slowScale = 1; this.heartTotalAtLoad = this.entities.filter((entity) => entity.type === 'collectible' && entity.kind === 'heart').length;
   }
 
   emit(type, entity, extra = {}) {
@@ -23,7 +23,7 @@ export class LevelManager {
   }
 
   update(dt, player, input = {}) {
-    const step = Math.min(Math.max(dt || 0, 0), 0.1); this.elapsed += step; this.events = [];
+    const realStep = Math.min(Math.max(dt || 0, 0), 0.1); const step = realStep * this.getTimeScale(); this.slowTimer = Math.max(0, this.slowTimer - realStep); this.elapsed += step; this.events = [];
     const pulsePressed = Boolean(input.pulsePressed);
     for (const entity of this.entities) {
       if (entity.type === 'moving-platform' && entity.active) {
@@ -36,6 +36,24 @@ export class LevelManager {
         const shouldActivate = nearbyCollected >= (entity.requiresHearts ?? 1);
         if (shouldActivate && !entity.active) { entity.active = true; this.emit('bridge:formed', entity, { hearts: nearbyCollected }); }
         if (!shouldActivate && entity.active) entity.active = false;
+      }
+      if (entity.type === 'clock-hand') {
+        entity.angle = Math.sin(this.elapsed * Math.PI * 2 / (entity.period ?? 5) + (entity.phase ?? 0)) * (entity.amplitude ?? 1);
+      }
+      if (entity.type === 'pendulum') {
+        entity.angle = Math.sin(this.elapsed * Math.PI * 2 / (entity.period ?? 4.5) + (entity.phase ?? 0)) * (entity.amplitude ?? 0.75);
+      }
+      if (entity.type === 'enemy' && entity.behavior === 'patrol') {
+        entity.x = entity.originX + Math.sin(this.elapsed * (entity.patrolSpeed ?? 0.7) + entity.phase) * (entity.patrolDistance ?? 2);
+      }
+      if (entity.type === 'rest-lantern' && !entity.triggered && input.interactPressed && this.playerTouches(player, entity)) {
+        entity.triggered = true;
+        this.slowTimer = entity.slowDuration ?? 4;
+        this.slowScale = entity.slowScale ?? 0.45;
+        this.emit('rest:activated', entity, { heal: entity.heal ?? 1, duration: this.slowTimer, timeScale: this.slowScale, text: entity.text ?? 'Rest is progress.' });
+      }
+      if (['mirror', 'mirror-boss'].includes(entity.type) && !entity.triggered && input.interactPressed && this.playerTouches(player, entity)) {
+        this.emit('mirror:choice', entity, { whisper: entity.whisper, choices: entity.choices ?? [{ id: 'kind', label: 'I can be kind to myself.', kind: 'kind' }], truth: entity.truth, boss: entity.type === 'mirror-boss', cracks: entity.cracks ?? 0, requiredTruths: entity.requiredTruths ?? 1 });
       }
       if (entity.type === 'enemy') {
         if (entity.calmTimer > 0) entity.calmTimer = Math.max(0, entity.calmTimer - step);
@@ -94,6 +112,11 @@ export class LevelManager {
         entity.triggered = true;
         this.emit(entity.type === 'dialogue-trigger' ? 'dialogue:trigger' : 'cutscene:trigger', entity, { cutscene: entity.cutscene, dialogueId: entity.dialogueId, lines: entity.lines ?? [], skippable: entity.skippable ?? false });
       }
+      if (entity.type === 'spikes' && this.playerTouches(player, entity) && !entity.contactCooldown) {
+        entity.contactCooldown = 0.8;
+        this.emit('hazard:contact', entity, { hazard: 'spikes', gentle: true });
+      }
+      if (entity.contactCooldown > 0) entity.contactCooldown = Math.max(0, entity.contactCooldown - realStep);
       if (entity.type === 'hazard' && entity.active && !entity.safe && this.playerTouches(player, entity)) {
         if (entity.kind === 'dark-mist' && input.pulseActive) { entity.cleared = true; entity.active = false; this.emit('hazard:cleared', entity); }
         else if (!entity.triggered) { entity.triggered = true; this.emit('hazard:contact', entity, { hazard: entity.kind }); }
@@ -103,6 +126,29 @@ export class LevelManager {
       if (entity.type === 'hint' && !this.completedHints.has(entity.skill) && this.playerTouches(player, entity)) this.emit('hint:show', entity, { skill: entity.skill, text: entity.text, input: entity.input });
     }
     this.lastPlayerX = player.x; return this.events;
+  }
+
+  getTimeScale() { return this.slowTimer > 0 ? this.slowScale : 1; }
+
+  resolveMirrorChoice(entityId, choiceId) {
+    const entity = this.entities.find((item) => item.id === entityId && ['mirror', 'mirror-boss'].includes(item.type));
+    if (!entity || entity.triggered) return false;
+    const choice = (entity.choices ?? []).find((item) => item.id === choiceId);
+    if (!choice) return false;
+    const kind = choice.kind ?? 'kind';
+    if (kind === 'kind') {
+      if (entity.type === 'mirror-boss') {
+        entity.cracks = Math.min(entity.requiredTruths ?? 3, (entity.cracks ?? 0) + 1);
+        this.emit('mirror:boss-cracked', entity, { cracks: entity.cracks, requiredTruths: entity.requiredTruths ?? 3, truth: choice.label });
+        if (entity.cracks >= (entity.requiredTruths ?? 3)) entity.triggered = true;
+      } else {
+        entity.triggered = true;
+      }
+      this.emit('mirror:answered', entity, { choiceId, kind, truth: entity.truth ?? 'Kindness is a truth, too.' });
+    } else {
+      this.emit('mirror:answered', entity, { choiceId, kind, truth: 'Try a kinder answer; there is no penalty for choosing again.' });
+    }
+    return true;
   }
 
   playerTouches(player, entity) {
@@ -122,7 +168,7 @@ export class LevelManager {
   }
 
   getSnapshot() {
-    return { id: this.level.id, title: this.level.title, theme: clone(this.level.theme ?? {}), difficultyCurve: clone(this.level.difficultyCurve ?? []), parallax: clone(this.level.parallax ?? []), entities: this.entities.map((entity) => ({ ...entity })), switches: [...this.switches], clearedKnots: [...this.clearedKnots], elapsed: this.elapsed };
+    return { id: this.level.id, title: this.level.title, world: clone(this.level.world ?? {}), theme: clone(this.level.theme ?? {}), difficultyCurve: clone(this.level.difficultyCurve ?? []), parallax: clone(this.level.parallax ?? []), entities: this.entities.map((entity) => ({ ...entity })), switches: [...this.switches], clearedKnots: [...this.clearedKnots], elapsed: this.elapsed };
   }
 
   hotReload(level) {
