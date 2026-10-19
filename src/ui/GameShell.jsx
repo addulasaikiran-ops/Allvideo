@@ -10,12 +10,15 @@ import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import { createAudioSystem } from '../audio/audio-system.js';
 import { AudioControls } from './AudioControls.jsx';
+import { createAudioSystem } from '../audio/audio-system.js';
+import { AudioControls } from './AudioControls.jsx';
 import styles from './GameShell.module.css';
 
 export function GameShell() {
   const canvasRef = useRef(null);
   const rendererRef = useRef(null);
   const [assistMode, setAssistMode] = useState(false);
+  const [audio] = useState(() => createAudioSystem());
   const [audio] = useState(() => createAudioSystem());
   const [engine] = useState(() => createGameEngine({
     onFrame: (frame) => rendererRef.current?.render(frame),
@@ -56,6 +59,7 @@ export function GameShell() {
       rendererRef.current = null;
       world.destroy();
       engine.destroy();
+      audio.destroy();
       audio.destroy();
     };
   }, [engine, audio]);
@@ -253,6 +257,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               )}
             </aside>
           )}
+          <AudioControls audio={audio} />
           <AudioControls audio={audio} />
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
