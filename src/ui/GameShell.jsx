@@ -17,7 +17,6 @@ export function GameShell() {
   const rendererRef = useRef(null);
   const [assistMode, setAssistMode] = useState(false);
   const [audio] = useState(() => createAudioSystem());
-  const [audio] = useState(() => createAudioSystem());
   const [engine] = useState(() => createGameEngine({
     onFrame: (frame) => rendererRef.current?.render(frame),
   }));
@@ -57,7 +56,6 @@ export function GameShell() {
       rendererRef.current = null;
       world.destroy();
       engine.destroy();
-      audio.destroy();
       audio.destroy();
     };
   }, [engine, audio]);
