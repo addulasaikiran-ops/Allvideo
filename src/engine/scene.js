@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createQualityScaler } from './quality.js';
+import { CHAPTER_LOOKS, createVisualPipeline } from './visual-pipeline.js';
 
 function makeMaterial(color, options = {}) {
   return new THREE.MeshStandardMaterial({ color, roughness: 0.9, ...options });
@@ -30,6 +31,10 @@ export function createWorldScene(canvas) {
   const moonlight = new THREE.DirectionalLight('#ffe0b1', 2.2);
   moonlight.position.set(-4, 10, 8);
   scene.add(moonlight);
+  const goldRim = new THREE.PointLight('#ffd49a', 1.1, 22);
+  goldRim.position.set(-7, 4, 5); scene.add(goldRim);
+  const roseRim = new THREE.PointLight('#e9a9d0', 0.85, 18);
+  roseRim.position.set(7, 3, -1); scene.add(roseRim);
 
   const stars = new THREE.Group();
   const starMaterial = new THREE.MeshBasicMaterial({ color: '#f9dfb0', transparent: true, opacity: 0.8 });
@@ -50,6 +55,26 @@ export function createWorldScene(canvas) {
     farIslands.add(island);
   }
   scene.add(farIslands);
+  const middleCanopy = new THREE.Group();
+  const canopyMaterial = new THREE.MeshToonMaterial({ color: '#3a385a' });
+  for (let i = 0; i < 18; i += 1) {
+    const canopy = new THREE.Mesh(new THREE.SphereGeometry(1.2 + (i % 4) * .28, 8, 6), canopyMaterial);
+    canopy.position.set(-24 + i * 2.9, 3.1 + (i % 3) * .55, -4.8);
+    canopy.scale.y = .8 + (i % 3) * .15;
+    middleCanopy.add(canopy);
+  }
+  scene.add(middleCanopy);
+  const nearFlowers = new THREE.Group();
+  for (let i = 0; i < 34; i += 1) {
+    const stem = new THREE.Mesh(new THREE.ConeGeometry(.045, .55 + (i % 4) * .12, 5), new THREE.MeshToonMaterial({ color: '#5e8c79' }));
+    stem.position.set(-18 + i * 1.1, -.18, 2.1);
+    stem.rotation.z = (i % 2 ? -.16 : .16);
+    nearFlowers.add(stem);
+    const bloom = new THREE.Mesh(new THREE.SphereGeometry(.11 + (i % 3) * .025, 7, 6), new THREE.MeshBasicMaterial({ color: i % 2 ? '#e9a9d0' : '#f5c78d' }));
+    bloom.position.set(stem.position.x, stem.position.y + .36, 2.12);
+    nearFlowers.add(bloom);
+  }
+  scene.add(nearFlowers);
   const foregroundGrass = new THREE.Group();
   const grassMaterial = new THREE.MeshBasicMaterial({ color: '#5e7c68', transparent: true, opacity: 0.55 });
   for (let i = 0; i < 70; i += 1) { const blade = new THREE.Mesh(new THREE.ConeGeometry(.08 + (i % 3) * .02, .65 + (i % 4) * .12, 4), grassMaterial); blade.position.set(-18 + i * .58, -.15, 2.8); blade.rotation.z = (i % 2 ? -.18 : .18); foregroundGrass.add(blade); }
@@ -270,7 +295,9 @@ export function createWorldScene(canvas) {
     }
   }
 
-  const quality = createQualityScaler();
+  const quality = createQualityScaler({ targetFps: 50 });
+  const visualPipeline = createVisualPipeline(renderer, scene, camera);
+  let manualPreset = 'auto';
   const resizeObserver = new ResizeObserver(() => {
     const { width, height } = canvas.getBoundingClientRect();
     if (width < 1 || height < 1) return;
@@ -288,11 +315,18 @@ export function createWorldScene(canvas) {
   let cameraDip = 0;
   function render({ player: playerState, deltaSeconds = 0, state } = {}) {
     syncLevel(state?.levelSnapshot, state?.levelDebug);
+    const chapterLook = CHAPTER_LOOKS[state?.chapter] ?? CHAPTER_LOOKS['chapter-01'];
     const theme = state?.levelSnapshot?.theme ?? {};
-    if (theme.background) scene.background.set(theme.background);
-    if (theme.fog) scene.fog.color.set(theme.fog);
-    if (theme.particle) ambientMeshes.forEach((particle) => particle.material.color.set(theme.particle));
-    ambientParticles.visible = Boolean(theme.particleStyle);
+    scene.background.set(theme.background ?? chapterLook.background);
+    scene.fog.color.set(theme.fog ?? chapterLook.fog);
+    scene.fog.near = chapterLook.fogNear;
+    scene.fog.far = chapterLook.fogFar;
+    moonlight.color.set(chapterLook.key);
+    goldRim.color.set('#ffd49a'); roseRim.color.set(chapterLook.rim);
+    goldRim.intensity = chapterLook.key === '#ffe0a0' ? 1.25 : 0.9;
+    roseRim.intensity = 0.65;
+    ambientMeshes.forEach((particle) => particle.material.color.set(theme.particle ?? chapterLook.particle));
+    ambientParticles.visible = true;
     if (playerState) {
       const t = performance.now() / 1000;
       player.position.x = playerState.x; player.position.y = playerState.y;
@@ -343,12 +377,16 @@ export function createWorldScene(canvas) {
       const layerSpeed = (id, fallback) => parallax.find((layer) => layer.id === id)?.speed ?? fallback;
       farIslands.position.x = camera.position.x * (1 - layerSpeed('distant-hills', .12));
       stars.position.x = camera.position.x * (1 - layerSpeed('morning-clouds', .24));
+      middleCanopy.position.x = camera.position.x * (1 - layerSpeed('mid-canopy', .46));
+      nearFlowers.position.x = camera.position.x * (1 - layerSpeed('near-flowers', .68));
       foregroundGrass.position.x = camera.position.x * (1 - layerSpeed('foreground-grass', .82));
+      nearFlowers.children.forEach((object, index) => { if (object.geometry?.type === 'ConeGeometry') object.rotation.z = Math.sin(t * .65 + index) * .08; });
       camera.lookAt(camera.position.x, (verticalWorld ? camera.position.y - 4 : 2) - cameraDip, 0);
     }
-    const level = quality.sample(deltaSeconds);
+    const automaticLevel = quality.sample(deltaSeconds);
+    const level = manualPreset === 'auto' ? automaticLevel : manualPreset;
+    visualPipeline.render(deltaSeconds, chapterLook, level, Boolean(state?.status === 'Cutscene' || state?.status === 'Ending'));
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, level === 'low' ? 0.75 : level === 'medium' ? 1 : 1.5));
-    renderer.render(scene, camera);
   }
 
   function destroy() {
@@ -361,8 +399,9 @@ export function createWorldScene(canvas) {
         materials.forEach((material) => material.dispose());
       }
     });
+    visualPipeline.dispose();
     renderer.dispose();
   }
 
-  return { render, destroy, renderer };
+  return { render, destroy, renderer, setGraphicsPreset(preset) { manualPreset = ['auto', 'low', 'medium', 'high'].includes(preset) ? preset : 'auto'; } };
 }
