@@ -76,7 +76,7 @@ export function GameShell() {
       previous = next;
     });
     const offs = [
-      engine.eventBus.on('player:jump', (event) => audio.playSfx('jump', { x: engine.store.getState().player.x, listenerX: engine.store.getState().player.x })),
+      engine.eventBus.on('player:jump', (_event) => audio.playSfx('jump', { x: engine.store.getState().player.x, listenerX: engine.store.getState().player.x })),
       engine.eventBus.on('player:land', (event) => audio.playSfx('land', { x: engine.store.getState().player.x, listenerX: engine.store.getState().player.x, surface: event.surface })),
       engine.eventBus.on('player:footstep', (event) => audio.playSfx('footstep', { x: event.x ?? 0, listenerX: engine.store.getState().player.x, surface: event.surface })),
       engine.eventBus.on('warm-light:pulse', (event) => audio.playSfx('pulse', { x: event.x ?? 0, listenerX: engine.store.getState().player.x })),
