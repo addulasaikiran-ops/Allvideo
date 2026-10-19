@@ -14,8 +14,8 @@ export const AUDIO_MANIFEST = Object.freeze({
     'chapter-08': { bpm: 70, base: '/audio/music/chapter-08-base.ogg', tension: '/audio/music/chapter-08-tension.ogg', boss: '/audio/music/chapter-08-boss.ogg', ambience: ['wind', 'chimes', 'waves'] },
   },
   effects: {
-    jump: { kind: 'synth', bus: 'sfx' }, land: { kind: 'synth', bus: 'sfx' }, collect: { kind: 'synth', bus: 'sfx' },
-    pulse: { kind: 'synth', bus: 'sfx' }, checkpoint: { kind: 'synth', bus: 'sfx' }, heartbeat: { kind: 'synth', bus: 'ambience' },
-    hover: { kind: 'synth', bus: 'ui' }, press: { kind: 'synth', bus: 'ui' }, confirm: { kind: 'synth', bus: 'ui' }, back: { kind: 'synth', bus: 'ui' },
+    jump: { kind: 'optional-file', src: '/audio/sfx/jump.ogg', bus: 'sfx' }, land: { kind: 'optional-file', src: '/audio/sfx/land.ogg', bus: 'sfx' }, collect: { kind: 'optional-file', src: '/audio/sfx/collect-heart.ogg', bus: 'sfx' },
+    pulse: { kind: 'optional-file', src: '/audio/sfx/warm-light.ogg', bus: 'sfx' }, checkpoint: { kind: 'optional-file', src: '/audio/sfx/checkpoint.ogg', bus: 'sfx' }, heartbeat: { kind: 'optional-file', src: '/audio/sfx/heartbeat.ogg', bus: 'ambience' },
+    hover: { kind: 'optional-file', src: '/audio/sfx/ui-hover.ogg', bus: 'ui' }, press: { kind: 'optional-file', src: '/audio/sfx/ui-press.ogg', bus: 'ui' }, confirm: { kind: 'optional-file', src: '/audio/sfx/ui-confirm.ogg', bus: 'ui' }, back: { kind: 'optional-file', src: '/audio/sfx/ui-back.ogg', bus: 'ui' },
   },
 });
