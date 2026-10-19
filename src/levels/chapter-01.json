@@ -301,6 +301,19 @@
       "width": 7.5,
       "height": 0.5,
       "surface": "meadow"
+    },
+    {
+      "id": "post-mist-calm",
+      "type": "rest-lantern",
+      "x": 38.5,
+      "y": 0,
+      "width": 0.8,
+      "height": 1.5,
+      "heal": 1,
+      "slowDuration": 4.5,
+      "slowScale": 0.45,
+      "interactLabel": "Rest · heal and slow time",
+      "text": "The mist is behind you. There is time to breathe before the door."
     }
   ]
 }
