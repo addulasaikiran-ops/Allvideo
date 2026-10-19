@@ -4,6 +4,7 @@ import { createWorldScene } from '../engine/scene.js';
 import { personalConfig } from '../story/personal.config.js';
 import { MemoryLane } from './MemoryLane.jsx';
 import { FearBoss } from './FearBoss.jsx';
+import { Ending } from './Ending.jsx';
 import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import styles from './GameShell.module.css';
@@ -18,8 +19,16 @@ export function GameShell() {
   const [showHelp, setShowHelp] = useState(false);
   const [memoryLane, setMemoryLane] = useState(false);
   const [fearBoss, setFearBoss] = useState(false);
+  const [ending, setEnding] = useState(false);
 
   const selectChapter = (chapter) => {
+    if (chapter === 'chapter-08') {
+      setMemoryLane(false);
+      setFearBoss(false);
+      setEnding(true);
+      return;
+    }
+    setEnding(false);
     if (chapter === 'chapter-07') {
       setMemoryLane(false);
       setFearBoss(true);
@@ -95,13 +104,16 @@ export function GameShell() {
       showHelp={showHelp}
       memoryLane={memoryLane}
       fearBoss={fearBoss}
+      ending={ending}
       onSelectChapter={selectChapter}
+      onExitEnding={() => { setEnding(false); engine.loadChapter('chapter-01'); }}
+      onNewGamePlus={() => { setEnding(false); engine.loadChapter('chapter-01'); }}
       onToggleHelp={() => setShowHelp((visible) => !visible)}
     />
   );
 }
 
-function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, onSelectChapter, onToggleHelp }) {
+function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
 
   return (
@@ -112,7 +124,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           className={styles.canvas}
           aria-label="A little more light: move with arrow keys or A and D, and jump with Space."
         />
-        {fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
+        {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
           <p className={styles.eyebrow}>{state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT'}</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
@@ -184,7 +196,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               Chapter
-              <select value={fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} onChange={(event) => onSelectChapter(event.target.value)} aria-label="Select chapter">
+              <select value={ending ? 'chapter-08' : fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} onChange={(event) => onSelectChapter(event.target.value)} aria-label="Select chapter">
                 <option value="chapter-01">1 · The Quiet Morning</option>
                 <option value="chapter-02">2 · Tangle of Worries</option>
                 <option value="chapter-03">3 · Sea of Distance</option>
@@ -192,6 +204,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
                 <option value="chapter-05">5 · Mirror of Doubt</option>
                 <option value="chapter-06">6 · Memory Lane</option>
                 <option value="chapter-07">7 · Fear — Reach</option>
+                <option value="chapter-08">8 · The Ending</option>
               </select>
             </label>
             <label className={styles.assistLabel}>
