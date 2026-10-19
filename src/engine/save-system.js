@@ -25,9 +25,10 @@ export function createSaveSystem({storage=globalThis.localStorage,key=SAVE_KEY,e
   const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;anchor.click();URL.revokeObjectURL(url);return json;
  }
  function importSave(input){const parsed=typeof input==='string'?JSON.parse(input):input;const normalized=migrateSave(parsed);storage?.setItem(key,JSON.stringify(normalized));eventBus.emit('save:written',{reason:'import',timestamp:normalized.updatedAt});return normalized;}
+ async function importSaveFile(file){if(!file||typeof file.text!=='function')throw new TypeError('Import requires a JSON save file.');return importSave(await file.text());}
  function attachAutosave({getSaveData,eventBus:source=eventBus}={}){
   if(typeof getSaveData!=='function')throw new TypeError('Autosave requires getSaveData().');
   return [source.on('checkpoint:reached',()=>save(getSaveData(),'checkpoint')),source.on('chapter:complete',()=>save(getSaveData(),'chapter-end'))].reduce((off,unsubscribe)=>()=>{off();unsubscribe();},()=>{});
  }
- return {key,eventBus,save,load,clear,exportSave,importSave,attachAutosave};
+ return {key,eventBus,save,load,clear,exportSave,importSave,importSaveFile,attachAutosave};
 }
