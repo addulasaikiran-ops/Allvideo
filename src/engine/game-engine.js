@@ -8,6 +8,7 @@ import {createStoreBridge} from './store-bridge.js';
 import {createSaveSystem} from './save-system.js';
 import {PLAYER_CONFIG,PLAYER_CONFIG_LIMITS} from './player/player.config.js';
 import {createLevelManager} from './level-manager.js';
+import {createDeathTelemetry} from './death-telemetry.js';
 import chapterOne from '../levels/chapter-01.json';
 import chapterTwo from '../levels/chapter-02.json';
 import chapterThree from '../levels/chapter-03.json';
@@ -25,6 +26,8 @@ const copyPlayer=player=>({...player});
 function interpolatePlayer(previous,current,alpha){return{...current,x:previous.x+(current.x-previous.x)*alpha,y:previous.y+(current.y-previous.y)*alpha};}
 export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?.now?.()??Date.now(),inputTarget,requestFrame,cancelFrame,storage}={}){
  const eventBus=createEventBus(),store=createStore({...initialState,player:createPlayerState()}),stateMachine=createGameStateMachine({initialState:'Title',eventBus});
+ const deathTelemetry=createDeathTelemetry({storage});
+ const deathCountsByLocation=new Map();
  const saveSystem=createSaveSystem({storage,eventBus});
  const detachAutosave=saveSystem.attachAutosave({getSaveData:()=>{const state=store.getState();return{chapter:state.chapter,checkpointId:state.player.checkpointId,hearts:state.hearts,hp:state.hp,progress:state.progress??{},settings:state.settings??{}};}});
  const input=createInput({target:inputTarget??globalThis.window,onDeviceChange:device=>{store.setState(state=>({...state,inputDevice:device}));eventBus.emit('input:device',{device});}});
@@ -40,7 +43,7 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
   for(const action of ['jump','interact','pulse','rest','victory'])if(controls[action+'Pressed'])input.consume(action);
   if(current.status==='Playing'||current.status==='Title')stepPlayer(current.player,controls,dt*levelManager.getTimeScale(),current.assistMode,current.playerTuning,current.feelTestRoom?FEEL_TEST_PLATFORMS:levelManager.getPlatforms());
   const levelEvents=levelManager.update(dt,current.player,{interactPressed:controls.interactPressed,pulsePressed:controls.pulsePressed,pulseActive:current.player.pulseTimer>0});
-  for(const event of current.player.events??[]){eventBus.emit(event.type,event);if(event.type==='player:jump'){const skill=event.kind==='double'?'double-jump':'jump';levelManager.markSkillUsed(skill);store.setState(s=>({...s,activeHint:s.activeHint?.skill===skill?null:s.activeHint}));}if(event.type==='warm-light:pulse'){levelManager.markSkillUsed('pulse');store.setState(s=>({...s,activeHint:s.activeHint?.skill==='pulse'?null:s.activeHint}));}}
+  for(const event of current.player.events??[]){eventBus.emit(event.type,event);if(event.type==='player:death-burst'){const result=deathTelemetry.record({chapter:current.chapter,x:event.x??current.player.x,y:event.y??current.player.y});const count=(deathCountsByLocation.get(result.location)??0)+1;deathCountsByLocation.set(result.location,count);if(count>=3)store.setState(s=>({...s,activeHint:{skill:'difficulty-assist',text:'Need a hand? You have had a few tries here. You can turn on Assist Mode or keep going as you are.',input:'Optional · Assist Mode is always your choice.',difficultyOffer:true,deathLocation:result.location}}));}if(event.type==='player:jump'){const skill=event.kind==='double'?'double-jump':'jump';levelManager.markSkillUsed(skill);store.setState(s=>({...s,activeHint:s.activeHint?.skill===skill?null:s.activeHint}));}if(event.type==='warm-light:pulse'){levelManager.markSkillUsed('pulse');store.setState(s=>({...s,activeHint:s.activeHint?.skill==='pulse'?null:s.activeHint}));}}
   if(Math.abs(controls.horizontal)>.05)levelManager.markSkillUsed('move');
   if(controls.interactPressed)levelManager.markSkillUsed('interact');
   const hintEvent=[...levelEvents].reverse().find(event=>event.type==='hint:show'&&!levelManager.completedHints.has(event.skill));
@@ -52,7 +55,7 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
  render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state:{...state,levelSnapshot:levelManager.getSnapshot(),fps},interpolationAlpha:alpha});}});
  function transition(next,metadata){const result=stateMachine.transition(next,metadata);if(next==='ChapterComplete')eventBus.emit('chapter:complete',{chapter:store.getState().chapter,metadata});if(['Paused','Cutscene','Title','ChapterComplete','Ending'].includes(next))loop.stop();else if(next==='Playing')loop.start();return result;}
  function loadChapter(id){const next=CHAPTERS[id];if(!next)return false;activeLevel=next;levelManager.load(next);const player=createPlayerState();player.levelManagedCheckpoints=true;player.worldStart=(next.world?.start??-8)-2;player.worldEnd=(next.world?.end??54)+1;player.x=next.world?.spawn?.x??-6;player.y=next.world?.spawn?.y??0;player.checkpointX=player.x;player.checkpointY=player.y;player.checkpointId='start';elapsedSeconds=0;publishSecond=0;store.setState(s=>({...s,chapter:id,player,playerTuning:{...s.playerTuning,worldStart:player.worldStart,worldEnd:player.worldEnd},elapsedSeconds:0,checkpointId:'start',activeHint:null,activeDialogue:null,levelSnapshot:levelManager.getSnapshot()}));stateMachine.transition('Title',{source:'chapter-select'});return true;}
- return {store,input,eventBus,stateMachine,uiBridge,loop,saveSystem,levelManager,
+ return {store,input,eventBus,stateMachine,uiBridge,loop,saveSystem,levelManager,deathTelemetry,
  start(){const state=stateMachine.getState();if(state==='Title')transition('Playing',{source:'start-button'});else if(state==='Paused')transition('Playing',{source:'resume'});else if(state==='Loading')transition('Playing',{source:'load-complete'});else if(state!=='Playing')return;loop.start();},
  stop(){loop.stop();if(stateMachine.getState()==='Playing')stateMachine.transition('Paused',{source:'stop'});},transition,
  loadChapter,
