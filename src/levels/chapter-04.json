@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter-04",
+  "title": "Tower of Deadlines",
+  "targetPlaytimeMinutes": [
+    7,
+    9
+  ],
+  "theme": {
+    "background": "#211f3b",
+    "fog": "#38334d",
+    "platform": "#665b79",
+    "accent": "#ffd49a",
+    "particle": "#f3c88b",
+    "particleStyle": "lantern-dust",
+    "ambientParticleCount": 85
+  },
+  "world": {
+    "start": -8,
+    "end": 20,
+    "vertical": true,
+    "verticalStart": -1,
+    "verticalEnd": 48,
+    "groundY": 0,
+    "spawn": {
+      "x": 0,
+      "y": 0
+    },
+    "camera": {
+      "follow": 0.12
+    }
+  },
+  "parallax": [
+    {
+      "id": "distant-hills",
+      "depth": -12,
+      "speed": 0.08,
+      "style": "tower-arches"
+    },
+    {
+      "id": "morning-clouds",
+      "depth": -9,
+      "speed": 0.14,
+      "style": "slow-clock-clouds"
+    },
+    {
+      "id": "foreground-grass",
+      "depth": 3,
+      "speed": 0.45,
+      "style": "hanging-banners"
+    }
+  ],
+  "difficultyCurve": [
+    {
+      "phase": "introduce",
+      "from": 0,
+      "to": 12,
+      "goal": "Climb broad ledges and watch one clock hand complete its slow sweep"
+    },
+    {
+      "phase": "practice",
+      "from": 12,
+      "to": 25,
+      "goal": "Cross a readable pendulum rhythm and rest at the first lantern"
+    },
+    {
+      "phase": "twist",
+      "from": 25,
+      "to": 36,
+      "goal": "Combine rotating hands, staggered ledges, and a second rest lantern"
+    },
+    {
+      "phase": "test",
+      "from": 36,
+      "to": 48,
+      "goal": "Use familiar rhythms to reach the tower's warm observatory"
+    }
+  ],
+  "entities": [
+    {
+      "id": "tower-ground",
+      "type": "static-platform",
+      "x": -5,
+      "y": -0.5,
+      "width": 11,
+      "height": 0.5,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-start-hint",
+      "type": "hint",
+      "x": -1,
+      "y": 0,
+      "width": 3,
+      "height": 2,
+      "skill": "jump",
+      "input": "Jump · then jump again",
+      "text": "The tower is tall, not urgent. Watch the hands; they keep a steady rhythm."
+    },
+    {
+      "id": "tower-ledge-1",
+      "type": "static-platform",
+      "x": 2,
+      "y": 2.6,
+      "width": 4,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-hand-1",
+      "type": "clock-hand",
+      "x": 6.5,
+      "y": 3.1,
+      "width": 3.4,
+      "height": 0.24,
+      "period": 4.8,
+      "phase": 0,
+      "amplitude": 1.05,
+      "safeWindow": 1.4,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-2",
+      "type": "static-platform",
+      "x": 6,
+      "y": 5.8,
+      "width": 3.8,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-pendulum-1",
+      "type": "pendulum",
+      "x": 10.5,
+      "y": 8.2,
+      "width": 1.2,
+      "height": 2.8,
+      "period": 4.2,
+      "phase": 1.1,
+      "amplitude": 0.75,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-3",
+      "type": "static-platform",
+      "x": 8,
+      "y": 9.2,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-checkpoint-a",
+      "type": "checkpoint",
+      "x": 9.2,
+      "y": 9.55,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "rest-lantern-a",
+      "type": "rest-lantern",
+      "x": 11.1,
+      "y": 9.55,
+      "width": 0.8,
+      "height": 1.5,
+      "heal": 1,
+      "slowDuration": 4.5,
+      "slowScale": 0.45,
+      "interactLabel": "Rest · heal and slow time",
+      "text": "Rest is progress. Take a breath; the tower can wait."
+    },
+    {
+      "id": "tower-ledge-4",
+      "type": "static-platform",
+      "x": 3,
+      "y": 12.2,
+      "width": 4,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-hand-2",
+      "type": "clock-hand",
+      "x": 1.1,
+      "y": 14.1,
+      "width": 3.5,
+      "height": 0.22,
+      "period": 5.4,
+      "phase": 1.4,
+      "amplitude": 1.1,
+      "safeWindow": 1.6,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-5",
+      "type": "static-platform",
+      "x": -1,
+      "y": 15.7,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-pendulum-2",
+      "type": "pendulum",
+      "x": 4.5,
+      "y": 18.3,
+      "width": 1.1,
+      "height": 2.7,
+      "period": 4.8,
+      "phase": 2,
+      "amplitude": 0.8,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-6",
+      "type": "static-platform",
+      "x": 6,
+      "y": 18.1,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-checkpoint-b",
+      "type": "checkpoint",
+      "x": 8,
+      "y": 18.45,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "rest-lantern-b",
+      "type": "rest-lantern",
+      "x": 9.3,
+      "y": 18.45,
+      "width": 0.8,
+      "height": 1.5,
+      "heal": 1,
+      "slowDuration": 4.5,
+      "slowScale": 0.45,
+      "interactLabel": "Rest · heal and slow time",
+      "text": "You do not have to hurry to be making progress."
+    },
+    {
+      "id": "tower-ledge-7",
+      "type": "static-platform",
+      "x": 10,
+      "y": 21.2,
+      "width": 4,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-hand-3",
+      "type": "clock-hand",
+      "x": 14.2,
+      "y": 23.1,
+      "width": 3.8,
+      "height": 0.22,
+      "period": 5.1,
+      "phase": 0.4,
+      "amplitude": 1.05,
+      "safeWindow": 1.5,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-8",
+      "type": "static-platform",
+      "x": 12,
+      "y": 24.8,
+      "width": 4.5,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-ledge-9",
+      "type": "static-platform",
+      "x": 6,
+      "y": 27.7,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-pendulum-3",
+      "type": "pendulum",
+      "x": 3.8,
+      "y": 30.2,
+      "width": 1.1,
+      "height": 2.7,
+      "period": 5,
+      "phase": 2.4,
+      "amplitude": 0.7,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-10",
+      "type": "static-platform",
+      "x": 0,
+      "y": 30.5,
+      "width": 4.5,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-checkpoint-c",
+      "type": "checkpoint",
+      "x": 1,
+      "y": 30.85,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "tower-ledge-11",
+      "type": "static-platform",
+      "x": -2,
+      "y": 33.4,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-hand-4",
+      "type": "clock-hand",
+      "x": 2.8,
+      "y": 35.2,
+      "width": 3.5,
+      "height": 0.22,
+      "period": 5.6,
+      "phase": 2.1,
+      "amplitude": 0.9,
+      "safeWindow": 1.7,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-12",
+      "type": "static-platform",
+      "x": 5,
+      "y": 36.3,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-ledge-13",
+      "type": "static-platform",
+      "x": 9,
+      "y": 39.1,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tower-pendulum-4",
+      "type": "pendulum",
+      "x": 14,
+      "y": 41.4,
+      "width": 1.1,
+      "height": 2.6,
+      "period": 5.2,
+      "phase": 1.7,
+      "amplitude": 0.7,
+      "contactSafe": true
+    },
+    {
+      "id": "tower-ledge-14",
+      "type": "static-platform",
+      "x": 12,
+      "y": 42.1,
+      "width": 4.5,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "tower-rest-final",
+      "type": "rest-lantern",
+      "x": 14,
+      "y": 42.45,
+      "width": 0.8,
+      "height": 1.5,
+      "heal": 1,
+      "slowDuration": 4.5,
+      "slowScale": 0.45,
+      "interactLabel": "Rest · heal and slow time",
+      "text": "A pause is part of the climb."
+    },
+    {
+      "id": "tower-exit-ledge",
+      "type": "static-platform",
+      "x": 6,
+      "y": 45,
+      "width": 7,
+      "height": 0.4,
+      "surface": "crystal"
+    },
+    {
+      "id": "tower-exit",
+      "type": "cutscene-trigger",
+      "x": 10,
+      "y": 45.4,
+      "width": 1,
+      "height": 2,
+      "cutscene": "chapter-four-ending"
+    }
+  ]
+}
