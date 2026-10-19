@@ -6,62 +6,42 @@ import {createGameStateMachine} from './game-state.js';
 import {createEventBus} from './event-bus.js';
 import {createStoreBridge} from './store-bridge.js';
 import {createSaveSystem} from './save-system.js';
-
-const initialState={status:'Title',elapsedSeconds:0,checkpointId:'start',chapter:'chapter-01',hearts:3,hp:3,assistMode:false,inputDevice:'keyboard',player:createPlayerState()};
+import {PLAYER_CONFIG,PLAYER_CONFIG_LIMITS} from './player/player.config.js';
+const initialState={status:'Title',elapsedSeconds:0,checkpointId:'start',chapter:'chapter-01',hearts:3,hp:3,assistMode:false,inputDevice:'keyboard',player:createPlayerState(),playerTuning:{...PLAYER_CONFIG},playerDebug:false,feelTestRoom:false};
 const copyPlayer=player=>({...player});
 function interpolatePlayer(previous,current,alpha){return{...current,x:previous.x+(current.x-previous.x)*alpha,y:previous.y+(current.y-previous.y)*alpha};}
-
-/** Owns simulation lifecycle. Fixed 60Hz updates; rendering receives interpolated player state. */
+export const FEEL_TEST_PLATFORMS=[
+ {x:22,y:.55,width:2.2,surface:'stone'},{x:26,y:.85,width:1.8,surface:'moss'},{x:30.8,y:.65,width:1.7,surface:'wood'},
+ {x:36,y:1.6,width:2,surface:'crystal'},{x:42.2,y:1.1,width:1.8,surface:'stone'},{x:47.5,y:2.1,width:2.1,surface:'moss'},{x:52,y:.6,width:2.4,surface:'wood'}
+];
 export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?.now?.()??Date.now(),inputTarget,requestFrame,cancelFrame,storage}={}){
  const eventBus=createEventBus(),store=createStore({...initialState,player:createPlayerState()}),stateMachine=createGameStateMachine({initialState:'Title',eventBus});
  const saveSystem=createSaveSystem({storage,eventBus});
- const detachAutosave=saveSystem.attachAutosave({getSaveData:()=>{
-  const state=store.getState();return{chapter:state.chapter,checkpointId:state.player.checkpointId,hearts:state.hearts,hp:state.hp,progress:state.progress??{},settings:state.settings??{}};
- }});
- const input=createInput({target:inputTarget??globalThis.window,onDeviceChange:device=>{
-  store.setState(state=>({...state,inputDevice:device}));eventBus.emit('input:device',{device});
- }});
+ const detachAutosave=saveSystem.attachAutosave({getSaveData:()=>{const state=store.getState();return{chapter:state.chapter,checkpointId:state.player.checkpointId,hearts:state.hearts,hp:state.hp,progress:state.progress??{},settings:state.settings??{}};}});
+ const input=createInput({target:inputTarget??globalThis.window,onDeviceChange:device=>{store.setState(state=>({...state,inputDevice:device}));eventBus.emit('input:device',{device});}});
  const uiBridge=createStoreBridge({store,eventBus,input});
  let elapsedSeconds=0,publishSecond=0,previousPlayer=copyPlayer(store.getState().player);
  stateMachine.subscribe(({current})=>store.setState(state=>({...state,status:current})));
- const loop=createGameLoop({
-  now,...(requestFrame?{requestFrame}:{}),...(cancelFrame?{cancelFrame}:{}),
-  update(dt){
-   input.advance(dt);const current=store.getState();previousPlayer=copyPlayer(current.player);const previousCheckpoint=current.player.checkpointId;const controls=input.read();
-   if(controls.pausePressed&&current.status==='Playing'){input.consume('pause');stateMachine.transition('Paused');loop.stop();return;}
-   if(controls.jumpPressed)input.consume('jump');if(controls.interactPressed)input.consume('interact');
-   stepPlayer(current.player,controls,dt,current.assistMode);
-   if(current.player.checkpointId!==previousCheckpoint)eventBus.emit('checkpoint:reached',{checkpointId:current.player.checkpointId,chapter:current.chapter});
-   elapsedSeconds+=dt;
-   if(Math.floor(elapsedSeconds)>publishSecond){publishSecond=Math.floor(elapsedSeconds);store.setState(state=>({...state,elapsedSeconds:publishSecond,checkpointId:state.player.checkpointId}));}
-  },
-  render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state,interpolationAlpha:alpha});},
- });
- function transition(next,metadata){
-  const result=stateMachine.transition(next,metadata);
-  if(next==='ChapterComplete')eventBus.emit('chapter:complete',{chapter:store.getState().chapter,metadata});
-  if(['Paused','Cutscene','Title','ChapterComplete','Ending'].includes(next))loop.stop();
-  else if(next==='Playing')loop.start();
-  return result;
- }
- return {
-  store,input,eventBus,stateMachine,uiBridge,loop,saveSystem,
-  start(){
-   const state=stateMachine.getState();
-   if(state==='Title')transition('Playing',{source:'start-button'});
-   else if(state==='Paused')transition('Playing',{source:'resume'});
-   else if(state==='Loading')transition('Playing',{source:'load-complete'});
-   else if(state!=='Playing')return;
-   loop.start();
-  },
-  stop(){loop.stop();if(stateMachine.getState()==='Playing')stateMachine.transition('Paused',{source:'stop'});},
-  transition,
-  resetToCheckpoint(){
-   const player=store.getState().player;player.x=player.checkpointX;player.y=0;player.velocityY=0;player.grounded=true;player.respawnFlash=.45;
-   if(stateMachine.getState()==='Paused')transition('Playing',{source:'checkpoint-reset'});
-   store.setState(state=>({...state,checkpointId:player.checkpointId}));
-  },
-  setAssistMode(enabled){store.setState(state=>({...state,assistMode:Boolean(enabled)}));},
-  destroy(){loop.stop();input.destroy();uiBridge.dispose();detachAutosave();eventBus.clear();},
+ const loop=createGameLoop({now,...(requestFrame?{requestFrame}:{}),...(cancelFrame?{cancelFrame}:{}),
+ update(dt){input.advance(dt);const current=store.getState();previousPlayer=copyPlayer(current.player);const previousCheckpoint=current.player.checkpointId;const controls=input.read();
+  if(controls.pausePressed&&current.status==='Playing'){input.consume('pause');stateMachine.transition('Paused');loop.stop();return;}
+  for(const action of ['jump','interact','pulse','rest','victory'])if(controls[action+'Pressed'])input.consume(action);
+  if(current.status==='Playing'||current.status==='Title')stepPlayer(current.player,controls,dt,current.assistMode,current.playerTuning,current.feelTestRoom?FEEL_TEST_PLATFORMS:[]);
+  for(const event of current.player.events??[])eventBus.emit(event.type,event);
+  if(current.player.checkpointId!==previousCheckpoint)eventBus.emit('checkpoint:reached',{checkpointId:current.player.checkpointId,chapter:current.chapter});
+  elapsedSeconds+=dt;if(Math.floor(elapsedSeconds)>publishSecond){publishSecond=Math.floor(elapsedSeconds);store.setState(state=>({...state,elapsedSeconds:publishSecond,checkpointId:state.player.checkpointId}));}
+ },
+ render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state,interpolationAlpha:alpha});}});
+ function transition(next,metadata){const result=stateMachine.transition(next,metadata);if(next==='ChapterComplete')eventBus.emit('chapter:complete',{chapter:store.getState().chapter,metadata});if(['Paused','Cutscene','Title','ChapterComplete','Ending'].includes(next))loop.stop();else if(next==='Playing')loop.start();return result;}
+ return {store,input,eventBus,stateMachine,uiBridge,loop,saveSystem,
+ start(){const state=stateMachine.getState();if(state==='Title')transition('Playing',{source:'start-button'});else if(state==='Paused')transition('Playing',{source:'resume'});else if(state==='Loading')transition('Playing',{source:'load-complete'});else if(state!=='Playing')return;loop.start();},
+ stop(){loop.stop();if(stateMachine.getState()==='Playing')stateMachine.transition('Paused',{source:'stop'});},transition,
+ resetToCheckpoint(){const p=store.getState().player;p.x=p.checkpointX;p.y=p.checkpointY??0;p.velocityY=0;p.velocityX=0;p.grounded=true;p.deathTimer=0;p.respawnFlash=.45;if(stateMachine.getState()==='Paused')transition('Playing',{source:'checkpoint-reset'});store.setState(s=>({...s,checkpointId:p.checkpointId}));},
+ setAssistMode(enabled){store.setState(s=>({...s,assistMode:Boolean(enabled)}));},
+ setPlayerDebug(enabled){store.setState(s=>({...s,playerDebug:Boolean(enabled)}));},togglePlayerDebug(){store.setState(s=>({...s,playerDebug:!s.playerDebug}));},
+ setFeelTestRoom(enabled){const active=Boolean(enabled);store.setState(s=>({...s,feelTestRoom:active}));if(active){const p=store.getState().player;p.x=20;p.y=0;p.checkpointX=20;p.checkpointY=0;p.checkpointId='feel-test';p.velocityX=0;p.velocityY=0;p.grounded=true;}},
+ setPlayerTuning(key,value){if(!(key in PLAYER_CONFIG_LIMITS))return;const range=PLAYER_CONFIG_LIMITS[key];store.setState(s=>({...s,playerTuning:{...s.playerTuning,[key]:Math.max(range[0],Math.min(range[1],Number(value)))}}));},
+ resetPlayerTuning(){store.setState(s=>({...s,playerTuning:{...PLAYER_CONFIG}}));},
+ destroy(){loop.stop();input.destroy();uiBridge.dispose();detachAutosave();eventBus.clear();}
  };
 }
