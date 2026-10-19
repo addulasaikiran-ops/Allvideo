@@ -23,12 +23,11 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
  let elapsedSeconds=0,publishSecond=0,previousPlayer=copyPlayer(store.getState().player);
  stateMachine.subscribe(({current})=>store.setState(state=>({...state,status:current})));
  const loop=createGameLoop({now,...(requestFrame?{requestFrame}:{}),...(cancelFrame?{cancelFrame}:{}),
- update(dt){input.advance(dt);const current=store.getState();previousPlayer=copyPlayer(current.player);const previousCheckpoint=current.player.checkpointId;const controls=input.read();
+ update(dt){input.advance(dt);const current=store.getState();previousPlayer=copyPlayer(current.player);const controls=input.read();
   if(controls.pausePressed&&current.status==='Playing'){input.consume('pause');stateMachine.transition('Paused');loop.stop();return;}
   for(const action of ['jump','interact','pulse','rest','victory'])if(controls[action+'Pressed'])input.consume(action);
   if(current.status==='Playing'||current.status==='Title')stepPlayer(current.player,controls,dt,current.assistMode,current.playerTuning,current.feelTestRoom?FEEL_TEST_PLATFORMS:[]);
   for(const event of current.player.events??[])eventBus.emit(event.type,event);
-  if(current.player.checkpointId!==previousCheckpoint)eventBus.emit('checkpoint:reached',{checkpointId:current.player.checkpointId,chapter:current.chapter});
   elapsedSeconds+=dt;if(Math.floor(elapsedSeconds)>publishSecond){publishSecond=Math.floor(elapsedSeconds);store.setState(state=>({...state,elapsedSeconds:publishSecond,checkpointId:state.player.checkpointId}));}
  },
  render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state,interpolationAlpha:alpha});}});
