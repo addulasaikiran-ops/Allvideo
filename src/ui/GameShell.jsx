@@ -58,11 +58,11 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
           <p className={styles.status} role="status">
-            {state.status === 'playing' ? 'You are not alone.' : 'A gentle journey is waiting.'}
+            {state.status === 'Playing' ? 'You are not alone.' : 'A gentle journey is waiting.'}
             {' '}Checkpoint: {state.checkpointId}
           </p>
           <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
-            {state.status === 'playing' ? 'Journey started' : 'Begin gently'}
+            {state.status === 'Playing' ? 'Journey started' : 'Begin gently'}
           </button>
           <div className={styles.controlRow} aria-label="Touch movement controls">
             <button
