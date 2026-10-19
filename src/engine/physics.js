@@ -4,7 +4,7 @@ export function createPlayerState(){return{x:-6,y:0,velocityX:0,velocityY:0,grou
  coyoteTimer:PLAYER_CONFIG.coyoteTime,jumpBuffer:0,jumpHoldTimer:0,jumpsUsed:0,animationState:'idle',animationTime:0,squash:1,stretch:1,pulseTimer:0,pulseCooldown:0,pulseRadius:0,landDip:0,landingTimer:0,footstepTimer:0,heartsCollected:0,trailScale:PLAYER_CONFIG.trailBaseScale,deathTimer:0,hurtTimer:0,restTimer:0,victory:false,events:[]};}
 const approach=(v,t,a)=>v<t?Math.min(v+a,t):Math.max(v-a,t),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const emit=(p,type,detail={})=>p.events.push({type,...detail});
-export function stepPlayer(p,input,deltaSeconds,assistMode=false,config=PLAYER_CONFIG,platforms=[]){
+export function stepPlayer(p,input,deltaSeconds,assistMode=false,config=PLAYER_CONFIG,platforms=[],assistSettings={}){
  const dt=Math.min(Math.max(deltaSeconds,0),1/30);p.events=[];p.animationTime+=dt;
  p.pulseCooldown=Math.max(0,p.pulseCooldown-dt);p.pulseTimer=Math.max(0,p.pulseTimer-dt);p.pulseRadius=p.pulseTimer>0?config.pulseRadius*(1-p.pulseTimer/config.pulseDuration):0;
  p.landDipTimer=Math.max(0,(p.landDipTimer??0)-dt);p.landDip=(p.landDipTimer/config.cameraLandDipDuration)*config.cameraLandDip;p.landingTimer=Math.max(0,p.landingTimer-dt);p.hurtTimer=Math.max(0,p.hurtTimer-dt);p.respawnFlash=Math.max(0,p.respawnFlash-dt);
@@ -34,7 +34,7 @@ export function stepPlayer(p,input,deltaSeconds,assistMode=false,config=PLAYER_C
   if(p.velocityY<=0)for(const plat of platforms){const left=plat.x-plat.width/2,right=plat.x+plat.width/2;if(p.x>=left&&p.x<=right&&previousY>=plat.y&&p.y<=plat.y&&previousY-plat.y<config.platformSnapTolerance+Math.abs(p.velocityY)*dt){if(!landed||plat.y>landed.y)landed={surface:plat.surface??'stone',y:plat.y};}}
   if(landed){p.y=landed.y;p.velocityY=0;p.grounded=true;p.jumpsUsed=0;p.landingTimer=.18;p.squash=1-config.landingSquash;p.stretch=1+config.landingSquash*.35;p.landDip=config.cameraLandDip;p.landDipTimer=config.cameraLandDipDuration;p.footstepTimer=0;p.animationState='land';emit(p,'player:land',{surface:landed.surface,soft:Math.abs(previousY-p.y)<=config.softLandingSpeed*dt+.15});emit(p,'effects:dust',{count:config.dustCount,surface:landed.surface});}
  } else if(wasGrounded&&Math.abs(p.velocityX)>.1){p.footstepTimer-=dt;if(p.footstepTimer<=0){const surf=platforms.find(a=>p.x>=a.x-a.width/2&&p.x<=a.x+a.width/2)?.surface??'meadow';emit(p,'player:footstep',{surface:surf,x:p.x});p.footstepTimer=config.footstepInterval;}}
- if(p.y<config.deathY){p.deathTimer=Math.min(config.respawnDuration,.95);p.animationState='hurt';p.respawnFlash=config.respawnBurstDuration;p.velocityX=0;p.velocityY=0;p.grounded=false;emit(p,'player:death-burst',{x:p.x,y:p.y});}
+ if(p.y<config.deathY&&!assistSettings.invulnerability){p.deathTimer=Math.min(config.respawnDuration,.95);p.animationState='hurt';p.respawnFlash=config.respawnBurstDuration;p.velocityX=0;p.velocityY=0;p.grounded=false;emit(p,'player:death-burst',{x:p.x,y:p.y});}
  if(!p.levelManagedCheckpoints&&p.checkpointId==='start'&&p.x>=2){p.checkpointId='meadow';p.checkpointX=2;p.checkpointY=config.groundY;emit(p,'checkpoint:reached',{checkpointId:'meadow'});}
  if(!p.levelManagedCheckpoints&&p.checkpointId!=='lantern-bridge'&&p.x>=12){p.checkpointId='lantern-bridge';p.checkpointX=12;p.checkpointY=config.groundY;emit(p,'checkpoint:reached',{checkpointId:'lantern-bridge'});}
  p.trailScale=Math.min(config.maxTrailScale,config.trailBaseScale+Math.min(p.heartsCollected,config.heartCountForTrail)*config.trailPerHeart);
