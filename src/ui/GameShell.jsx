@@ -32,6 +32,32 @@ export function GameShell() {
   }, [assistMode, engine]);
 
   useEffect(() => {
+    const unsubscribe = engine.eventBus.on('puzzle:hint', () => {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        const audio = new AudioContextClass();
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(660, audio.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, audio.currentTime + 0.16);
+        gain.gain.setValueAtTime(0.0001, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.06, audio.currentTime + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.28);
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+        oscillator.start();
+        oscillator.stop(audio.currentTime + 0.3);
+        oscillator.onended = () => audio.close();
+      } catch {
+        // The visual strand cue remains available if audio is unavailable or blocked.
+      }
+    });
+    return unsubscribe;
+  }, [engine]);
+
+  useEffect(() => {
     const onKeyDown = (event) => {
       if (event.code === 'F2') { event.preventDefault(); engine.togglePlayerDebug(); }
       if (event.code === 'F3') { event.preventDefault(); engine.toggleLevelDebug(); }
