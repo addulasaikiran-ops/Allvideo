@@ -207,7 +207,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
 
   return (
     <main className={styles.shell}>
-      <section className={styles.stage + (shakeKey ? " " + styles.gameShake : "")} aria-label="Game stage" data-juice={juice}>
+      <section className={styles.stage + (shakeKey ? " " + (shakeKey % 2 ? styles.gameShake : styles.gameShakeAlt) : "")} aria-label="Game stage" data-juice={juice}>
         <canvas
           ref={canvasRef}
           className={styles.canvas}
