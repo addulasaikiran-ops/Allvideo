@@ -30,12 +30,11 @@ export function KeepsakeFeatures({ engine, hearts, chapter, onPhotoMode, photoMo
     { id: 'memory-keeper', title: 'Keeper of Fragments', detail: 'Find all memory fragments.', done: fragments.length >= (personalConfig.collectibles?.memoryFragmentsRequired || 8), icon: '◇' },
   ], [hearts, chapter, fragments.length]);
   useEffect(() => {
-    const today = new Date().toDateString();
     const current = readSave();
-    if (current.lastOpen !== today && letters.length) {
+    if (letters.length) {
       const index = Number.isInteger(current.letterIndex) ? (current.letterIndex + 1) % letters.length : 0;
       current.letterIndex = index;
-      current.lastOpen = today;
+      current.lastOpen = new Date().toISOString();
       writeSave(current);
       setSave(current);
       setLetter(letters[index]);
