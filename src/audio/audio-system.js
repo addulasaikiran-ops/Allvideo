@@ -140,7 +140,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     if (!settings[name]) return;
     settings[name].level = clamp(level);
     const gain = name === 'master' ? master : buses[name];
-    if (gain && context) setGain(gain, settings[name].muted ? 0 : settings[name].level, context.currentTime, 0.06);
+    if (gain && context) setGain(gain, settings[name].muted ? 0 : settings[name].level * (name === 'music' && dialogueActive ? 0.42 : 1), context.currentTime, 0.06);
   }
   function setBusMuted(name, muted) {
     if (!settings[name]) return;
@@ -155,7 +155,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
   }
   function setDialogue(active) {
     dialogueActive = Boolean(active);
-    if (buses.music && context) setGain(buses.music, dialogueActive ? 0.42 : 1, context.currentTime, dialogueActive ? 0.12 : 0.55);
+    if (buses.music && context) setGain(buses.music, (settings.music.muted ? 0 : settings.music.level) * (dialogueActive ? 0.42 : 1), context.currentTime, dialogueActive ? 0.12 : 0.55);
   }
   function playUI(kind = 'press') {
     const presets = {
