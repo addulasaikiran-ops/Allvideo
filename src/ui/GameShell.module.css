@@ -74,6 +74,56 @@
   text-shadow: 0 1px 12px #171526;
 }
 
+/* Keep the first visit calm: one clear action, a short guide, and optional help. */
+.welcomeOverlay {
+  gap: clamp(0.55rem, 1.5vh, 0.9rem);
+  padding-block: clamp(1.5rem, 5vh, 3.5rem);
+}
+
+.welcomeOverlay .message {
+  max-width: 32rem;
+}
+
+.welcomeHint {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.welcomeControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.55rem;
+  max-width: 38rem;
+  margin: 0.2rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.welcomeControls strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.welcomeActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.welcomeOverlay > .primaryButton {
+  min-width: min(15rem, 100%);
+  min-height: 3.2rem;
+  font-size: 1.05rem;
+}
+
+
 .status {
   margin: 0;
   color: var(--color-muted);
