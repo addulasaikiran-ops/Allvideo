@@ -258,7 +258,6 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             </aside>
           )}
           <AudioControls audio={audio} />
-          <AudioControls audio={audio} />
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               Chapter
