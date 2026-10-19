@@ -32,10 +32,9 @@ The authored level data contains these target ranges:
 
 ## Emotional pacing
 
-- Keep the existing rest-lantern / calm interaction as a low-pressure recovery beat.
-- Place a quiet, low-demand space immediately after each intense hazard or boss section, before introducing the next challenge.
-- Use a short reflection, safe traversal, or optional interaction rather than another timed obstacle.
-- **Verification status:** calm beats are a design requirement for level review; this pass did not rearrange every chapter's authored content or validate all transitions in a full playthrough.
+- Added optional rest-lantern recovery beats near the end of chapters 1, 2, 3, and 5; chapter 4 already has three rest-lanterns, including one near the top of the tower.
+- These are low-demand interactions with a gentle text cue, optional healing, and a short slow-time effect rather than another timed obstacle.
+- **Verification status:** chapter-end calm beats are present in the five platform levels. A full playthrough review is still needed to ensure a calm beat follows *every* intense section, especially the bespoke story chapters 6–8.
 
 ## Suggested before / after playtest checklist
 
