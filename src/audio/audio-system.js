@@ -195,7 +195,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     tone({ ...(presets[kind] ?? presets.press), bus: 'ui' });
   }
   function playSfx(kind, { x = 0, listenerX = 0, surface = 'stone' } = {}) {
-    if (['jump', 'land', 'collect', 'pulse', 'checkpoint', 'heartbeat'].includes(kind) && playAsset(kind, { x, listenerX })) return;
+    if (['jump', 'land', 'footstep', 'collect', 'pulse', 'checkpoint', 'heartbeat'].includes(kind) && playAsset(kind, { x, listenerX })) return;
     const distance = Math.abs(Number(x) - Number(listenerX)), falloff = 1 / (1 + distance * distance * 0.035);
     const pan = clamp((Number(x) - Number(listenerX)) / 12, -1, 1);
     if (kind === 'jump') tone({ frequency: 320, endFrequency: 510, duration: 0.14, volume: 0.12 * falloff, pan });

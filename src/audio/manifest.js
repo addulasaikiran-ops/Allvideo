@@ -14,8 +14,9 @@ export const AUDIO_MANIFEST = Object.freeze({
     'chapter-08': { bpm: 70, base: '/audio/music/chapter-08-base.ogg', tension: '/audio/music/chapter-08-tension.ogg', boss: '/audio/music/chapter-08-boss.ogg', ambience: ['wind', 'chimes', 'waves'] },
   },
   effects: {
-    jump: { kind: 'optional-file', src: '/audio/sfx/jump.ogg', bus: 'sfx' }, land: { kind: 'optional-file', src: '/audio/sfx/land.ogg', bus: 'sfx' }, collect: { kind: 'optional-file', src: '/audio/sfx/collect-heart.ogg', bus: 'sfx' },
+    jump: { kind: 'optional-file', src: '/audio/sfx/jump.ogg', bus: 'sfx' }, land: { kind: 'optional-file', src: '/audio/sfx/kenney-footstep-0.ogg', bus: 'sfx' }, collect: { kind: 'optional-file', src: '/audio/sfx/kenney-handle-coins.ogg', bus: 'sfx' },
     pulse: { kind: 'optional-file', src: '/audio/sfx/warm-light.ogg', bus: 'sfx' }, checkpoint: { kind: 'optional-file', src: '/audio/sfx/checkpoint.ogg', bus: 'sfx' }, heartbeat: { kind: 'optional-file', src: '/audio/sfx/heartbeat.ogg', bus: 'ambience' },
-    hover: { kind: 'optional-file', src: '/audio/sfx/ui-hover.ogg', bus: 'ui' }, press: { kind: 'optional-file', src: '/audio/sfx/ui-press.ogg', bus: 'ui' }, confirm: { kind: 'optional-file', src: '/audio/sfx/ui-confirm.ogg', bus: 'ui' }, back: { kind: 'optional-file', src: '/audio/sfx/ui-back.ogg', bus: 'ui' },
+    hover: { kind: 'optional-file', src: '/audio/sfx/kenney-book-flip-1.ogg', bus: 'ui' }, press: { kind: 'optional-file', src: '/audio/sfx/kenney-book-close.ogg', bus: 'ui' }, confirm: { kind: 'optional-file', src: '/audio/sfx/kenney-book-open.ogg', bus: 'ui' }, back: { kind: 'optional-file', src: '/audio/sfx/kenney-door-close-1.ogg', bus: 'ui' },
+    footstep: { kind: 'optional-file', src: '/audio/sfx/kenney-footstep-1.ogg', bus: 'sfx' },
   },
 });

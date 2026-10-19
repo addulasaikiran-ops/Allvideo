@@ -25,7 +25,7 @@ These Kenney packs explicitly list Creative Commons CC0 on their official asset 
 - **Impact Sounds (130 files)** — impacts and short foley: https://kenney.nl/assets/impact-sounds
 - Kenney license FAQ: https://kenney.nl/support
 
-Use the UI Audio pack for press/confirm/back candidates and audition the Interface Sounds pack for hover alternatives. Use RPG Audio for footstep/landing candidates, then map clips to moss/wood/stone/crystal by listening rather than assuming the filename matches the surface. The current game still synthesizes its own effects until reviewed clips are copied into `public/audio/sfx/` and mapped in `src/audio/manifest.js`.
+Use the UI Audio pack for press/confirm/back candidates and audition the Interface Sounds pack for hover alternatives. Use RPG Audio for footstep/landing candidates, then map clips to moss/wood/stone/crystal by listening rather than assuming the filename matches the surface. The initial reviewed subset is now bundled under `public/audio/sfx/` and mapped in `src/audio/manifest.js`: two footstep clips, coin handling for collection, book open/close/flip for UI cues, and a door close for back. Remaining jump, land variations by surface, warm-light pulse, checkpoint, and heartbeat cues retain synthesized fallbacks until matching clips are reviewed.
 
 ## Other source options
 
@@ -47,8 +47,8 @@ Use the UI Audio pack for press/confirm/back candidates and audition the Interfa
 - [ ] Music candidate downloaded and license certificate saved
 - [ ] Adaptive stems licensed/commissioned and synchronized
 - [ ] Kenney UI Audio pack downloaded and reviewed
-- [ ] Kenney RPG Audio pack downloaded and reviewed
-- [ ] Selected effects copied to `public/audio/sfx/` and mapped in manifest
+- [x] Selected Kenney RPG Audio clips reviewed and bundled in `public/audio/sfx/`
+- [x] Bundled clips mapped in `src/audio/manifest.js`
 - [ ] Browser/mobile playback and production licensing checked
 
-**No third-party audio binaries have been added by this source-register change.** The manifest paths remain local placeholders until the actual downloaded assets and their license evidence are supplied and verified.
+**Bundled SFX provenance:** the selected OGG payloads are unmodified Kenney RPG Audio files, retrieved from a public GitHub mirror of the pack; the official Kenney page identifies the pack as CC0. See `public/audio/sfx/KENNEY-RPG-AUDIO-LICENSE.md`. Music binaries and synchronized adaptive stems are still not bundled; chapter music paths remain placeholders.
