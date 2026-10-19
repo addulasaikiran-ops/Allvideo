@@ -51,9 +51,9 @@
     {
       "id": "move-hint",
       "type": "hint",
-      "x": -5.2,
+      "x": -7.5,
       "y": 0.1,
-      "width": 2,
+      "width": 3.2,
       "height": 1.8,
       "skill": "move",
       "input": "A / D or ← / →",
@@ -135,6 +135,15 @@
       "height": 1.9
     },
     {
+      "id": "mist-approach",
+      "type": "static-platform",
+      "x": 19.4,
+      "y": -0.5,
+      "width": 5.4,
+      "height": 0.5,
+      "surface": "meadow"
+    },
+    {
       "id": "pulse-hint",
       "type": "hint",
       "x": 21.3,
@@ -142,7 +151,7 @@
       "width": 2.2,
       "height": 1.9,
       "skill": "pulse",
-      "input": "Shift / E",
+      "input": "Shift",
       "text": "Dark mist curls around a memory. Let the lantern breathe."
     },
     {
@@ -283,6 +292,15 @@
       "enemy": "sleepy-moth",
       "interval": 12,
       "active": false
+    },
+    {
+      "id": "walkway-end",
+      "type": "static-platform",
+      "x": 36.3,
+      "y": -0.5,
+      "width": 7.5,
+      "height": 0.5,
+      "surface": "meadow"
     }
   ]
 }
