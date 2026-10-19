@@ -26,7 +26,7 @@ export default function MemoryGallery({ onClose }) {
   const [playbackState, setPlaybackState] = useState(null);
   const memories = personalConfig.memoryScenes ?? [];
   const item = memories[index];
-  const discoveries = new Set([...visited, ...foundFragments]).size;
+  const discoveries = new Set([...visited, ...foundFragments, ...exploredChapters]).size;
   const currentCutscene = playback ? cutscenes.find((entry) => entry.id === playback) : null;
   const remember = (memoryId) => setVisited((all) => all.includes(memoryId) ? all : [...all, memoryId]);
   const startCutscene = (cutscene, replay = false) => {
@@ -43,7 +43,7 @@ export default function MemoryGallery({ onClose }) {
   const [playbackController, setPlaybackController] = useState(null);
   const [dialogueRuntime] = useState(() => createDialogueRuntime());
   const [storyChapter, setStoryChapter] = useState(chapters[0].id);
-  const [dialogue, setDialogue] = useState(null);
+  const [dialogue, setDialogue] = useState(null);\n  const [exploredChapters, setExploredChapters] = useState([]);\n  const showDialogue = (result) => {\n    setDialogue(result);\n    const fragmentId = result?.activeLine?.fragmentId || result?.fragmentId;\n    if (fragmentId) setFoundFragments((all) => all.includes(fragmentId) ? all : [...all, fragmentId]);\n    return result;\n  };
   const revealFragment = (fragment) => setFoundFragments((all) => all.includes(fragment.id) ? all : [...all, fragment.id]);
 
   return <main className={styles.screen}>
@@ -58,13 +58,13 @@ export default function MemoryGallery({ onClose }) {
     {tab === 'story' && <Panel className={styles.memoryCard}>
       <h2>Eight little chapters</h2>
       <label>Choose a chapter <select value={storyChapter} onChange={(event) => { setStoryChapter(event.target.value); setDialogue(null); }}>{chapters.map((chapter) => <option key={chapter.id} value={chapter.id}>{localize(chapter.titleKey)}</option>)}</select></label>
-      <div className={styles.actions}><Button onClick={() => setDialogue(dialogueRuntime.start(storyChapter))}>Begin / restart chapter</Button></div>
+      <div className={styles.actions}><Button onClick={() => { setExploredChapters((all) => all.includes(storyChapter) ? all : [...all, storyChapter]); showDialogue(dialogueRuntime.start(storyChapter)); }}>Begin / restart chapter</Button></div>
       {dialogue && <>
-        <p className={styles.kicker}>{dialogue.speaker ? dialogue.speaker : chapters.find((chapter) => chapter.id === storyChapter)?.titleKey}</p>
+        <p className={styles.kicker}>{dialogue.speaker ? dialogue.speaker : localize(chapters.find((chapter) => chapter.id === storyChapter)?.titleKey)}</p>
         <h3>{dialogue.activeLine?.speaker === 'heroine' ? personalConfig.names.heroine : dialogue.activeLine?.speaker === 'him' ? personalConfig.names.boyfriend : 'A quiet voice'}</h3>
         <p aria-live="polite">{dialogue.activeLine?.text ?? 'That chapter has reached its last page. You can begin it again or choose another.'}</p>
         {dialogue.activeLine?.emotion && <p><em>Feeling: {dialogue.activeLine.emotion}</em></p>}
-        {dialogue.choices?.length && dialogue.activeLine === dialogue.lines?.at(-1) ? <div className={styles.actions}>{dialogue.choices.map((choice) => <Button key={choice.id} onClick={() => setDialogue(dialogueRuntime.choose(choice.id))}>{choice.label}</Button>)}</div> : <div className={styles.actions}><Button onClick={() => setDialogue(dialogueRuntime.advance())} disabled={!dialogue.activeLine}>Next line →</Button></div>}
+        {dialogue.choices?.length && dialogue.activeLine === dialogue.lines?.at(-1) ? <div className={styles.actions}>{dialogue.choices.map((choice) => <Button key={choice.id} onClick={() => showDialogue(dialogueRuntime.choose(choice.id))}>{choice.label}</Button>)}</div> : <div className={styles.actions}><Button onClick={() => showDialogue(dialogueRuntime.advance())} disabled={!dialogue.activeLine}>Next line →</Button></div>}
         {dialogue.fragmentId && dialogue.sheSays && <p>✦ A hidden fragment has appeared in Her words.</p>}
       </>}
     </Panel>}
