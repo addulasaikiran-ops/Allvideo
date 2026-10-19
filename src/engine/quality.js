@@ -12,8 +12,8 @@ export function createQualityScaler({ targetFps = 50, sampleSize = 90 } = {}) {
       if (frames < sampleSize) return quality;
 
       const averageFps = 1000 / (totalMs / frames);
-      if (averageFps < targetFps * 0.72) quality = quality === 'high' ? 'medium' : 'low';
-      else if (averageFps > targetFps * 0.94) quality = quality === 'low' ? 'medium' : 'high';
+      if (averageFps < targetFps) quality = quality === 'high' ? 'medium' : 'low';
+      else if (averageFps > targetFps * 1.12) quality = quality === 'low' ? 'medium' : 'high';
 
       frames = 0;
       totalMs = 0;
