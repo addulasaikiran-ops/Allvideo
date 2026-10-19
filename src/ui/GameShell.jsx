@@ -317,6 +317,13 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               <input type="checkbox" checked={assistMode} onChange={(event) => onAssistChange(event.target.checked)} />
               Assist mode
             </label>
+            {[
+              ['invulnerability', 'Invulnerability'],
+              ['autoJump', 'Auto-jump'],
+              ['slowGameSpeed', 'Slower game'],
+              ['largerHitWindows', 'Larger hit windows'],
+              ['autoPulse', 'Auto-pulse'],
+            ].map(([key, label]) => <label className={styles.assistLabel} key={key}><input type="checkbox" checked={Boolean(state.assistSettings?.[key])} onChange={(event) => engine.setAssistSetting(key, event.target.checked)} />{label}</label>)}
             <button className={styles.secondaryButton} type="button" onClick={() => engine.resetToCheckpoint()}>
               Return to checkpoint
             </button>
