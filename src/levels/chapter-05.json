@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter-05",
+  "title": "Mirror of Doubt",
+  "targetPlaytimeMinutes": [
+    7,
+    9
+  ],
+  "theme": {
+    "background": "#27233b",
+    "fog": "#42334e",
+    "platform": "#6b5d78",
+    "accent": "#e8c8f4",
+    "particle": "#c8b5f2",
+    "particleStyle": "mirror-motes",
+    "ambientParticleCount": 90
+  },
+  "world": {
+    "start": -8,
+    "end": 72,
+    "groundY": 0,
+    "spawn": {
+      "x": -6,
+      "y": 0
+    },
+    "camera": {
+      "follow": 0.12
+    }
+  },
+  "parallax": [
+    {
+      "id": "distant-hills",
+      "depth": -12,
+      "speed": 0.09,
+      "style": "soft-mirror-halls"
+    },
+    {
+      "id": "morning-clouds",
+      "depth": -9,
+      "speed": 0.16,
+      "style": "lavender-mist"
+    },
+    {
+      "id": "foreground-grass",
+      "depth": 3,
+      "speed": 0.6,
+      "style": "ribbon-reflections"
+    }
+  ],
+  "difficultyCurve": [
+    {
+      "phase": "introduce",
+      "from": 0,
+      "to": 18,
+      "goal": "Meet a gentle echo and choose a kind reply without stopping the journey"
+    },
+    {
+      "phase": "practice",
+      "from": 18,
+      "to": 36,
+      "goal": "Read patrolling shadows and hop over softly glowing spikes"
+    },
+    {
+      "phase": "twist",
+      "from": 36,
+      "to": 54,
+      "goal": "Answer the giant mirror's doubts to crack its surface one truth at a time"
+    },
+    {
+      "phase": "test",
+      "from": 54,
+      "to": 72,
+      "goal": "Combine kind replies, shadow patrols, and safe spike crossings toward the open hall"
+    }
+  ],
+  "entities": [
+    {
+      "id": "mirror-ground-a",
+      "type": "static-platform",
+      "x": -10,
+      "y": -0.5,
+      "width": 18,
+      "height": 0.5,
+      "surface": "stone"
+    },
+    {
+      "id": "mirror-start-hint",
+      "type": "hint",
+      "x": -6,
+      "y": 0,
+      "width": 3,
+      "height": 2,
+      "skill": "interact",
+      "input": "E / Enter · choose a reply",
+      "text": "The echo may sound certain, but it is only one thought. A kind answer is always enough."
+    },
+    {
+      "id": "echo-mirror-1",
+      "type": "mirror",
+      "x": 5,
+      "y": 0,
+      "width": 1.2,
+      "height": 2.3,
+      "whisper": "You always get things wrong.",
+      "choices": [
+        {
+          "id": "kind",
+          "label": "I can learn, one step at a time.",
+          "kind": "kind"
+        },
+        {
+          "id": "neutral",
+          "label": "I will keep going.",
+          "kind": "kind"
+        }
+      ],
+      "truth": "Learning is allowed."
+    },
+    {
+      "id": "mirror-checkpoint-a",
+      "type": "checkpoint",
+      "x": 9,
+      "y": 0,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "mirror-platform-1",
+      "type": "static-platform",
+      "x": 11,
+      "y": 0.9,
+      "width": 3,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "mirror-spikes-a",
+      "type": "spikes",
+      "x": 15,
+      "y": 0,
+      "width": 2.2,
+      "height": 0.45,
+      "contactSafe": true
+    },
+    {
+      "id": "shadow-patrol-a",
+      "type": "enemy",
+      "enemy": "patrolling-shadow",
+      "behavior": "patrol",
+      "x": 20,
+      "y": 0.1,
+      "width": 1,
+      "height": 1.3,
+      "patrolDistance": 2.2,
+      "patrolSpeed": 0.7,
+      "contactSafe": true
+    },
+    {
+      "id": "mirror-platform-2",
+      "type": "static-platform",
+      "x": 19,
+      "y": 1.6,
+      "width": 4,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "echo-mirror-2",
+      "type": "mirror",
+      "x": 25,
+      "y": 1.95,
+      "width": 1.2,
+      "height": 2.2,
+      "whisper": "Everyone else is ahead of you.",
+      "choices": [
+        {
+          "id": "kind",
+          "label": "My pace is allowed to be different.",
+          "kind": "kind"
+        },
+        {
+          "id": "neutral",
+          "label": "I can take this at my pace.",
+          "kind": "kind"
+        }
+      ],
+      "truth": "Your pace belongs to you."
+    },
+    {
+      "id": "mirror-platform-3",
+      "type": "static-platform",
+      "x": 28,
+      "y": 0.4,
+      "width": 4.5,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "mirror-spikes-b",
+      "type": "spikes",
+      "x": 34,
+      "y": 0,
+      "width": 2.4,
+      "height": 0.45,
+      "contactSafe": true
+    },
+    {
+      "id": "shadow-patrol-b",
+      "type": "enemy",
+      "enemy": "patrolling-shadow",
+      "behavior": "patrol",
+      "x": 39,
+      "y": 0.1,
+      "width": 1,
+      "height": 1.3,
+      "patrolDistance": 2.8,
+      "patrolSpeed": 0.85,
+      "contactSafe": true
+    },
+    {
+      "id": "mirror-checkpoint-b",
+      "type": "checkpoint",
+      "x": 42,
+      "y": 0,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "mirror-platform-4",
+      "type": "static-platform",
+      "x": 43,
+      "y": 0.8,
+      "width": 4.2,
+      "height": 0.35,
+      "surface": "stone"
+    },
+    {
+      "id": "mirror-boss-ledge",
+      "type": "static-platform",
+      "x": 47,
+      "y": 0.8,
+      "width": 7.2,
+      "height": 0.35,
+      "surface": "crystal"
+    },
+    {
+      "id": "giant-mirror-boss",
+      "type": "mirror-boss",
+      "x": 49,
+      "y": 0,
+      "width": 3.2,
+      "height": 4.2,
+      "whisper": "You are not strong enough to change.",
+      "choices": [
+        {
+          "id": "truth-1",
+          "label": "I have made it this far.",
+          "kind": "kind"
+        },
+        {
+          "id": "truth-2",
+          "label": "Being afraid does not make me weak.",
+          "kind": "kind"
+        },
+        {
+          "id": "truth-3",
+          "label": "I deserve patience, too.",
+          "kind": "kind"
+        }
+      ],
+      "truth": "The mirror breaks when she speaks with care.",
+      "requiredTruths": 3,
+      "cracks": 0
+    },
+    {
+      "id": "mirror-platform-5",
+      "type": "static-platform",
+      "x": 54,
+      "y": 0.8,
+      "width": 4.5,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "mirror-spikes-c",
+      "type": "spikes",
+      "x": 60,
+      "y": 0,
+      "width": 2.2,
+      "height": 0.45,
+      "contactSafe": true
+    },
+    {
+      "id": "shadow-patrol-c",
+      "type": "enemy",
+      "enemy": "patrolling-shadow",
+      "behavior": "patrol",
+      "x": 64,
+      "y": 0.1,
+      "width": 1,
+      "height": 1.3,
+      "patrolDistance": 2.4,
+      "patrolSpeed": 0.75,
+      "contactSafe": true
+    },
+    {
+      "id": "echo-mirror-3",
+      "type": "mirror",
+      "x": 67,
+      "y": 0.8,
+      "width": 1.2,
+      "height": 2.2,
+      "whisper": "You should have done more.",
+      "choices": [
+        {
+          "id": "kind",
+          "label": "What I did today can be enough.",
+          "kind": "kind"
+        },
+        {
+          "id": "neutral",
+          "label": "I can rest and begin again.",
+          "kind": "kind"
+        }
+      ],
+      "truth": "Enough is not the same as perfect."
+    },
+    {
+      "id": "mirror-checkpoint-c",
+      "type": "checkpoint",
+      "x": 69,
+      "y": 0,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "mirror-ground-end",
+      "type": "static-platform",
+      "x": 67,
+      "y": -0.5,
+      "width": 9,
+      "height": 0.5,
+      "surface": "stone"
+    },
+    {
+      "id": "mirror-exit",
+      "type": "cutscene-trigger",
+      "x": 73,
+      "y": 0,
+      "width": 1,
+      "height": 2,
+      "cutscene": "chapter-five-ending"
+    }
+  ]
+}

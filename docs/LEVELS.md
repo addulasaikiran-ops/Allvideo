@@ -34,3 +34,12 @@ Target: 6–8 minutes. Palette: midnight blue, muted sage, amber/teal/rose knot 
 Target: 6–8 minutes. Palette: deep ocean blue, sea-glass teal, and pale aqua light, with sea-glint ambient particles. The four-part flow curve introduces island hops, practices nearby-heart light bridges and slow tide lifts, twists with gentle spark-wisp shots, then tests the combined traversal language. Light bridges remain dormant until the configured number of collected hearts are within their radius. Tide platforms move vertically at readable, low speeds. The message-in-a-bottle dialogue is explicitly skippable. Checkpoints at the first outer island, middle sea, and far-shore approach aim for 30–45 second intervals.
 
 Chapter selection is available in the game overlay. F3 continues to show level diagnostics and F5 reloads the currently selected chapter JSON. The chapters expose typed events (`knot:untangled`, `enemy:calmed`, `enemy:projectile`, `bridge:formed`, and `dialogue:trigger`) for future audio, UI, and effects polish.
+
+
+## Chapter 4 — Tower of Deadlines
+
+Target: 7–9 minutes. A vertical climb with alternating broad ledges, slow rotating clock hands, and pendulums whose periods and swing amplitudes are explicitly configured for readable rhythms. Clock hazards signal gentle contact rather than imposing a fail timer. Rest lanterns are optional interaction points: each restores a health point and slows the simulation for several seconds. There is no countdown and no penalty for pausing. Checkpoints divide the climb into forgiving sections. The lesson is that rest is part of progress, not a detour.
+
+## Chapter 5 — Mirror of Doubt
+
+Target: 7–9 minutes. A warm, dusky mirror hall with supportive echo dialogue, patrolling shadow silhouettes, and soft-lit spike beds. Interacting with an echo opens short dialogue choices; every offered response is kind or self-supportive, and answering never locks the route. The mid-chapter giant mirror cracks across three truth responses, with visible crack progression and no hard timer. The shadows and spikes are gentle traversal pressure, not frightening imagery. The chapter ends with the heroine moving forward at her own pace.

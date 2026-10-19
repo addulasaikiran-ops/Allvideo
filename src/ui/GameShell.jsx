@@ -96,7 +96,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           <p className={styles.message}>{personalConfig.messages.opening}</p>
           <p className={styles.status} role="status">
             {state.status === 'Playing' ? 'You are not alone.' : 'A gentle journey is waiting.'}
-            {' '}Checkpoint: {state.checkpointId}
+            {' '}Checkpoint: {state.checkpointId} · Health: {state.hp ?? 3}/5
           </p>
           <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
             {state.status === 'Playing' ? 'Journey started' : 'Begin gently'}
@@ -139,14 +139,24 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           )}
           {state.activeDialogue && (
             <aside className={styles.contextHint} aria-live="polite" aria-label="Message in a bottle dialogue">
-              <strong>Message in a bottle</strong>
+              <strong>{state.activeDialogue.choices ? (state.activeDialogue.boss ? 'The giant mirror' : 'A thought in the glass') : 'Message in a bottle'}</strong>
               <p>{state.activeDialogue.lines[state.activeDialogue.index]}</p>
-              <div className={styles.optionsRow}>
-                <button className={styles.primaryButton} type="button" onClick={() => engine.advanceDialogue()}>
-                  {state.activeDialogue.index + 1 >= state.activeDialogue.lines.length ? 'Close message' : 'Next'}
-                </button>
-                {state.activeDialogue.skippable && <button className={styles.secondaryButton} type="button" onClick={() => engine.skipDialogue()}>Skip dialogue</button>}
-              </div>
+              {state.activeDialogue.boss && <p>Truths spoken kindly: {state.activeDialogue.cracks} / {state.activeDialogue.requiredTruths}. The mirror is listening; there is no rush.</p>}
+              {state.activeDialogue.choices ? (
+                <div className={styles.optionsRow}>
+                  {state.activeDialogue.choices.map((choice) => (
+                    <button className={styles.primaryButton} type="button" key={choice.id} onClick={() => engine.chooseDialogueChoice(state.activeDialogue.sourceId, choice.id)}>{choice.label}</button>
+                  ))}
+                  <button className={styles.secondaryButton} type="button" onClick={() => engine.skipDialogue()}>Not now</button>
+                </div>
+              ) : (
+                <div className={styles.optionsRow}>
+                  <button className={styles.primaryButton} type="button" onClick={() => engine.advanceDialogue()}>
+                    {state.activeDialogue.index + 1 >= state.activeDialogue.lines.length ? 'Close message' : 'Next'}
+                  </button>
+                  {state.activeDialogue.skippable && <button className={styles.secondaryButton} type="button" onClick={() => engine.skipDialogue()}>Skip dialogue</button>}
+                </div>
+              )}
             </aside>
           )}
           <div className={styles.optionsRow}>
@@ -156,6 +166,8 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
                 <option value="chapter-01">1 · The Quiet Morning</option>
                 <option value="chapter-02">2 · Tangle of Worries</option>
                 <option value="chapter-03">3 · Sea of Distance</option>
+                <option value="chapter-04">4 · Tower of Deadlines</option>
+                <option value="chapter-05">5 · Mirror of Doubt</option>
               </select>
             </label>
             <label className={styles.assistLabel}>
