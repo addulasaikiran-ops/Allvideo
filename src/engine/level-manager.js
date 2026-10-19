@@ -108,6 +108,14 @@ export class LevelManager {
       if (entity.type === 'checkpoint' && this.playerTouches(player, entity) && player.checkpointId !== entity.id) {
         player.checkpointId = entity.id; player.checkpointX = entity.x; player.checkpointY = entity.y; this.emit('checkpoint:reached', entity, { checkpointId: entity.id });
       }
+      if (entity.type === 'collectible' && !entity.collected) {
+        const magnetDistance = distanceBetween(player, entity);
+        if (magnetDistance < (entity.magnetRadius ?? 2.4) && magnetDistance > 0.3) {
+          const magnetEase = Math.min(1, step * (entity.magnetStrength ?? 4.5));
+          entity.x += (player.x + 0.15 - entity.x) * magnetEase;
+          entity.y += (player.y + 0.7 - entity.y) * magnetEase;
+        }
+      }
       if (entity.type === 'collectible' && !entity.collected && this.playerTouches(player, entity)) {
         entity.collected = true; if (entity.kind === 'heart') player.heartsCollected = (player.heartsCollected ?? 0) + 1;
         this.emit('collectible:collected', entity, { kind: entity.kind });
@@ -138,6 +146,8 @@ export class LevelManager {
   }
 
   getTimeScale() { return this.slowTimer > 0 ? this.slowScale : 1; }
+
+  hitStop(duration = 0.05) { const safeDuration = Math.max(0, Math.min(0.12, Number(duration) || 0)); if (safeDuration <= 0) return; this.slowTimer = Math.max(this.slowTimer, safeDuration); this.slowScale = 0; }
 
   resolveMirrorChoice(entityId, choiceId) {
     const entity = this.entities.find((item) => item.id === entityId && ['mirror', 'mirror-boss'].includes(item.type));
