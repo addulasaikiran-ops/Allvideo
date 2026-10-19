@@ -37,8 +37,8 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
   if(controls.interactPressed)levelManager.markSkillUsed('interact');
   const hintEvent=[...levelEvents].reverse().find(event=>event.type==='hint:show'&&!levelManager.completedHints.has(event.skill));
   fpsFrames+=1;fpsElapsed+=dt;
-  if(hintEvent)store.setState(state=>({...state,activeHint:{skill:hintEvent.skill,text:hintEvent.text,input:hintEvent.input}}));\n  if(fpsElapsed>=0.5){fps=fpsFrames/fpsElapsed;fpsFrames=0;fpsElapsed=0;store.setState(state=>({...state,levelSnapshot:levelManager.getSnapshot(),fps}));}
-  for(const event of levelEvents)if(event.type!=='hint:show')eventBus.emit(event.type,event);
+  if(hintEvent)store.setState(state=>({...state,activeHint:{skill:hintEvent.skill,text:hintEvent.text,input:hintEvent.input}}));
+  if(fpsElapsed>=0.5){fps=fpsFrames/fpsElapsed;fpsFrames=0;fpsElapsed=0;store.setState(state=>({...state,levelSnapshot:levelManager.getSnapshot(),fps}));}
   elapsedSeconds+=dt;if(Math.floor(elapsedSeconds)>publishSecond){publishSecond=Math.floor(elapsedSeconds);store.setState(state=>({...state,elapsedSeconds:publishSecond,checkpointId:state.player.checkpointId}));}
  },
  render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state:{...state,levelSnapshot:levelManager.getSnapshot(),fps},interpolationAlpha:alpha});}});
