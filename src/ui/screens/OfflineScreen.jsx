@@ -1,0 +1,3 @@
+import { Button, Panel } from '../design-system.jsx';
+import styles from './Screens.module.css';
+export default function OfflineScreen({onRetry,onClose}) { return <main className={styles.screen}><header className={styles.header}><p className={styles.kicker}>TAKE A BREATH</p><h1>You are offline.</h1><p>Your journey can wait until the connection returns.</p></header><Panel><p>Previously loaded story content may still be available. New resources may need a connection.</p><div className={styles.actions}><Button variant="secondary" onClick={onClose}>Continue offline</Button><Button onClick={onRetry}>Check connection</Button></div></Panel></main>; }
