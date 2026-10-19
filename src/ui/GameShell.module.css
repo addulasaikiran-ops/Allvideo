@@ -10,7 +10,7 @@
 .stage {
   position: relative;
   flex: 1;
-  min-height: 28rem;
+  min-height: 34rem;
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--color-border);
@@ -24,92 +24,153 @@
   width: 100%;
   height: 100%;
   display: block;
+  touch-action: none;
 }
 
 .overlay {
   position: relative;
   z-index: 1;
   display: flex;
-  min-height: 28rem;
+  min-height: 34rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.9rem;
-  padding: clamp(1.25rem, 5vw, 4rem);
+  gap: 0.75rem;
+  padding: clamp(1rem, 4vw, 3rem);
   text-align: center;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(18 16 34 / 44%), rgb(18 16 34 / 8%) 45%, rgb(18 16 34 / 44%));
+}
+
+.overlay > * {
+  pointer-events: auto;
 }
 
 .eyebrow {
   margin: 0;
   color: var(--color-accent);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
 }
 
 .overlay h1 {
   max-width: 17ch;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 7vw, 4.5rem);
+  font-size: clamp(1.8rem, 6vw, 3.7rem);
   font-weight: 600;
   line-height: 1.05;
   text-wrap: balance;
+  text-shadow: 0 2px 24px rgb(14 10 28 / 60%);
 }
 
 .message {
   max-width: 34rem;
   margin: 0;
   color: var(--color-muted);
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  line-height: 1.6;
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  line-height: 1.55;
+  text-shadow: 0 1px 12px #171526;
 }
 
 .status {
+  margin: 0;
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
 }
 
 .primaryButton,
-.secondaryButton {
-  min-height: 2.9rem;
-  padding: 0.75rem 1.25rem;
+.secondaryButton,
+.controlButton,
+.jumpButton {
+  min-height: 2.8rem;
+  padding: 0.7rem 1.15rem;
   border: 1px solid transparent;
   border-radius: 999px;
   font: inherit;
   font-weight: 650;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .primaryButton {
   color: #21182d;
   background: var(--color-accent);
+  box-shadow: 0 4px 24px rgb(255 214 160 / 20%);
 }
 
 .secondaryButton {
   color: var(--color-text);
   border-color: var(--color-border);
-  background: rgb(255 255 255 / 5%);
+  background: rgb(25 22 43 / 82%);
+}
+
+.controlRow,
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.controlButton,
+.jumpButton {
+  min-width: 3.25rem;
+  color: var(--color-text);
+  border-color: var(--color-border);
+  background: rgb(25 22 43 / 88%);
+  font-size: 1.15rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.jumpButton {
+  color: #21182d;
+  background: #c7e7d8;
+}
+
+.assistLabel {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgb(25 22 43 / 82%);
+  font-size: 0.9rem;
+}
+
+.assistLabel input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-accent);
 }
 
 .primaryButton:focus-visible,
-.secondaryButton:focus-visible {
+.secondaryButton:focus-visible,
+.controlButton:focus-visible,
+.jumpButton:focus-visible,
+.assistLabel input:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
 }
 
 .help {
   width: min(100%, 36rem);
-  padding: 1rem;
+  padding: 0.85rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: 1rem;
-  background: rgb(15 14 27 / 92%);
+  background: rgb(15 14 27 / 94%);
   text-align: left;
 }
 
 .help p {
-  margin: 0.4rem 0;
-  line-height: 1.5;
+  margin: 0.35rem 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
 }
 
 .footer {
@@ -121,19 +182,39 @@
   font-size: 0.8rem;
 }
 
-@media (orientation: landscape) and (max-height: 520px) {
+@media (orientation: landscape) and (max-height: 560px) {
   .stage,
   .overlay {
-    min-height: 18rem;
+    min-height: 26rem;
   }
 
   .overlay {
-    gap: 0.45rem;
-    padding: 1rem;
+    gap: 0.4rem;
+    padding: 0.75rem;
   }
 
   .overlay h1 {
-    font-size: clamp(1.6rem, 5vh, 2.5rem);
+    font-size: clamp(1.5rem, 5vh, 2.4rem);
+  }
+
+  .message {
+    max-width: 30rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .stage,
+  .overlay {
+    min-height: 38rem;
+  }
+
+  .optionsRow {
+    gap: 0.35rem;
+  }
+
+  .secondaryButton {
+    padding-inline: 0.8rem;
+    font-size: 0.85rem;
   }
 }
 
