@@ -43,7 +43,14 @@ export default function MemoryGallery({ onClose }) {
   const [playbackController, setPlaybackController] = useState(null);
   const [dialogueRuntime] = useState(() => createDialogueRuntime());
   const [storyChapter, setStoryChapter] = useState(chapters[0].id);
-  const [dialogue, setDialogue] = useState(null);\n  const [exploredChapters, setExploredChapters] = useState([]);\n  const showDialogue = (result) => {\n    setDialogue(result);\n    const fragmentId = result?.activeLine?.fragmentId || result?.fragmentId;\n    if (fragmentId) setFoundFragments((all) => all.includes(fragmentId) ? all : [...all, fragmentId]);\n    return result;\n  };
+  const [dialogue, setDialogue] = useState(null);
+  const [exploredChapters, setExploredChapters] = useState([]);
+  const showDialogue = (result) => {
+    setDialogue(result);
+    const fragmentId = result?.activeLine?.fragmentId || result?.fragmentId;
+    if (fragmentId) setFoundFragments((all) => all.includes(fragmentId) ? all : [...all, fragmentId]);
+    return result;
+  };
   const revealFragment = (fragment) => setFoundFragments((all) => all.includes(fragment.id) ? all : [...all, fragment.id]);
 
   return <main className={styles.screen}>
