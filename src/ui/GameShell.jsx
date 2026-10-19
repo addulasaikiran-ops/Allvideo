@@ -184,7 +184,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               Chapter
-              <select value={memoryLane ? 'chapter-06' : state.chapter} onChange={(event) => onSelectChapter(event.target.value)} aria-label="Select chapter">
+              <select value={fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} onChange={(event) => onSelectChapter(event.target.value)} aria-label="Select chapter">
                 <option value="chapter-01">1 · The Quiet Morning</option>
                 <option value="chapter-02">2 · Tangle of Worries</option>
                 <option value="chapter-03">3 · Sea of Distance</option>
