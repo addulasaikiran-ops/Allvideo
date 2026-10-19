@@ -260,6 +260,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             <aside className={styles.contextHint} key={state.activeHint.skill} aria-live="polite">
               <span>{state.activeHint.text}</span><strong>{state.activeHint.input}</strong>
               {state.activeHint.visualCue && <span aria-label="Puzzle sequence cue">Strand: {state.activeHint.visualCue}</span>}
+              {state.activeHint.difficultyOffer && <div className={styles.optionsRow}><button className={styles.primaryButton} type="button" onClick={() => { onAssistChange(true); engine.store.setState(current => ({ ...current, activeHint: { ...current.activeHint, difficultyOffer: false, text: 'Assist Mode is on. You can switch it off any time.' } })); }}>Try Assist Mode</button><button className={styles.secondaryButton} type="button" onClick={() => engine.store.setState(current => ({ ...current, activeHint: null }))}>Keep going</button></div>}
             </aside>
           )}
           {state.activeDialogue && (
@@ -364,6 +365,9 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               <strong>LEVEL DEBUG · {state.levelSnapshot?.title ?? 'Loading level'}</strong>
               <span>FPS {Math.round(state.fps ?? 0)} · Checkpoint {state.checkpointId}</span>
               <span>Entities {state.levelSnapshot?.entities?.length ?? 0} · Platforms {state.levelSnapshot?.entities?.filter((entity) => entity.type?.includes('platform')).length ?? 0}</span>
+              <strong>Death hotspots (local only)</strong>
+              <div className={styles.colliderList}>{engine.deathTelemetry.hotspots().slice(0, 12).map((spot) => <span key={spot.location}>{spot.location}: {spot.deaths} deaths</span>)}</div>
+              <button className={styles.secondaryButton} type="button" onClick={() => engine.deathTelemetry.clear()}>Clear local death telemetry</button>
               <div className={styles.colliderList}>{(state.levelSnapshot?.entities ?? []).filter((entity) => entity.width && entity.height).map((entity) => (
                 <span key={entity.id}>{entity.id} [{entity.type}] x:{entity.x.toFixed(1)} y:{entity.y.toFixed(1)} {entity.active ? '' : 'inactive'}</span>
               ))}</div>
