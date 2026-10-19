@@ -184,6 +184,7 @@ export function GameShell() {
 function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
   const [activeScreen, setActiveScreen] = useState(null);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [juice, setJuice] = useState(() => { try { return localStorage.getItem('allvideo.juice') || 'Full'; } catch { return 'Full'; } });
   const [feelFx, setFeelFx] = useState([]);
   const [shakeKey, setShakeKey] = useState(0);
@@ -227,9 +228,15 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
         <div className={styles.gameFeelLayer} aria-hidden="true">{feelFx.map((fx) => <span key={fx.id} className={styles.feelFx + (fx.label ? " " + styles.floatLabel : "") + (fx.particles ? " " + styles.sparkleBurst : "")} style={{ "--fx-x": (fx.x ?? 50) + "%", "--fx-y": (fx.y ?? 42) + "%" }}>{fx.label}{fx.particles && <span className={styles.sparkleGlyphs}>✦ · ✧ · ✦</span>}</span>)}</div>
         <CompanionPresence chapter={ending ? 'chapter-08' : fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} hearts={state.hearts} />
         {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay + (state.status === 'Playing' ? '' : ' ' + styles.welcomeOverlay)}>
-          <p className={styles.eyebrow}>{state.status === 'Playing' ? (state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT') : 'A LITTLE MORE LIGHT'}</p>
-          <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
-          <p className={styles.message}>{personalConfig.messages.opening}</p>
+          {state.status !== 'Playing' ? (
+            <>
+              <p className={styles.eyebrow}>A LITTLE MORE LIGHT</p>
+              <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
+              <p className={styles.message}>{personalConfig.messages.opening}</p>
+            </>
+          ) : (
+            <p className={styles.playingEyebrow}>{state.levelSnapshot?.title || 'A little more light'}</p>
+          )}
           {state.status === 'Playing' ? (
             <>
               <p className={styles.status} role="status">
@@ -346,7 +353,12 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('credits')}>Credits</button>
           </div>}
           {activeScreen && <div style={{ position: 'fixed', inset: 0, zIndex: 40, overflowY: 'auto' }}><ScreenOutlet screen={activeScreen} onClose={() => setActiveScreen(null)} onSelect={(chapter) => { onSelectChapter(chapter); setActiveScreen(null); }} onRetry={() => window.location.reload()} /></div>}
-          {state.status === 'Playing' && <div className={styles.optionsRow}>
+          {state.status === 'Playing' && (
+            <div className={styles.advancedTools}>
+              <button className={styles.secondaryButton} type="button" onClick={() => setShowAdvancedOptions((visible) => !visible)} aria-expanded={showAdvancedOptions}>
+                {showAdvancedOptions ? 'Hide game options' : 'Game options & assists'}
+              </button>
+              {showAdvancedOptions && <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               Chapter
               <select value={ending ? 'chapter-08' : fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} onChange={(event) => onSelectChapter(event.target.value)} aria-label="Select chapter">
@@ -393,7 +405,9 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             <button className={styles.secondaryButton} type="button" onClick={onToggleHelp} aria-expanded={showHelp}>
               {showHelp ? 'Hide help' : 'Controls'}
             </button>
-          </div>}
+              </div>}
+            </div>
+          )}
           {state.playerDebug && (
             <aside className={styles.debugPanel} aria-label="Live player feel tuning">
               <div className={styles.debugHeading}>
