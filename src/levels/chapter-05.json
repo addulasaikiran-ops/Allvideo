@@ -350,6 +350,19 @@
       "width": 1,
       "height": 2,
       "cutscene": "chapter-five-ending"
+    },
+    {
+      "id": "mirror-calm-rest",
+      "type": "rest-lantern",
+      "x": 71,
+      "y": 0,
+      "width": 0.8,
+      "height": 1.5,
+      "heal": 1,
+      "slowDuration": 4.5,
+      "slowScale": 0.45,
+      "interactLabel": "Rest · heal and slow time",
+      "text": "The mirror can wait. You have done enough for this moment."
     }
   ]
 }
