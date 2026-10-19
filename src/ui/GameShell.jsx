@@ -10,8 +10,6 @@ import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import { createAudioSystem } from '../audio/audio-system.js';
 import { AudioControls } from './AudioControls.jsx';
-import { createAudioSystem } from '../audio/audio-system.js';
-import { AudioControls } from './AudioControls.jsx';
 import styles from './GameShell.module.css';
 
 export function GameShell() {
