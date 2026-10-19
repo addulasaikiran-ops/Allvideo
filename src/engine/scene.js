@@ -140,6 +140,81 @@ export function createWorldScene(canvas) {
   });
   scene.add(testLane);
 
+  const levelVisuals = new THREE.Group();
+  scene.add(levelVisuals);
+  const levelVisualById = new Map();
+  const colliderVisuals = new THREE.Group();
+  colliderVisuals.visible = false;
+  scene.add(colliderVisuals);
+  const levelPalette = {
+    'static-platform': '#665174', 'moving-platform': '#719b91', 'crumbling-platform': '#ad8b73',
+    'one-way-platform': '#8cae9a', 'hazard': '#7d405e', 'switch': '#e8c77d', 'door': '#806d9f',
+    'checkpoint': '#b9f2d0', 'spring': '#f5c78d', 'collectible': '#ffe7a4', 'hint': '#f3d9a5',
+    'wind-zone': '#a4d7ed', 'enemy-spawner': '#9d83b5', 'cutscene-trigger': '#fff0b7', 'camera-zone': '#9ba6dc',
+  };
+  function makeLevelVisual(entity) {
+    const group = new THREE.Group();
+    let geometry;
+    let material = new THREE.MeshStandardMaterial({ color: levelPalette[entity.type] ?? '#8a7d9f', roughness: 0.72 });
+    if (['static-platform', 'moving-platform', 'crumbling-platform', 'one-way-platform'].includes(entity.type)) {
+      geometry = new THREE.BoxGeometry(entity.width, entity.height, 2.2);
+      const slab = new THREE.Mesh(geometry, material);
+      slab.position.y = entity.height / 2;
+      group.add(slab);
+      const edge = new THREE.Mesh(new THREE.BoxGeometry(entity.width * .96, .045, 2.24), new THREE.MeshBasicMaterial({ color: '#f8dfb5' }));
+      edge.position.set(0, entity.height + .015, 0);
+      group.add(edge);
+    } else if (entity.type === 'collectible') {
+      geometry = new THREE.OctahedronGeometry(.28, 1);
+      const gem = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: entity.kind === 'heart' ? '#ff9eae' : '#ffe7a4' }));
+      gem.position.y = entity.height / 2;
+      group.add(gem);
+      const aura = new THREE.Mesh(new THREE.SphereGeometry(.42, 12, 8), new THREE.MeshBasicMaterial({ color: '#ffe7a4', transparent: true, opacity: .12, depthWrite: false }));
+      aura.position.y = entity.height / 2; group.add(aura);
+    } else if (entity.type === 'checkpoint') {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, entity.height, 6), material);
+      pole.position.y = entity.height / 2; group.add(pole);
+      const orb = new THREE.Mesh(new THREE.SphereGeometry(.18, 10, 8), new THREE.MeshBasicMaterial({ color: '#b9f2d0' }));
+      orb.position.y = entity.height + .1; group.add(orb);
+    } else if (entity.type === 'spring') {
+      const spring = new THREE.Mesh(new THREE.TorusGeometry(.28, .09, 8, 16), material);
+      spring.position.y = .18; group.add(spring);
+    } else {
+      const opacity = ['hazard', 'wind-zone', 'camera-zone', 'hint', 'cutscene-trigger'].includes(entity.type) ? .25 : 1;
+      material.transparent = opacity < 1; material.opacity = opacity; material.depthWrite = opacity === 1;
+      geometry = new THREE.BoxGeometry(entity.width ?? .7, entity.height ?? 1, .3);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.y = (entity.height ?? 1) / 2; group.add(mesh);
+      if (entity.type === 'switch' || entity.type === 'door' || entity.type === 'hint') {
+        const orb = new THREE.Mesh(new THREE.SphereGeometry(.12, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffe7a4' }));
+        orb.position.set(0, (entity.height ?? 1) + .12, .15); group.add(orb);
+      }
+    }
+    group.position.set(entity.x ?? 0, entity.y ?? 0, entity.type === 'wind-zone' || entity.type === 'camera-zone' ? -1 : .2);
+    levelVisuals.add(group);
+    const colliderMaterial = new THREE.MeshBasicMaterial({ color: '#7dffd6', wireframe: true, transparent: true, opacity: .8, depthTest: false });
+    const collider = new THREE.Mesh(new THREE.BoxGeometry(entity.width ?? .7, entity.height ?? 1, .15), colliderMaterial);
+    collider.position.set((entity.x ?? 0) + (entity.width ?? .7) / 2, (entity.y ?? 0) + (entity.height ?? 1) / 2, 1.2);
+    colliderVisuals.add(collider);
+    return { group, collider };
+  }
+  function syncLevel(snapshot, debug) {
+    colliderVisuals.visible = Boolean(debug);
+    const entities = snapshot?.entities ?? [];
+    const activeIds = new Set(entities.map((entity) => entity.id));
+    for (const entity of entities) {
+      let visual = levelVisualById.get(entity.id);
+      if (!visual) { visual = makeLevelVisual(entity); levelVisualById.set(entity.id, visual); }
+      visual.group.position.set(entity.x ?? 0, entity.y ?? 0, entity.type === 'wind-zone' || entity.type === 'camera-zone' ? -1 : .2);
+      visual.group.visible = entity.active !== false && !entity.collected && !entity.cleared && !(entity.type === 'door' && entity.open);
+      visual.collider.visible = Boolean(debug && entity.width && entity.height);
+      visual.collider.position.set((entity.x ?? 0) + (entity.width ?? .7) / 2, (entity.y ?? 0) + (entity.height ?? 1) / 2, 1.2);
+    }
+    for (const [id, visual] of levelVisualById) {
+      if (!activeIds.has(id)) { levelVisuals.remove(visual.group); colliderVisuals.remove(visual.collider); levelVisualById.delete(id); }
+    }
+  }
+
   const quality = createQualityScaler();
   const resizeObserver = new ResizeObserver(() => {
     const { width, height } = canvas.getBoundingClientRect();
@@ -156,7 +231,7 @@ export function createWorldScene(canvas) {
   resizeObserver.observe(canvas);
 
   let cameraDip = 0;
-  function render({ player: playerState, deltaSeconds = 0 } = {}) {
+  function render({ player: playerState, deltaSeconds = 0, state } = {}) {\n    syncLevel(state?.levelSnapshot, state?.levelDebug);
     if (playerState) {
       const t = performance.now() / 1000;
       player.position.x = playerState.x; player.position.y = playerState.y;
