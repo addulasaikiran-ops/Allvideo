@@ -218,6 +218,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
       playSfx('heartbeat', { x, listenerX });
     }
   }
+  function setIntensity(next) { updateIntensity(next); }
   function getSettings() { return Object.fromEntries(Object.entries(settings).map(([name, value]) => [name, { ...value }])); }
   function destroy() {
     unlocked = false; if (chimeTimer) clearTimeout(chimeTimer);
