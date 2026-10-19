@@ -1,4 +1,4 @@
-import { chapters, localize } from './narrative.js';
+import { chapters, localize, narrativeMessages } from './narrative.js';
 import { personalConfig } from './personal.config.js';
 
 /** Framework-free dialogue runner. Scenes, choices, variables, and optional fragments stay data-driven. */
@@ -17,7 +17,7 @@ export function createDialogueRuntime({ story = chapters, variables = {}, catalo
       him: personalConfig.names.boyfriend,
     };
     const override = line.fragmentId && personalConfig.personalization?.sheSaysOverrides?.[line.fragmentId];
-    return { ...line, text: localize(line.textKey, vars, catalog), ...(override ? { text: override } : {}) };
+    const messages = { ...narrativeMessages, ...(catalog ?? {}), [line.textKey]: catalog?.[line.textKey] ?? line.fallback ?? line.textKey };\n    return { ...line, text: localize(line.textKey, vars, messages), ...(override ? { text: override } : {}) };
   };
   const snapshot = () => ({
     ...state, variables: { ...state.variables }, history: [...state.history],
