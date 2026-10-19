@@ -2,6 +2,15 @@
 
 This register records real candidate sources for the Allvideo audio palette. Keep the source page and the license evidence with every downloaded asset. Do not commit an asset until its download and license are verified.
 
+## Bundled CC0 music loops
+
+Two ambient loops are now bundled and used as the base/tension/boss layers in the manifest. The base is a calm forest ambience; the tension/boss layer uses the darker shrine loop. This is an initial adaptive mix, not separately arranged stems with matching BPM/bar grids, so layer transitions are gain-crossfaded rather than guaranteed beat-synchronous.
+
+- **Cathedral in the forest (ambient loop)** — congusbongus, OpenGameArt: https://opengameart.org/content/cathedral-in-the-forest-ambient-loop
+- **Dark Shrine Loop** — qubodup remix of yd's CC0 “Shrine”, OpenGameArt: https://opengameart.org/content/dark-shrine-loop
+- License: CC0 1.0 Universal for both tracks. Provenance note: `public/audio/music/OPEN-GAME-ART-CC0-LICENSE.md`.
+- Original OGG payloads were copied without recompression from the public source mirror documented in the provenance note.
+
 ## Music candidate
 
 - **Ambient Cinematic — AtlasAudio**: https://pixabay.com/music/ambient-ambient-cinematic-510518/
@@ -44,11 +53,13 @@ Use the UI Audio pack for press/confirm/back candidates and audition the Interfa
 
 ## Current integration status
 
-- [ ] Music candidate downloaded and license certificate saved
-- [ ] Adaptive stems licensed/commissioned and synchronized
+- [x] CC0 ambient loops bundled and license provenance recorded
+- [ ] Purpose-composed adaptive stems licensed/commissioned and synchronized
 - [ ] Kenney UI Audio pack downloaded and reviewed
 - [x] Selected Kenney RPG Audio clips reviewed and bundled in `public/audio/sfx/`
 - [x] Bundled clips mapped in `src/audio/manifest.js`
 - [ ] Browser/mobile playback and production licensing checked
+
+**Bundled music provenance:** two CC0 ambient loops are included under `public/audio/music/` and mapped in the chapter manifest. The Pixabay candidate below remains only a research option and is not bundled.
 
 **Bundled SFX provenance:** the selected OGG payloads are unmodified Kenney RPG Audio files, retrieved from a public GitHub mirror of the pack; the official Kenney page identifies the pack as CC0. See `public/audio/sfx/KENNEY-RPG-AUDIO-LICENSE.md`. Music binaries and synchronized adaptive stems are still not bundled; chapter music paths remain placeholders.
