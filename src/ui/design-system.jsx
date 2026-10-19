@@ -42,4 +42,6 @@ const CreditsScreen = lazy(() => import('./screens/CreditsScreen.jsx'));
 const ErrorScreen = lazy(() => import('./screens/ErrorScreen.jsx'));
 const OfflineScreen = lazy(() => import('./screens/OfflineScreen.jsx'));
 const RotateScreen = lazy(() => import('./screens/RotateScreen.jsx'));
-export function ScreenOutlet({ screen, ...props }) { const screens = { chapters: ChapterScreen, settings: SettingsScreen, gallery: GalleryScreen, credits: CreditsScreen, error: ErrorScreen, offline: OfflineScreen, rotate: RotateScreen }; const Screen = screens[screen]; if (!Screen) return null; return <Suspense fallback={<LoadingScreen progress={70} tip="Turning the next page…"/>}><Screen {...props}/></Suspense>; }
+const PauseScreen = lazy(() => import('./screens/PauseScreen.jsx'));
+const ChapterComplete = lazy(() => import('./screens/ChapterComplete.jsx'));
+export function ScreenOutlet({ screen, ...props }) { const screens = { chapters: ChapterScreen, settings: SettingsScreen, gallery: GalleryScreen, credits: CreditsScreen, error: ErrorScreen, offline: OfflineScreen, rotate: RotateScreen, pause: PauseScreen, complete: ChapterComplete }; const Screen = screens[screen]; if (!Screen) return null; return <Suspense fallback={<LoadingScreen progress={70} tip="Turning the next page…"/>}><Screen {...props}/></Suspense>; }
