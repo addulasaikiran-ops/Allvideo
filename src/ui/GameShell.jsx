@@ -96,7 +96,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           <p className={styles.message}>{personalConfig.messages.opening}</p>
           <p className={styles.status} role="status">
             {state.status === 'Playing' ? 'You are not alone.' : 'A gentle journey is waiting.'}
-            {' '}Checkpoint: {state.checkpointId}
+            {' '}Checkpoint: {state.checkpointId} · Health: {state.hp ?? 3}/5
           </p>
           <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
             {state.status === 'Playing' ? 'Journey started' : 'Begin gently'}
