@@ -8,12 +8,15 @@ import { Ending } from './Ending.jsx';
 import { CompanionPresence } from './CompanionPresence.jsx';
 import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
+import { createAudioSystem } from '../audio/audio-system.js';
+import { AudioControls } from './AudioControls.jsx';
 import styles from './GameShell.module.css';
 
 export function GameShell() {
   const canvasRef = useRef(null);
   const rendererRef = useRef(null);
   const [assistMode, setAssistMode] = useState(false);
+  const [audio] = useState(() => createAudioSystem());
   const [engine] = useState(() => createGameEngine({
     onFrame: (frame) => rendererRef.current?.render(frame),
   }));
@@ -53,8 +56,61 @@ export function GameShell() {
       rendererRef.current = null;
       world.destroy();
       engine.destroy();
+      audio.destroy();
     };
-  }, [engine]);
+  }, [engine, audio]);
+
+  useEffect(() => {
+    let previous = engine.store.getState();
+    const unsubscribeStore = engine.store.subscribe(() => {
+      const next = engine.store.getState();
+      if (next.chapter !== previous.chapter) audio.setChapter(next.chapter);
+      const dialogue = Boolean(next.activeDialogue);
+      if (dialogue !== Boolean(previous.activeDialogue)) {
+        audio.setDialogue(dialogue);
+        if (dialogue) audio.playSfx('dialogue', { x: next.player?.x ?? 0, listenerX: next.player?.x ?? 0 });
+      }
+      if (next.activeDialogue?.boss && !previous.activeDialogue?.boss) audio.setIntensity('boss');
+      else if (next.activeHint && !previous.activeHint) audio.setIntensity('tension');
+      else if (!next.activeDialogue && !next.activeHint && (previous.activeDialogue || previous.activeHint)) audio.setIntensity('base');
+      previous = next;
+    });
+    const offs = [
+      engine.eventBus.on('player:jump', (event) => audio.playSfx('jump', { x: engine.store.getState().player.x, listenerX: engine.store.getState().player.x })),
+      engine.eventBus.on('player:land', (event) => audio.playSfx('land', { x: engine.store.getState().player.x, listenerX: engine.store.getState().player.x, surface: event.surface })),
+      engine.eventBus.on('player:footstep', (event) => audio.playSfx('footstep', { x: event.x ?? 0, listenerX: engine.store.getState().player.x, surface: event.surface })),
+      engine.eventBus.on('warm-light:pulse', (event) => audio.playSfx('pulse', { x: event.x ?? 0, listenerX: engine.store.getState().player.x })),
+      engine.eventBus.on('collectible:collected', (event) => audio.playSfx('collect', { x: event.x ?? engine.store.getState().player.x, listenerX: engine.store.getState().player.x })),
+      engine.eventBus.on('checkpoint:reached', (event) => audio.playSfx('checkpoint', { x: event.x ?? engine.store.getState().player.x, listenerX: engine.store.getState().player.x })),
+      engine.eventBus.on('mirror:boss-cracked', () => audio.setIntensity('tension')),
+      engine.eventBus.on('rest:activated', () => audio.playSfx('heartbeat', { x: engine.store.getState().player.x, listenerX: engine.store.getState().player.x })),
+    ];
+    const unlockOnGesture = () => { audio.unlock(); };
+    const onPointerOver = (event) => {
+      if (event.target?.closest?.('button,[role="button"]') && !event.relatedTarget?.closest?.('button,[role="button"]')) {
+        audio.unlock().then(() => audio.playUI('hover'));
+      }
+    };
+    const onClick = (event) => {
+      if (event.target?.closest?.('button,[role="button"]')) audio.unlock().then(() => audio.playUI('press'));
+    };
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') { audio.unlock().then(() => audio.playUI('back')); return; }
+      if (['Enter', ' '].includes(event.key) && event.target?.closest?.('button,[role="button"]')) audio.unlock().then(() => audio.playUI('confirm'));
+      else unlockOnGesture();
+    };
+    window.addEventListener('pointerdown', unlockOnGesture, { passive: true });
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('pointerover', onPointerOver);
+    window.addEventListener('click', onClick);
+    return () => {
+      unsubscribeStore(); offs.forEach((off) => off());
+      window.removeEventListener('pointerdown', unlockOnGesture);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('pointerover', onPointerOver);
+      window.removeEventListener('click', onClick);
+    };
+  }, [audio, engine]);
 
   useEffect(() => {
     engine.setAssistMode(assistMode);
@@ -99,6 +155,7 @@ export function GameShell() {
   return (
     <GameSurface
       canvasRef={canvasRef}
+      audio={audio}
       onGraphicsPreset={(preset) => rendererRef.current?.setGraphicsPreset(preset)}
       engine={engine}
       assistMode={assistMode}
@@ -115,7 +172,7 @@ export function GameShell() {
   );
 }
 
-function GameSurface({ canvasRef, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
+function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
 
   return (
@@ -196,6 +253,7 @@ function GameSurface({ canvasRef, onGraphicsPreset, engine, assistMode, onAssist
               )}
             </aside>
           )}
+          <AudioControls audio={audio} />
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               Chapter
