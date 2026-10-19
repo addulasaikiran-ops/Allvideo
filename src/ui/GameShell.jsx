@@ -345,6 +345,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             </aside>
           )}
         </div>}
+        {(ending || fearBoss || memoryLane) && <AudioControls audio={audio} />}
       </section>
       <footer className={styles.footer}>
         <span>Every step can be a small one.</span>
