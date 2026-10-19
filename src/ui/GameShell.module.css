@@ -333,3 +333,6 @@
 .keepsakePanel h2,.keepsakePanel h3{margin:.15rem 0;color:#f6d9a4}.keepsakePanel p{margin:.15rem 0;line-height:1.45}
 .keepsakeGrid{display:flex;flex-wrap:wrap;gap:.5rem}.keepsakeGrid button,.keepsakePanel button,.keepsakePanel select{border:1px solid #b9a8d9;border-radius:.7rem;padding:.45rem .7rem;background:#35304f;color:#fff}
 .keepsakePanel input[type=range]{max-width:9rem}.keepsakeSmall{font-size:.86rem;opacity:.86}
+
+.stage[data-photo-hud="false"] .overlay,.stage[data-photo-hud="false"] .gameFeelLayer{display:none!important}
+.stage[data-photo-hud="false"]{cursor:crosshair}

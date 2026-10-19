@@ -146,6 +146,12 @@ export function GameShell() {
   }, [engine]);
 
   useEffect(() => {
+    const onPhotoCamera = (event) => rendererRef.current?.setPhotoCamera(event.detail || {});
+    window.addEventListener('allvideo:photo-camera', onPhotoCamera);
+    return () => window.removeEventListener('allvideo:photo-camera', onPhotoCamera);
+  }, []);
+
+  useEffect(() => {
     const onKeyDown = (event) => {
       if (event.code === 'F2') { event.preventDefault(); engine.togglePlayerDebug(); }
       if (event.code === 'F3') { event.preventDefault(); engine.toggleLevelDebug(); }
