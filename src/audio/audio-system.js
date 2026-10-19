@@ -6,7 +6,7 @@ const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, Number(va
 export function createAudioSystem({ AudioContextClass = globalThis.AudioContext ?? globalThis.webkitAudioContext, createAudio = () => new Audio() } = {}) {
   let context = null, master = null, buses = {}, unlocked = false;
   let chapter = 'chapter-01', intensity = 'base', musicLayers = [], ambienceNodes = [];
-  let dialogueActive = false, lastCollectAt = 0, collectCombo = 0, chimeTimer = null;
+  let dialogueActive = false, lastCollectAt = 0, collectCombo = 0, chimeTimer = null, preloadedSfx = {};
   const settings = Object.fromEntries(['master', ...BUS_NAMES].map((name) => [name, {
     level: name === 'master' ? 0.85 : name === 'music' ? 0.38 : name === 'ambience' ? 0.28 : 0.7, muted: false,
   }]));
@@ -54,6 +54,32 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     gain.gain.value = volume;
     oscillator.connect(filter); filter.connect(gain); gain.connect(buses.ambience); oscillator.start();
     return { oscillator, filter, gain, extras: [] };
+  }
+  function preloadSfx() {
+    for (const [name, entry] of Object.entries(AUDIO_MANIFEST.effects)) {
+      if (!entry.src || preloadedSfx[name]) continue;
+      const audio = createAudio();
+      audio.preload = 'auto'; audio.src = entry.src;
+      audio.addEventListener?.('error', () => { delete preloadedSfx[name]; }, { once: true });
+      audio.load?.();
+      preloadedSfx[name] = audio;
+    }
+  }
+  function playAsset(name, { x = 0, listenerX = 0 } = {}) {
+    const template = preloadedSfx[name];
+    if (!context || !template || template.readyState < 2 || !buses[AUDIO_MANIFEST.effects[name]?.bus]) return false;
+    const audio = template.cloneNode();
+    audio.currentTime = 0;
+    const source = context.createMediaElementSource(audio), gain = context.createGain();
+    const panner = context.createStereoPanner ? context.createStereoPanner() : null;
+    const distance = Math.abs(Number(x) - Number(listenerX));
+    gain.gain.value = 1 / (1 + distance * distance * 0.035);
+    source.connect(gain);
+    if (panner) { panner.pan.value = clamp((Number(x) - Number(listenerX)) / 12, -1, 1); gain.connect(panner); panner.connect(buses[AUDIO_MANIFEST.effects[name].bus]); }
+    else gain.connect(buses[AUDIO_MANIFEST.effects[name].bus]);
+    audio.onended = () => { source.disconnect(); gain.disconnect(); panner?.disconnect(); audio.removeAttribute('src'); };
+    audio.play().catch(() => { source.disconnect(); gain.disconnect(); panner?.disconnect(); });
+    return true;
   }
   function stopAmbience() {
     for (const node of ambienceNodes) {
@@ -133,7 +159,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     const ctx = ensureContext();
     if (!ctx) return false;
     try { await ctx.resume(); } catch { return false; }
-    if (!unlocked) { unlocked = true; startMusic(chapter); startAmbience(); }
+    if (!unlocked) { unlocked = true; preloadSfx(); startMusic(chapter); startAmbience(); }
     return true;
   }
   function setBusLevel(name, level) {
@@ -159,6 +185,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     if (buses.music && context) setGain(buses.music, (settings.music.muted ? 0 : settings.music.level) * (dialogueActive ? 0.42 : 1), context.currentTime, dialogueActive ? 0.12 : 0.55);
   }
   function playUI(kind = 'press') {
+    if (playAsset(kind)) return;
     const presets = {
       hover: { frequency: 760, endFrequency: 820, duration: 0.055, volume: 0.025 },
       press: { frequency: 390, endFrequency: 320, duration: 0.07, volume: 0.055 },
@@ -168,6 +195,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     tone({ ...(presets[kind] ?? presets.press), bus: 'ui' });
   }
   function playSfx(kind, { x = 0, listenerX = 0, surface = 'stone' } = {}) {
+    if (['jump', 'land', 'collect', 'pulse', 'checkpoint', 'heartbeat'].includes(kind) && playAsset(kind, { x, listenerX })) return;
     const distance = Math.abs(Number(x) - Number(listenerX)), falloff = 1 / (1 + distance * distance * 0.035);
     const pan = clamp((Number(x) - Number(listenerX)) / 12, -1, 1);
     if (kind === 'jump') tone({ frequency: 320, endFrequency: 510, duration: 0.14, volume: 0.12 * falloff, pan });
@@ -194,6 +222,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
   function destroy() {
     unlocked = false; if (chimeTimer) clearTimeout(chimeTimer);
     stopMusic(); stopAmbience();
+    Object.values(preloadedSfx).forEach((audio) => { audio.pause?.(); audio.removeAttribute?.('src'); audio.load?.(); }); preloadedSfx = {};
     if (context && context.state !== 'closed') context.close();
     context = null; master = null; buses = {};
   }
