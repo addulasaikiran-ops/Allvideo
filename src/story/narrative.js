@@ -25,7 +25,7 @@ const chapters = [
  { id:'chapter-01', titleKey:'ch01.title', scenes:[
   scene('ch01-s01',[line('ch01.l01','narrator','The morning had not decided what sort of day it wanted to be.')]),
   scene('ch01-s02',[line('ch01.l02','heroine','You brought two cups. I only asked for one.','amused'),line('ch01.l03','him','I panicked in the kitchen. It seemed safer to over-prepare.')],{choices:[{id:'tease',label:'Call it excellent planning',next:'ch01-s03',effects:{playfulness:1}},{id:'thank',label:'Thank him for thinking of you',next:'ch01-s03',effects:{care:1}}]}),
-  scene('ch01-s03',[line('ch01.l04','heroine','Then I will drink both, {{nickname}}. Slowly. You can supervise.','warm')],{fragmentId:'she-01',sheSays:true}),
+  scene('ch01-s03',[line('ch01.l04','heroine','Then I will drink both, {{nickname}}. Slowly. You can supervise.','warm')]),
  ]},
  { id:'chapter-02', titleKey:'ch02.title', scenes:[
   scene('ch02-s01',[line('ch02.l01','narrator','Rain arrived halfway through the walk, without asking either of them.')]),
