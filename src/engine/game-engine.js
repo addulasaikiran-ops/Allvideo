@@ -32,7 +32,7 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
   for(const action of ['jump','interact','pulse','rest','victory'])if(controls[action+'Pressed'])input.consume(action);
   if(current.status==='Playing'||current.status==='Title')stepPlayer(current.player,controls,dt,current.assistMode,current.playerTuning,current.feelTestRoom?FEEL_TEST_PLATFORMS:levelManager.getPlatforms());
   const levelEvents=levelManager.update(dt,current.player,{interactPressed:controls.interactPressed,pulseActive:current.player.pulseTimer>0});
-  for(const event of current.player.events??[]){eventBus.emit(event.type,event);if(event.type==='player:jump')levelManager.markSkillUsed(event.kind==='double'?'double-jump':'jump');if(event.type==='warm-light:pulse')levelManager.markSkillUsed('pulse');}
+  for(const event of current.player.events??[]){eventBus.emit(event.type,event);if(event.type==='player:jump'){const skill=event.kind==='double'?'double-jump':'jump';levelManager.markSkillUsed(skill);store.setState(s=>({...s,activeHint:s.activeHint?.skill===skill?null:s.activeHint}));}if(event.type==='warm-light:pulse'){levelManager.markSkillUsed('pulse');store.setState(s=>({...s,activeHint:s.activeHint?.skill==='pulse'?null:s.activeHint}));}}
   if(Math.abs(controls.horizontal)>.05)levelManager.markSkillUsed('move');
   if(controls.interactPressed)levelManager.markSkillUsed('interact');
   const hintEvent=[...levelEvents].reverse().find(event=>event.type==='hint:show');
