@@ -1,7 +1,7 @@
 const DEFAULT_BINDINGS=Object.freeze({
  left:{keys:['ArrowLeft','KeyA'],axis:-1},right:{keys:['ArrowRight','KeyD'],axis:1},
  jump:{keys:['Space','ArrowUp','KeyW'],gamepadButtons:[0]},pause:{keys:['Escape','KeyP'],gamepadButtons:[9]},
- interact:{keys:['KeyE','Enter'],gamepadButtons:[2]},pulse:{keys:['ShiftLeft','ShiftRight','KeyE']},
+ interact:{keys:['KeyE','Enter'],gamepadButtons:[2]},pulse:{keys:['ShiftLeft','ShiftRight']},
  rest:{keys:['KeyR']},victory:{keys:['KeyV']},
 });
 export function createInput({target=globalThis.window,getGamepads=()=>globalThis.navigator?.getGamepads?.()??[],bufferSeconds=.12,onDeviceChange=()=>{}}={}){

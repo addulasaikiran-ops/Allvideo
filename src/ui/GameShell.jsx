@@ -34,6 +34,8 @@ export function GameShell() {
   useEffect(() => {
     const onKeyDown = (event) => {
       if (event.code === 'F2') { event.preventDefault(); engine.togglePlayerDebug(); }
+      if (event.code === 'F3') { event.preventDefault(); engine.toggleLevelDebug(); }
+      if (event.code === 'F5') { event.preventDefault(); engine.hotReloadLevel(); }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -102,6 +104,11 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
               onPointerCancel={() => engine.input.setTouchJump(false)}
             >Jump ✦</button>
           </div>
+          {state.activeHint && state.status === 'Playing' && (
+            <aside className={styles.contextHint} key={state.activeHint.skill} aria-live="polite">
+              <span>{state.activeHint.text}</span><strong>{state.activeHint.input}</strong>
+            </aside>
+          )}
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               <input type="checkbox" checked={assistMode} onChange={(event) => onAssistChange(event.target.checked)} />
@@ -113,6 +120,10 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
             <button className={styles.secondaryButton} type="button" onClick={() => engine.setFeelTestRoom(!state.feelTestRoom)}>
               {state.feelTestRoom ? 'Exit feel test' : 'Feel test room'}
             </button>
+            <button className={styles.secondaryButton} type="button" onClick={() => engine.toggleLevelDebug()} aria-expanded={state.levelDebug}>
+              {state.levelDebug ? 'Hide level debug (F3)' : 'Level debug (F3)'}
+            </button>
+            <button className={styles.secondaryButton} type="button" onClick={() => engine.hotReloadLevel()}>Reload level (F5)</button>
             <button className={styles.secondaryButton} type="button" onClick={() => engine.togglePlayerDebug()} aria-expanded={state.playerDebug}>
               {state.playerDebug ? 'Hide tuning (F2)' : 'Tune feel (F2)'}
             </button>
@@ -143,12 +154,22 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
                   </label>
                 );
               })}
-              <p>Changes apply immediately. Shift or E: Warm Light · R: rest · V: victory pose.</p>
+              <p>Changes apply immediately. Shift: Warm Light · E/Enter: interact · R: rest · V: victory pose.</p>
+            </aside>
+          )}
+          {state.levelDebug && (
+            <aside className={styles.levelDebugPanel} aria-label="Level debug overlay">
+              <strong>LEVEL DEBUG · {state.levelSnapshot?.title ?? 'Loading level'}</strong>
+              <span>FPS {Math.round(state.fps ?? 0)} · Checkpoint {state.checkpointId}</span>
+              <span>Entities {state.levelSnapshot?.entities?.length ?? 0} · Platforms {state.levelSnapshot?.entities?.filter((entity) => entity.type?.includes('platform')).length ?? 0}</span>
+              <div className={styles.colliderList}>{(state.levelSnapshot?.entities ?? []).filter((entity) => entity.width && entity.height).map((entity) => (
+                <span key={entity.id}>{entity.id} [{entity.type}] x:{entity.x.toFixed(1)} y:{entity.y.toFixed(1)} {entity.active ? '' : 'inactive'}</span>
+              ))}</div>
             </aside>
           )}
           {showHelp && (
             <aside className={styles.help} aria-label="Controls and accessibility">
-              <p><strong>Keyboard:</strong> Arrow keys or A/D move; Space, W, or Up jump; Shift/E Warm Light; R rest; V victory.</p>
+              <p><strong>Keyboard:</strong> Arrow keys or A/D move; Space, W, or Up jump; Shift Warm Light; E/Enter interact; R rest; V victory.</p>
               <p><strong>Gamepad:</strong> Left stick to move; primary face button to jump.</p>
               <p><strong>Touch:</strong> Hold the arrows to move and Jump to leap. Assist mode increases jump height.</p>
               <p><strong>Gentle play:</strong> Falling returns you to the last checkpoint. No lives or progress are lost.</p>
