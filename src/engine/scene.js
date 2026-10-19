@@ -149,12 +149,21 @@ export function createWorldScene(canvas) {
 
   const levelVisuals = new THREE.Group();
   scene.add(levelVisuals);
+  const ambientParticles = new THREE.Group();
+  const ambientMeshes = [];
+  for (let i = 0; i < 100; i += 1) {
+    const particle = new THREE.Mesh(new THREE.SphereGeometry(.035 + (i % 3) * .012, 5, 4), new THREE.MeshBasicMaterial({ color: '#a6d8bf', transparent: true, opacity: .62, depthWrite: false }));
+    particle.position.set(-20 + Math.random() * 40, -0.2 + Math.random() * 10, -2 + Math.random() * 3);
+    particle.userData = { phase: Math.random() * Math.PI * 2, drift: .15 + Math.random() * .3 };
+    ambientParticles.add(particle); ambientMeshes.push(particle);
+  }
+  scene.add(ambientParticles);
   const levelVisualById = new Map();
   const colliderVisuals = new THREE.Group();
   colliderVisuals.visible = false;
   scene.add(colliderVisuals);
   const levelPalette = {
-    'static-platform': '#665174', 'moving-platform': '#719b91', 'crumbling-platform': '#ad8b73',
+    'static-platform': '#665174', 'moving-platform': '#719b91', 'crumbling-platform': '#ad8b73', 'light-bridge': '#a8f1e2', 'thorn-knot': '#b06f8e', 'enemy': '#9cc5ff', 'dialogue-trigger': '#a8f1e2',
     'one-way-platform': '#8cae9a', 'hazard': '#7d405e', 'switch': '#e8c77d', 'door': '#806d9f',
     'checkpoint': '#b9f2d0', 'spring': '#f5c78d', 'collectible': '#ffe7a4', 'hint': '#f3d9a5',
     'wind-zone': '#a4d7ed', 'enemy-spawner': '#9d83b5', 'cutscene-trigger': '#fff0b7', 'camera-zone': '#9ba6dc',
@@ -163,22 +172,22 @@ export function createWorldScene(canvas) {
     const group = new THREE.Group();
     let geometry;
     let material = new THREE.MeshStandardMaterial({ color: levelPalette[entity.type] ?? '#8a7d9f', roughness: 0.72 });
-    if (['static-platform', 'moving-platform', 'crumbling-platform', 'one-way-platform'].includes(entity.type)) {
+    if (['static-platform', 'moving-platform', 'crumbling-platform', 'one-way-platform', 'light-bridge'].includes(entity.type)) {
       geometry = new THREE.BoxGeometry(entity.width, entity.height, 2.2);
       const slab = new THREE.Mesh(geometry, material);
       slab.position.y = entity.height / 2;
       group.add(slab);
-      const edge = new THREE.Mesh(new THREE.BoxGeometry(entity.width * .96, .045, 2.24), new THREE.MeshBasicMaterial({ color: '#f8dfb5' }));
+      const edge = new THREE.Mesh(new THREE.BoxGeometry(entity.width * .96, .045, 2.24), new THREE.MeshBasicMaterial({ color: entity.type === 'light-bridge' ? (entity.bridgeGlow ?? '#a8f1e2') : '#f8dfb5', transparent: entity.type === 'light-bridge', opacity: entity.type === 'light-bridge' ? .9 : 1 }));
       edge.position.set(0, entity.height + .015, 0);
       group.add(edge);
-    } else if (entity.type === 'collectible') {
+    } else if (entity.type === 'thorn-knot') {\n      const vineMaterial = new THREE.MeshStandardMaterial({ color: entity.cleared ? '#8ed7b5' : '#b06f8e', roughness: .45, emissive: entity.cleared ? '#315e4b' : '#301d39' });\n      for (let i = 0; i < 3; i += 1) { const vine = new THREE.Mesh(new THREE.TorusGeometry(.24 + i * .12, .045, 6, 18), vineMaterial); vine.position.set((i - 1) * .08, .55 + i * .25, .12); vine.rotation.x = Math.PI / 2; vine.rotation.z = i * .8; group.add(vine); }\n      const core = new THREE.Mesh(new THREE.OctahedronGeometry(.18, 1), new THREE.MeshBasicMaterial({ color: entity.cleared ? '#8ed7b5' : (entity.sequence === 'amber' ? '#f3c889' : entity.sequence === 'teal' ? '#8ce3d6' : '#e9a9d0') })); core.position.set(0, .9, .22); group.add(core);\n    } else if (entity.type === 'enemy') {\n      const wisp = new THREE.Mesh(new THREE.SphereGeometry(.34, 12, 10), new THREE.MeshBasicMaterial({ color: entity.enemy === 'spark-wisp' ? '#9cecff' : '#c8b5ff', transparent: true, opacity: entity.calmTimer > 0 ? .48 : .88 })); wisp.position.y = .45; group.add(wisp);\n      const glow = new THREE.Mesh(new THREE.SphereGeometry(.5, 12, 8), new THREE.MeshBasicMaterial({ color: entity.calmTimer > 0 ? '#b9f2d0' : '#a9baff', transparent: true, opacity: .16, depthWrite: false })); glow.position.y = .45; group.add(glow);\n    } else if (entity.type === 'collectible') {
       geometry = new THREE.OctahedronGeometry(.28, 1);
       const gem = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: entity.kind === 'heart' ? '#ff9eae' : '#ffe7a4' }));
       gem.position.y = entity.height / 2;
       group.add(gem);
       const aura = new THREE.Mesh(new THREE.SphereGeometry(.42, 12, 8), new THREE.MeshBasicMaterial({ color: '#ffe7a4', transparent: true, opacity: .12, depthWrite: false }));
       aura.position.y = entity.height / 2; group.add(aura);
-    } else if (entity.type === 'checkpoint') {
+    } else if (entity.type === 'dialogue-trigger') {\n      const bottle = new THREE.Mesh(new THREE.CapsuleGeometry(.14, .42, 3, 6), new THREE.MeshBasicMaterial({ color: '#a8f1e2' })); bottle.position.y = .45; bottle.rotation.z = -.22; group.add(bottle);\n      const glow = new THREE.Mesh(new THREE.SphereGeometry(.38, 10, 8), new THREE.MeshBasicMaterial({ color: '#a8f1e2', transparent: true, opacity: .15, depthWrite: false })); glow.position.y = .45; group.add(glow);\n    } else if (entity.type === 'checkpoint') {
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, entity.height, 6), material);
       pole.position.y = entity.height / 2; group.add(pole);
       const orb = new THREE.Mesh(new THREE.SphereGeometry(.18, 10, 8), new THREE.MeshBasicMaterial({ color: '#b9f2d0' }));
@@ -212,7 +221,7 @@ export function createWorldScene(canvas) {
     for (const entity of entities) {
       let visual = levelVisualById.get(entity.id);
       if (!visual) { visual = makeLevelVisual(entity); levelVisualById.set(entity.id, visual); }
-      visual.group.position.set(entity.x ?? 0, entity.y ?? 0, entity.type === 'wind-zone' || entity.type === 'camera-zone' ? -1 : .2);
+      visual.group.position.set(entity.x ?? 0, entity.y ?? 0, entity.type === 'wind-zone' || entity.type === 'camera-zone' ? -1 : .2);\n      if (entity.type === 'thorn-knot') visual.group.children.forEach((child) => { if (child.material?.color) child.material.color.set(entity.cleared ? '#8ed7b5' : (entity.sequence === 'amber' ? '#f3c889' : entity.sequence === 'teal' ? '#8ce3d6' : '#e9a9d0')); });\n      if (entity.type === 'enemy') visual.group.children.forEach((child) => { if (child.material?.opacity !== undefined) child.material.opacity = entity.calmTimer > 0 ? .38 : .85; });
       visual.group.visible = entity.active !== false && !entity.collected && !entity.cleared && !(entity.type === 'door' && entity.open);
       visual.collider.visible = Boolean(debug && entity.width && entity.height);
       visual.collider.position.set((entity.x ?? 0) + (entity.width ?? .7) / 2, (entity.y ?? 0) + (entity.height ?? 1) / 2, 1.2);
@@ -238,8 +247,7 @@ export function createWorldScene(canvas) {
   resizeObserver.observe(canvas);
 
   let cameraDip = 0;
-  function render({ player: playerState, deltaSeconds = 0, state } = {}) {
-    syncLevel(state?.levelSnapshot, state?.levelDebug);
+  function render({ player: playerState, deltaSeconds = 0, state } = {}) {\n    syncLevel(state?.levelSnapshot, state?.levelDebug);\n    const theme = state?.levelSnapshot?.theme ?? {};\n    if (theme.background) scene.background.set(theme.background);\n    if (theme.fog) scene.fog.color.set(theme.fog);\n    if (theme.particle) ambientMeshes.forEach((particle) => particle.material.color.set(theme.particle));\n    ambientParticles.visible = Boolean(theme.particleStyle);
     if (playerState) {
       const t = performance.now() / 1000;
       player.position.x = playerState.x; player.position.y = playerState.y;
@@ -282,7 +290,7 @@ export function createWorldScene(canvas) {
       if ((playerState.landDip ?? 0) > 0) cameraDip = Math.max(cameraDip, playerState.landDip);
       else cameraDip = Math.max(0, cameraDip - deltaSeconds * 1.4);
       camera.position.x += (playerState.x + 1 - camera.position.x) * Math.min(deltaSeconds * 2.8, 1);
-      const parallax = state?.levelSnapshot?.parallax ?? [];
+      ambientParticles.position.x = camera.position.x * .82;\n      ambientMeshes.forEach((particle) => { particle.position.y += Math.sin(t * particle.userData.drift + particle.userData.phase) * deltaSeconds * .18; particle.position.x += Math.cos(t * .2 + particle.userData.phase) * deltaSeconds * .12; });\n      const parallax = state?.levelSnapshot?.parallax ?? [];
       const layerSpeed = (id, fallback) => parallax.find((layer) => layer.id === id)?.speed ?? fallback;
       farIslands.position.x = camera.position.x * (1 - layerSpeed('distant-hills', .12));
       stars.position.x = camera.position.x * (1 - layerSpeed('morning-clouds', .24));
