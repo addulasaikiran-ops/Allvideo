@@ -297,6 +297,7 @@ export function createWorldScene(canvas) {
 
   const quality = createQualityScaler({ targetFps: 50 });
   const visualPipeline = createVisualPipeline(renderer, scene, camera);
+  let manualPreset = 'auto';
   const resizeObserver = new ResizeObserver(() => {
     const { width, height } = canvas.getBoundingClientRect();
     if (width < 1 || height < 1) return;
@@ -382,7 +383,8 @@ export function createWorldScene(canvas) {
       nearFlowers.children.forEach((object, index) => { if (object.geometry?.type === 'ConeGeometry') object.rotation.z = Math.sin(t * .65 + index) * .08; });
       camera.lookAt(camera.position.x, (verticalWorld ? camera.position.y - 4 : 2) - cameraDip, 0);
     }
-    const level = quality.sample(deltaSeconds);
+    const automaticLevel = quality.sample(deltaSeconds);
+    const level = manualPreset === 'auto' ? automaticLevel : manualPreset;
     visualPipeline.render(deltaSeconds, chapterLook, level, Boolean(state?.status === 'Cutscene' || state?.status === 'Ending'));
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, level === 'low' ? 0.75 : level === 'medium' ? 1 : 1.5));
   }
@@ -401,5 +403,5 @@ export function createWorldScene(canvas) {
     renderer.dispose();
   }
 
-  return { render, destroy, renderer };
+  return { render, destroy, renderer, setGraphicsPreset(preset) { manualPreset = ['auto', 'low', 'medium', 'high'].includes(preset) ? preset : 'auto'; } };
 }
