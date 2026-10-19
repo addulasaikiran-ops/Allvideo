@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "compress:textures": "node scripts/compress-textures.mjs",
-    "optimize:models": "node scripts/optimize-models.mjs"
+    "optimize:models": "node scripts/optimize-models.mjs",
+    "fonts:subset": "node scripts/subset-fonts.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

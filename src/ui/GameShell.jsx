@@ -10,6 +10,7 @@ import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import { createAudioSystem } from '../audio/audio-system.js';
 import { AudioControls } from './AudioControls.jsx';
+import { ScreenOutlet } from './design-system.jsx';
 import styles from './GameShell.module.css';
 
 export function GameShell() {
@@ -174,6 +175,7 @@ export function GameShell() {
 
 function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
+  const [activeScreen, setActiveScreen] = useState(null);
 
   return (
     <main className={styles.shell}>
@@ -254,6 +256,13 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             </aside>
           )}
           <AudioControls audio={audio} />
+          <div className={styles.optionsRow} aria-label="Story menus">
+            <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('chapters')}>Chapters</button>
+            <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('settings')}>Settings</button>
+            <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('gallery')}>Memories</button>
+            <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('credits')}>Credits</button>
+          </div>
+          {activeScreen && <div style={{ position: 'fixed', inset: 0, zIndex: 40, overflowY: 'auto' }}><ScreenOutlet screen={activeScreen} onClose={() => setActiveScreen(null)} onSelect={(chapter) => { onSelectChapter(chapter); setActiveScreen(null); }} onRetry={() => window.location.reload()} /></div>}
           <div className={styles.optionsRow}>
             <label className={styles.assistLabel}>
               Chapter
