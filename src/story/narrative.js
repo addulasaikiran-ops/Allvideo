@@ -25,11 +25,11 @@ const chapters = [
  { id:'chapter-01', titleKey:'ch01.title', scenes:[
   scene('ch01-s01',[line('ch01.l01','narrator','The morning had not decided what sort of day it wanted to be.')]),
   scene('ch01-s02',[line('ch01.l02','heroine','You brought two cups. I only asked for one.','amused'),line('ch01.l03','him','I panicked in the kitchen. It seemed safer to over-prepare.')],{choices:[{id:'tease',label:'Call it excellent planning',next:'ch01-s03',effects:{playfulness:1}},{id:'thank',label:'Thank him for thinking of you',next:'ch01-s03',effects:{care:1}}]}),
-  scene('ch01-s03',[line('ch01.l04','heroine','Then I will drink both. Slowly. You can supervise.','warm')],{fragmentId:'she-01',sheSays:true}),
+  scene('ch01-s03',[line('ch01.l04','heroine','Then I will drink both, {{nickname}}. Slowly. You can supervise.','warm')],{fragmentId:'she-01',sheSays:true}),
  ]},
  { id:'chapter-02', titleKey:'ch02.title', scenes:[
   scene('ch02-s01',[line('ch02.l01','narrator','Rain arrived halfway through the walk, without asking either of them.')]),
-  scene('ch02-s02',[line('ch02.l02','him','I thought the clouds looked harmless. I would like to formally withdraw that opinion.','embarrassed'),line('ch02.l03','heroine','Your weather forecasts are mostly optimism wearing shoes.','amused')],{choices:[{id:'share',label:'Move closer under the umbrella',next:'ch02-s03',effects:{care:1}},{id:'laugh',label:'Laugh and keep walking',next:'ch02-s03',effects:{playfulness:1}}]}),
+  scene('ch02-s02',[line('ch02.l02','him','I thought the clouds looked harmless. I would like to formally withdraw that opinion.','embarrassed'),line('ch02.l03','heroine','Your weather forecasts are mostly optimism wearing shoes. As we say, {{insideJoke}}.','amused')],{choices:[{id:'share',label:'Move closer under the umbrella',next:'ch02-s03',effects:{care:1}},{id:'laugh',label:'Laugh and keep walking',next:'ch02-s03',effects:{playfulness:1}}]}),
   scene('ch02-s03',[line('ch02.l04','him','Next time, I will check the forecast.','gentle'),line('ch02.l05','heroine','Next time, bring the big umbrella. That is growth.')]),
  ]},
  { id:'chapter-03', titleKey:'ch03.title', scenes:[
