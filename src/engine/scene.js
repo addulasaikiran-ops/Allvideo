@@ -325,8 +325,8 @@ export function createWorldScene(canvas) {
     goldRim.color.set('#ffd49a'); roseRim.color.set(chapterLook.rim);
     goldRim.intensity = chapterLook.key === '#ffe0a0' ? 1.25 : 0.9;
     roseRim.intensity = 0.65;
-    if (theme.particle) ambientMeshes.forEach((particle) => particle.material.color.set(theme.particle));
-    ambientParticles.visible = Boolean(theme.particleStyle);
+    ambientMeshes.forEach((particle) => particle.material.color.set(theme.particle ?? chapterLook.particle));
+    ambientParticles.visible = true;
     if (playerState) {
       const t = performance.now() / 1000;
       player.position.x = playerState.x; player.position.y = playerState.y;
