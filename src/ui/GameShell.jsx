@@ -230,14 +230,13 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
           <p className={styles.eyebrow}>{state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT'}</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
-          <p className={styles.status} role="status">
-            {state.status === 'Playing' ? 'You are not alone.' : 'A gentle journey is waiting.'}
-            {' '}Checkpoint: {state.checkpointId} · Health: {state.hp ?? 3}/5
-          </p>
-          <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
-            {state.status === 'Playing' ? 'Journey started' : 'Begin gently'}
-          </button>
-          <div className={styles.controlRow} aria-label="Touch movement controls">
+          {state.status === 'Playing' && <p className={styles.status} role="status">
+            You are not alone. Checkpoint: {state.checkpointId} · Health: {state.hp ?? 3}/5
+          </p>}
+          {state.status !== 'Playing' && <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
+            Begin gently
+          </button>}
+          {state.status === 'Playing' && <div className={styles.controlRow} aria-label="Touch movement controls">
             <button
               className={styles.controlButton}
               type="button"
@@ -266,7 +265,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               onPointerCancel={() => engine.input.setTouchJump(false)}
             >Jump ✦</button>
             <button className={styles.controlButton} type="button" aria-label="Warm Light pulse" onPointerDown={() => engine.input.setTouchPulse(true)} onPointerUp={() => engine.input.setTouchPulse(false)} onPointerLeave={() => engine.input.setTouchPulse(false)} onPointerCancel={() => engine.input.setTouchPulse(false)}>✧</button>
-          </div>
+          </div>}
           {state.activeHint && state.status === 'Playing' && (
             <aside className={styles.contextHint} key={state.activeHint.skill} aria-live="polite">
               <span>{state.activeHint.text}</span><strong>{state.activeHint.input}</strong>
@@ -296,6 +295,9 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               )}
             </aside>
           )}
+          {state.status === 'Playing' && <details style={{ marginTop: '1rem', textAlign: 'left' }}>
+            <summary style={{ cursor: 'pointer', padding: '0.65rem 0.9rem', borderRadius: '0.75rem', background: 'rgba(255,255,255,0.07)' }}>More options</summary>
+            <div style={{ display: 'grid', gap: '0.85rem', paddingTop: '0.85rem' }}>
           <AudioControls audio={audio} />
           <KeepsakeFeatures
             engine={engine}
@@ -413,6 +415,8 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               <p><strong>Gentle play:</strong> Falling returns you to the last checkpoint. No lives or progress are lost.</p>
             </aside>
           )}
+            </div>
+          </details>}
         </div>}
         {(ending || fearBoss || memoryLane) && <AudioControls audio={audio} />}
       </section>
