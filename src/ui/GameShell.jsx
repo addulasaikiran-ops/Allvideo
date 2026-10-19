@@ -26,9 +26,6 @@ export function GameShell() {
   const [memoryLane, setMemoryLane] = useState(false);
   const [fearBoss, setFearBoss] = useState(false);
   const [ending, setEnding] = useState(false);
-  const [juice, setJuice] = useState(() => { try { return localStorage.getItem('allvideo.juice') || 'Full'; } catch { return 'Full'; } });
-  const [feelFx, setFeelFx] = useState([]);
-  const [shakeKey, setShakeKey] = useState(0);
 
   const selectChapter = (chapter) => {
     if (chapter === 'chapter-08') {
@@ -64,30 +61,6 @@ export function GameShell() {
       audio.destroy();
     };
   }, [engine, audio]);
-
-  useEffect(() => {
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    const feel = createGameFeel({ eventBus: engine.eventBus, getJuice: () => juice, reducedMotion,
-      onEffect: (effect) => {
-        if (effect.shake) setShakeKey((key) => key + 1);
-        if (effect.label || effect.particles) {
-          const id = String(Date.now()) + '-' + String(Math.random());
-          setFeelFx((items) => [...items.slice(-12), { ...effect, id }]);
-          window.setTimeout(() => setFeelFx((items) => items.filter((item) => item.id !== id)), 900);
-        }
-      },
-      onHitStop: (duration) => engine.levelManager.hitStop?.(duration),
-      onSlowMoment: (duration, scale) => engine.levelManager.slowMoment?.(duration, scale),
-    });
-    return () => feel.destroy();
-  }, [engine, juice]);
-
-  useEffect(() => {
-    const readJuice = () => { try { setJuice(localStorage.getItem('allvideo.juice') || 'Full'); } catch { /* Use the default when storage is blocked. */ } };
-    window.addEventListener('storage', readJuice);
-    const refresh = window.setInterval(readJuice, 1000);
-    return () => { window.removeEventListener('storage', readJuice); window.clearInterval(refresh); };
-  }, []);
 
   useEffect(() => {
     let previous = engine.store.getState();
@@ -204,6 +177,33 @@ export function GameShell() {
 function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
   const [activeScreen, setActiveScreen] = useState(null);
+  const [juice, setJuice] = useState(() => { try { return localStorage.getItem('allvideo.juice') || 'Full'; } catch { return 'Full'; } });
+  const [feelFx, setFeelFx] = useState([]);
+  const [shakeKey, setShakeKey] = useState(0);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const feel = createGameFeel({ eventBus: engine.eventBus, getJuice: () => juice, reducedMotion,
+      onEffect: (effect) => {
+        if (effect.shake) setShakeKey((key) => key + 1);
+        if (effect.label || effect.particles) {
+          const id = String(Date.now()) + '-' + String(Math.random());
+          setFeelFx((items) => [...items.slice(-12), { ...effect, id }]);
+          window.setTimeout(() => setFeelFx((items) => items.filter((item) => item.id !== id)), 900);
+        }
+      },
+      onHitStop: (duration) => engine.levelManager.hitStop?.(duration),
+      onSlowMoment: (duration, scale) => engine.levelManager.slowMoment?.(duration, scale),
+    });
+    return () => feel.destroy();
+  }, [engine, juice]);
+
+  useEffect(() => {
+    const readJuice = () => { try { setJuice(localStorage.getItem('allvideo.juice') || 'Full'); } catch { /* Use the default when storage is blocked. */ } };
+    window.addEventListener('storage', readJuice);
+    const refresh = window.setInterval(readJuice, 1000);
+    return () => { window.removeEventListener('storage', readJuice); window.clearInterval(refresh); };
+  }, []);
 
   return (
     <main className={styles.shell}>
