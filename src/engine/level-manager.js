@@ -10,7 +10,7 @@ export class LevelManager {
     this.level = clone(level);
     this.elapsed = 0;
     this.entities = this.level.entities.map((entity) => ({
-      ...entity, originX: entity.x ?? 0, originY: entity.y ?? 0, active: entity.active !== false,
+      ...entity, originX: entity.x ?? 0, originY: entity.y ?? 0, active: entity.type === 'light-bridge' ? false : entity.active !== false,
       triggered: false, collected: false, crumbleTimer: null, phase: entity.phase ?? entity.path?.phase ?? 0,
       stuckTimer: 0, hintShown: false, calmTimer: 0, projectileTimer: entity.projectileInterval ?? 3,
     }));
