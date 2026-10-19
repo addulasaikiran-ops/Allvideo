@@ -31,7 +31,8 @@ export function createInput({target=globalThis.window,getGamepads=()=>globalThis
   advance(dt){for(const [a,remaining] of buffers){const next=remaining-Math.max(0,dt);if(next<=0)buffers.delete(a);else buffers.set(a,next);}},
   isBuffered(action){return (buffers.get(action)??0)>0;},consume(action){return buffers.delete(action);},
   setTouchAxis(value){const next=Math.max(-1,Math.min(1,Number(value)||0));if(next!==0)setDevice('touch');touchAxis=next;},
-  setTouchJump(value){const next=Boolean(value);if(next&&!touchJumpDown){setDevice('touch');press('jump');}touchJumpDown=next;},\n  setTouchPulse(value){const next=Boolean(value);if(next&&!touchPulseDown){setDevice('touch');press('pulse');}touchPulseDown=next;},
+  setTouchJump(value){const next=Boolean(value);if(next&&!touchJumpDown){setDevice('touch');press('jump');}touchJumpDown=next;},
+  setTouchPulse(value){const next=Boolean(value);if(next&&!touchPulseDown){setDevice('touch');press('pulse');}touchPulseDown=next;},
   onDeviceChange(callback){deviceListeners.add(callback);return()=>deviceListeners.delete(callback);},
   destroy(){if(destroyed)return;destroyed=true;listeners.splice(0).forEach(fn=>fn());downKeys.clear();buffers.clear();previousGamepadButtons.clear();deviceListeners.clear();touchAxis=0;touchJumpDown=false;touchPulseDown=false;},
  };
