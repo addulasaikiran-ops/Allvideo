@@ -21,6 +21,26 @@ export const personalConfig = Object.freeze({
     ending: 'We can take the next little step together.',
   },
   gameplay: { collectedHearts: 3 },
+  dailyLetters: [
+    'A small reminder: you are allowed to begin again, gently.',
+    'Today does not need to be perfect to hold something lovely.',
+    'Even the quietest step still moves the story forward.',
+    'Keep this little light for a day that asks a lot of you.',
+    'There is no timer on becoming who you are.',
+  ],
+  easterEggs: [
+    { id: 'inside-joke', trigger: 'konami', message: 'You found the secret smile. ' },
+    { id: 'favorite-word', trigger: 'starlight', message: 'A little starlight, just for you.' },
+  ],
+  collectibles: {
+    memoryFragmentsRequired: 8,
+    cosmeticUnlocks: [
+      { id: 'soft-scarf', type: 'scarf', label: 'Soft scarf', hearts: 3, value: '#f0b6a8' },
+      { id: 'moon-clip', type: 'hairClip', label: 'Moon clip', hearts: 5, value: '#d8c6ff' },
+      { id: 'golden-trail', type: 'trail', label: 'Golden trail', hearts: 8, value: '#ffd47d' },
+      { id: 'ocean-trail', type: 'trail', label: 'Ocean trail', hearts: 12, value: '#8ed8e8' },
+    ],
+  },
   personalization: { nickname: '', insideJoke: '', sheSaysOverrides: {} },
   memoryScenes: [
     { id: 'first-meeting', title: 'The First Hello', date: '', caption: 'Two ordinary paths crossed, and the day became a little brighter.', detail: 'A small beginning, with room for every good thing that followed.', photo: '', illustration: 'meeting', accent: '#f3c28e' },
