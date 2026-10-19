@@ -26,7 +26,6 @@ export default function MemoryGallery({ onClose }) {
   const [playbackState, setPlaybackState] = useState(null);
   const memories = personalConfig.memoryScenes ?? [];
   const item = memories[index];
-  const discoveries = new Set([...visited, ...foundFragments, ...exploredChapters]).size;
   const currentCutscene = playback ? cutscenes.find((entry) => entry.id === playback) : null;
   const remember = (memoryId) => setVisited((all) => all.includes(memoryId) ? all : [...all, memoryId]);
   const startCutscene = (cutscene, replay = false) => {
@@ -45,6 +44,7 @@ export default function MemoryGallery({ onClose }) {
   const [storyChapter, setStoryChapter] = useState(chapters[0].id);
   const [dialogue, setDialogue] = useState(null);
   const [exploredChapters, setExploredChapters] = useState([]);
+  const discoveries = new Set([...visited, ...foundFragments, ...exploredChapters]).size;
   const showDialogue = (result) => {
     setDialogue(result);
     const fragmentId = result?.activeLine?.fragmentId || result?.fragmentId;
