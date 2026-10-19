@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from './ui/ErrorBoundary.jsx';
 import { ToastProvider } from './ui/design-system.jsx';
+import { PWAControls } from './ui/PWAControls.jsx';
 import './styles/global.css';
 
 const GameShell = lazy(() => import('./ui/GameShell.jsx').then((module) => ({ default: module.GameShell })));
@@ -13,6 +14,7 @@ createRoot(document.getElementById('root')).render(
         <Suspense fallback={<main role="status" style={{ minHeight: '100svh', display: 'grid', placeItems: 'center', color: 'var(--color-text)', background: 'var(--color-background)' }}>Gathering the little things…</main>}>
           <GameShell />
         </Suspense>
+        <PWAControls />
       </ToastProvider>
     </ErrorBoundary>
   </React.StrictMode>,
