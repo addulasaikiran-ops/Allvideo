@@ -94,13 +94,14 @@ export function GameShell() {
       onAssistChange={setAssistMode}
       showHelp={showHelp}
       memoryLane={memoryLane}
+      fearBoss={fearBoss}
       onSelectChapter={selectChapter}
       onToggleHelp={() => setShowHelp((visible) => !visible)}
     />
   );
 }
 
-function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, memoryLane, onSelectChapter, onToggleHelp }) {
+function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, onSelectChapter, onToggleHelp }) {
   const state = useEngineStore(engine.store);
 
   return (
