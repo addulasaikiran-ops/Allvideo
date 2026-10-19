@@ -170,7 +170,7 @@ export function createWorldScene(canvas) {
       player.scale.set(playerState.squash ?? 1, playerState.stretch ?? 1, 1);
       player.scale.x *= playerState.animationState === 'run' ? 1 + Math.abs(Math.sin(t * 14)) * 0.025 : 1;
       visualParts.lantern.position.y = 1.05 + Math.sin(t * 3.2) * 0.045;
-      visualParts.lanternLight.intensity = playerState.animationState === 'pulse' ? 4.2 : 2.5;
+      visualParts.lanternLight.intensity = playerState.animationState === 'pulse' ? (playerState.pulseLightIntensity ?? 4.2) : 2.5;
       trailGlow.scale.setScalar(playerState.trailScale ?? 0.65);
       trailGlow.material.opacity = 0.11 + Math.min(0.16, (playerState.heartsCollected ?? 0) * 0.018);
       trailGlow.position.x = -0.24 - Math.abs(playerState.velocityX ?? 0) * 0.04;
@@ -191,7 +191,7 @@ export function createWorldScene(canvas) {
       }
       if ((playerState.pulseRadius ?? 0) > 0) {
         pulseRing.scale.setScalar(Math.max(0.1, playerState.pulseRadius));
-        pulseRing.material.opacity = Math.max(0, 0.65 * (1 - (playerState.pulseTimer ?? 0) / 0.42));
+        pulseRing.material.opacity = Math.max(0, 0.65 * (1 - (playerState.pulseTimer ?? 0) / (playerState.pulseDuration ?? 0.42)));
       } else if ((playerState.respawnFlash ?? 0) > 0) {
         pulseRing.scale.setScalar(1 + (0.42 - playerState.respawnFlash) * 7);
         pulseRing.material.opacity = Math.min(0.55, playerState.respawnFlash * 1.4);
