@@ -7,9 +7,9 @@ const emit=(p,type,detail={})=>p.events.push({type,...detail});
 export function stepPlayer(p,input,deltaSeconds,assistMode=false,config=PLAYER_CONFIG,platforms=[]){
  const dt=Math.min(Math.max(deltaSeconds,0),1/30);p.events=[];p.animationTime+=dt;
  p.pulseCooldown=Math.max(0,p.pulseCooldown-dt);p.pulseTimer=Math.max(0,p.pulseTimer-dt);p.pulseRadius=p.pulseTimer>0?config.pulseRadius*(1-p.pulseTimer/config.pulseDuration):0;
- p.landDip=Math.max(0,p.landDip-dt);p.landingTimer=Math.max(0,p.landingTimer-dt);p.hurtTimer=Math.max(0,p.hurtTimer-dt);p.respawnFlash=Math.max(0,p.respawnFlash-dt);
+ p.landDipTimer=Math.max(0,(p.landDipTimer??0)-dt);p.landDip=(p.landDipTimer/config.cameraLandDipDuration)*config.cameraLandDip;p.landingTimer=Math.max(0,p.landingTimer-dt);p.hurtTimer=Math.max(0,p.hurtTimer-dt);p.respawnFlash=Math.max(0,p.respawnFlash-dt);
  p.jumpBuffer=input.jumpPressed?config.jumpBufferTime:Math.max(0,p.jumpBuffer-dt);
- if(input.pulsePressed&&p.pulseCooldown<=0){p.pulseCooldown=config.pulseCooldown;p.pulseTimer=config.pulseDuration;p.animationState='pulse';emit(p,'warm-light:pulse',{x:p.x,y:p.y,radius:config.pulseRadius});}
+ if(input.pulsePressed&&p.pulseCooldown<=0){p.pulseCooldown=config.pulseCooldown;p.pulseTimer=config.pulseDuration;p.pulseDuration=config.pulseDuration;p.pulseLightIntensity=config.pulseLightIntensity;p.animationState='pulse';emit(p,'warm-light:pulse',{x:p.x,y:p.y,radius:config.pulseRadius});}
  if(input.restPressed&&p.grounded)p.restTimer=.7;else p.restTimer=Math.max(0,p.restTimer-dt);
  if(input.victoryPressed)p.victory=true;
  if(p.deathTimer>0){p.deathTimer=Math.max(0,p.deathTimer-dt);p.velocityX=approach(p.velocityX,0,config.groundFriction*dt);if(p.deathTimer===0){p.x=p.checkpointX;p.y=p.checkpointY??config.groundY;p.velocityX=0;p.velocityY=0;p.grounded=true;p.jumpsUsed=0;p.respawnFlash=config.respawnBurstDuration;p.animationState='idle';emit(p,'player:respawn',{checkpointId:p.checkpointId});}return p;}
@@ -32,7 +32,7 @@ export function stepPlayer(p,input,deltaSeconds,assistMode=false,config=PLAYER_C
   const previousY=p.y;p.y+=p.velocityY*dt;let landed=null;
   if(p.velocityY<=0&&previousY>=config.groundY&&p.y<=config.groundY)landed={surface:'meadow',y:config.groundY};
   if(p.velocityY<=0)for(const plat of platforms){const left=plat.x-plat.width/2,right=plat.x+plat.width/2;if(p.x>=left&&p.x<=right&&previousY>=plat.y&&p.y<=plat.y&&previousY-plat.y<config.platformSnapTolerance+Math.abs(p.velocityY)*dt){if(!landed||plat.y>landed.y)landed={surface:plat.surface??'stone',y:plat.y};}}
-  if(landed){p.y=landed.y;p.velocityY=0;p.grounded=true;p.jumpsUsed=0;p.landingTimer=.18;p.squash=1-config.landingSquash;p.stretch=1+config.landingSquash*.35;p.landDip=config.cameraLandDip;p.footstepTimer=0;p.animationState='land';emit(p,'player:land',{surface:landed.surface,soft:Math.abs(previousY-p.y)<=config.softLandingSpeed*dt+.15});emit(p,'effects:dust',{count:config.dustCount,surface:landed.surface});}
+  if(landed){p.y=landed.y;p.velocityY=0;p.grounded=true;p.jumpsUsed=0;p.landingTimer=.18;p.squash=1-config.landingSquash;p.stretch=1+config.landingSquash*.35;p.landDip=config.cameraLandDip;p.landDipTimer=config.cameraLandDipDuration;p.footstepTimer=0;p.animationState='land';emit(p,'player:land',{surface:landed.surface,soft:Math.abs(previousY-p.y)<=config.softLandingSpeed*dt+.15});emit(p,'effects:dust',{count:config.dustCount,surface:landed.surface});}
  } else if(wasGrounded&&Math.abs(p.velocityX)>.1){p.footstepTimer-=dt;if(p.footstepTimer<=0){const surf=platforms.find(a=>p.x>=a.x-a.width/2&&p.x<=a.x+a.width/2)?.surface??'meadow';emit(p,'player:footstep',{surface:surf,x:p.x});p.footstepTimer=config.footstepInterval;}}
  if(p.y<config.deathY){p.deathTimer=Math.min(config.respawnDuration,.95);p.animationState='hurt';p.respawnFlash=config.respawnBurstDuration;p.velocityX=0;p.velocityY=0;p.grounded=false;emit(p,'player:death-burst',{x:p.x,y:p.y});}
  if(p.checkpointId==='start'&&p.x>=2){p.checkpointId='meadow';p.checkpointX=2;p.checkpointY=config.groundY;emit(p,'checkpoint:reached',{checkpointId:'meadow'});}
