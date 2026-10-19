@@ -6,7 +6,7 @@ const SHELL_URLS = ['/', '/index.html', '/manifest.webmanifest', '/icons/icon.sv
 const AUDIO_PATH = /\.(mp3|ogg|wav|m4a|aac|opus)(\?.*)?$/i;
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_URLS)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_URLS)));
 });
 self.addEventListener('activate', (event) => {
   event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== SHELL_CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
