@@ -36,12 +36,12 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
   if(Math.abs(controls.horizontal)>.05)levelManager.markSkillUsed('move');
   if(controls.interactPressed)levelManager.markSkillUsed('interact');
   const hintEvent=[...levelEvents].reverse().find(event=>event.type==='hint:show'&&!levelManager.completedHints.has(event.skill));
-  fpsFrames+=1;fpsElapsed+=dt;if(fpsElapsed>=.5){fps=fpsFrames/fpsElapsed;fpsFrames=0;fpsElapsed=0;}
-  store.setState(state=>({...state,levelSnapshot:levelManager.getSnapshot(),activeHint:hintEvent?{skill:hintEvent.skill,text:hintEvent.text,input:hintEvent.input}:state.activeHint,fps}));
+  fpsFrames+=1;fpsElapsed+=dt;
+  if(hintEvent)store.setState(state=>({...state,activeHint:{skill:hintEvent.skill,text:hintEvent.text,input:hintEvent.input}}));\n  if(fpsElapsed>=0.5){fps=fpsFrames/fpsElapsed;fpsFrames=0;fpsElapsed=0;store.setState(state=>({...state,levelSnapshot:levelManager.getSnapshot(),fps}));}
   for(const event of levelEvents)if(event.type!=='hint:show')eventBus.emit(event.type,event);
   elapsedSeconds+=dt;if(Math.floor(elapsedSeconds)>publishSecond){publishSecond=Math.floor(elapsedSeconds);store.setState(state=>({...state,elapsedSeconds:publishSecond,checkpointId:state.player.checkpointId}));}
  },
- render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state,interpolationAlpha:alpha});}});
+ render(alpha,frame){const state=store.getState();onFrame({...frame,elapsedSeconds,player:interpolatePlayer(previousPlayer,state.player,alpha),simulationPlayer:state.player,state:{...state,levelSnapshot:levelManager.getSnapshot(),fps},interpolationAlpha:alpha});}});
  function transition(next,metadata){const result=stateMachine.transition(next,metadata);if(next==='ChapterComplete')eventBus.emit('chapter:complete',{chapter:store.getState().chapter,metadata});if(['Paused','Cutscene','Title','ChapterComplete','Ending'].includes(next))loop.stop();else if(next==='Playing')loop.start();return result;}
  return {store,input,eventBus,stateMachine,uiBridge,loop,saveSystem,levelManager,
  start(){const state=stateMachine.getState();if(state==='Title')transition('Playing',{source:'start-button'});else if(state==='Paused')transition('Playing',{source:'resume'});else if(state==='Loading')transition('Playing',{source:'load-complete'});else if(state!=='Playing')return;loop.start();},
@@ -50,7 +50,7 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
  setAssistMode(enabled){store.setState(s=>({...s,assistMode:Boolean(enabled)}));},
  setPlayerDebug(enabled){store.setState(s=>({...s,playerDebug:Boolean(enabled)}));},togglePlayerDebug(){store.setState(s=>({...s,playerDebug:!s.playerDebug}));},
  setLevelDebug(enabled){store.setState(s=>({...s,levelDebug:Boolean(enabled)}));},toggleLevelDebug(){store.setState(s=>({...s,levelDebug:!s.levelDebug}));},
- hotReloadLevel(){levelManager.hotReload(chapterOne);store.setState(s=>({...s,levelSnapshot:levelManager.getSnapshot(),activeHint:null}));eventBus.emit('level:reloaded',{levelId:chapterOne.id});},
+ async hotReloadLevel(){let nextLevel=chapterOne;try{const response=await fetch('/src/levels/chapter-01.json?hot='+Date.now());if(response.ok)nextLevel=await response.json();}catch{}levelManager.hotReload(nextLevel);store.setState(s=>({...s,levelSnapshot:levelManager.getSnapshot(),activeHint:null}));eventBus.emit('level:reloaded',{levelId:nextLevel.id});},
  setFeelTestRoom(enabled){const active=Boolean(enabled);store.setState(s=>({...s,feelTestRoom:active}));if(active){const p=store.getState().player;p.x=20;p.y=0;p.checkpointX=20;p.checkpointY=0;p.checkpointId='feel-test';p.velocityX=0;p.velocityY=0;p.grounded=true;}},
  setPlayerTuning(key,value){if(!(key in PLAYER_CONFIG_LIMITS))return;const range=PLAYER_CONFIG_LIMITS[key];store.setState(s=>({...s,playerTuning:{...s.playerTuning,[key]:Math.max(range[0],Math.min(range[1],Number(value)))}}));},
  resetPlayerTuning(){store.setState(s=>({...s,playerTuning:{...PLAYER_CONFIG}}));},
