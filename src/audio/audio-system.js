@@ -151,6 +151,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
   function setChapter(next) {
     if (!AUDIO_MANIFEST.chapters[next] || next === chapter) return;
     chapter = next;
+    intensity = 'base';
     if (unlocked) { startMusic(next); startAmbience(); }
   }
   function setDialogue(active) {
