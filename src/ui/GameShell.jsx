@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createGameEngine } from '../engine/game-engine.js';
 import { createWorldScene } from '../engine/scene.js';
 import { personalConfig } from '../story/personal.config.js';
+import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import styles from './GameShell.module.css';
 
@@ -29,6 +30,14 @@ export function GameShell() {
   useEffect(() => {
     engine.setAssistMode(assistMode);
   }, [assistMode, engine]);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.code === 'F2') { event.preventDefault(); engine.togglePlayerDebug(); }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [engine]);
 
   return (
     <GameSurface
@@ -101,13 +110,45 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
             <button className={styles.secondaryButton} type="button" onClick={() => engine.resetToCheckpoint()}>
               Return to checkpoint
             </button>
+            <button className={styles.secondaryButton} type="button" onClick={() => engine.setFeelTestRoom(!state.feelTestRoom)}>
+              {state.feelTestRoom ? 'Exit feel test' : 'Feel test room'}
+            </button>
+            <button className={styles.secondaryButton} type="button" onClick={() => engine.togglePlayerDebug()} aria-expanded={state.playerDebug}>
+              {state.playerDebug ? 'Hide tuning (F2)' : 'Tune feel (F2)'}
+            </button>
             <button className={styles.secondaryButton} type="button" onClick={onToggleHelp} aria-expanded={showHelp}>
               {showHelp ? 'Hide help' : 'Controls'}
             </button>
           </div>
+          {state.playerDebug && (
+            <aside className={styles.debugPanel} aria-label="Live player feel tuning">
+              <div className={styles.debugHeading}>
+                <strong>Player feel · live tuning</strong>
+                <button className={styles.secondaryButton} type="button" onClick={() => engine.resetPlayerTuning()}>Reset defaults</button>
+              </div>
+              {[
+                ['moveSpeed', 'Move speed'], ['groundAcceleration', 'Ground acceleration'], ['airAcceleration', 'Air acceleration'],
+                ['groundFriction', 'Ground friction'], ['jumpVelocity', 'Jump height'], ['doubleJumpVelocity', 'Double jump'],
+                ['gravity', 'Gravity'], ['fallGravityMultiplier', 'Fall gravity'], ['coyoteTime', 'Coyote time'],
+                ['jumpBufferTime', 'Jump buffer'], ['apexHangTime', 'Apex hang'], ['pulseRadius', 'Warm Light radius'],
+                ['pulseCooldown', 'Pulse cooldown'], ['landingSquash', 'Landing squash'], ['respawnDuration', 'Respawn time'],
+              ].map(([key, label]) => {
+                const limits = PLAYER_CONFIG_LIMITS[key];
+                return (
+                  <label className={styles.tuningRow} key={key}>
+                    <span>{label}</span>
+                    <input type="range" min={limits[0]} max={limits[1]} step={['coyoteTime', 'jumpBufferTime', 'apexHangTime', 'pulseCooldown', 'respawnDuration'].includes(key) ? 0.01 : 0.05}
+                      value={state.playerTuning[key]} onChange={(event) => engine.setPlayerTuning(key, event.target.value)} />
+                    <output>{Number(state.playerTuning[key]).toFixed(2)}</output>
+                  </label>
+                );
+              })}
+              <p>Changes apply immediately. Shift or E: Warm Light · R: rest · V: victory pose.</p>
+            </aside>
+          )}
           {showHelp && (
             <aside className={styles.help} aria-label="Controls and accessibility">
-              <p><strong>Keyboard:</strong> Arrow keys or A/D to move; Space, W, or Up to jump.</p>
+              <p><strong>Keyboard:</strong> Arrow keys or A/D move; Space, W, or Up jump; Shift/E Warm Light; R rest; V victory.</p>
               <p><strong>Gamepad:</strong> Left stick to move; primary face button to jump.</p>
               <p><strong>Touch:</strong> Hold the arrows to move and Jump to leap. Assist mode increases jump height.</p>
               <p><strong>Gentle play:</strong> Falling returns you to the last checkpoint. No lives or progress are lost.</p>
