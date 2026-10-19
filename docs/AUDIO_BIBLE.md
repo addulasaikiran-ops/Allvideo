@@ -55,5 +55,10 @@ A close, human-scale bedtime fable. Sound is tactile, warm and spacious: felted 
 - [ ] Interaction palette: ui-hover.ogg, ui-press.ogg, ui-confirm.ogg, ui-back.ogg, collect-heart.ogg, checkpoint.ogg
 - [ ] Match stem duration/tempo and loop points, loudness-match, document licenses, and test phone speakers/headphones.
 
+## Real asset sourcing
+See [AUDIO_ASSET_SOURCES.md](./AUDIO_ASSET_SOURCES.md) for a sourced Pixabay ambient-piano candidate, official Kenney CC0 UI/foley packs, and the per-file license workflow for Freesound, itch.io, and Epidemic Sound. The Pixabay candidate is marked Content ID Registered, so save its license certificate and test claims before shipping. The Kenney packs are CC0; keep the original archives and provenance notes.
+
+**Integration status:** sources have been identified and documented, but their binary files have not yet been downloaded into this repository. Manifest paths are still local placeholders. Do not treat source links as evidence that the files are already bundled or that adaptive stems have been acquired. A full music mix is not a substitute for synchronized base/tension/boss stems.
+
 ## Implementation notes
-The Web Audio graph uses master/music/SFX/UI/ambience gain buses. Music streams through HTML audio routed into Web Audio, while interaction sounds are synthesized until licensed source assets are supplied. Manifest paths are placeholders; the music files are not included yet.
+The Web Audio graph uses master/music/SFX/UI/ambience gain buses. Music streams through HTML audio routed into Web Audio, while interaction sounds are synthesized until reviewed licensed source assets are supplied. Manifest paths remain placeholders until the audio files and license evidence are committed.
