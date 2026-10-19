@@ -124,7 +124,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           className={styles.canvas}
           aria-label="A little more light: move with arrow keys or A and D, and jump with Space."
         />
-        {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
+        {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
           <p className={styles.eyebrow}>{state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT'}</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
