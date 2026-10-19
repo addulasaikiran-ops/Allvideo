@@ -35,7 +35,7 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
   for(const event of current.player.events??[]){eventBus.emit(event.type,event);if(event.type==='player:jump'){const skill=event.kind==='double'?'double-jump':'jump';levelManager.markSkillUsed(skill);store.setState(s=>({...s,activeHint:s.activeHint?.skill===skill?null:s.activeHint}));}if(event.type==='warm-light:pulse'){levelManager.markSkillUsed('pulse');store.setState(s=>({...s,activeHint:s.activeHint?.skill==='pulse'?null:s.activeHint}));}}
   if(Math.abs(controls.horizontal)>.05)levelManager.markSkillUsed('move');
   if(controls.interactPressed)levelManager.markSkillUsed('interact');
-  const hintEvent=[...levelEvents].reverse().find(event=>event.type==='hint:show');
+  const hintEvent=[...levelEvents].reverse().find(event=>event.type==='hint:show'&&!levelManager.completedHints.has(event.skill));
   fpsFrames+=1;fpsElapsed+=dt;if(fpsElapsed>=.5){fps=fpsFrames/fpsElapsed;fpsFrames=0;fpsElapsed=0;}
   store.setState(state=>({...state,levelSnapshot:levelManager.getSnapshot(),activeHint:hintEvent?{skill:hintEvent.skill,text:hintEvent.text,input:hintEvent.input}:state.activeHint,fps}));
   for(const event of levelEvents)if(event.type!=='hint:show')eventBus.emit(event.type,event);
