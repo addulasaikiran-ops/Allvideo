@@ -44,7 +44,8 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .galleryHeading p { color: #d7cfe2; font-size: .86rem; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .8rem; }
 .memoryCard { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: .4rem; padding: .8rem; border: 1px solid rgb(255 248 240 / 18%); border-radius: 1rem; background: rgb(255 255 255 / 5%); color: #fff8f0; text-align: left; cursor: pointer; }
-.cardArt { display: grid; place-items: center; width: 100%; min-height: 5rem; border-radius: .65rem; color: #fff5dc; background: radial-gradient(circle at 50% 20%, var(--memory-accent), #332840 78%); font-size: 2rem; }
+.cardArt { position: relative; overflow: hidden; display: grid; place-items: center; width: 100%; min-height: 5rem; border-radius: .65rem; color: #fff5dc; background: radial-gradient(circle at 50% 20%, var(--memory-accent), #332840 78%); font-size: 2rem; }
+.cardPhoto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 .cardTitle { font-weight: 700; }
 .cardDate, .photoPath { color: #e4cfae; font-size: .72rem; }
 .cardCaption { color: #d7cfe2; font-size: .82rem; line-height: 1.4; }
