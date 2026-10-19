@@ -13,6 +13,7 @@ import { AudioControls } from './AudioControls.jsx';
 import { ScreenOutlet } from './design-system.jsx';
 import styles from './GameShell.module.css';
 import { createGameFeel } from '../engine/game-feel.js';
+import { KeepsakeFeatures } from './KeepsakeFeatures.jsx';
 
 export function GameShell() {
   const canvasRef = useRef(null);
@@ -180,6 +181,9 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
   const [juice, setJuice] = useState(() => { try { return localStorage.getItem('allvideo.juice') || 'Full'; } catch { return 'Full'; } });
   const [feelFx, setFeelFx] = useState([]);
   const [shakeKey, setShakeKey] = useState(0);
+  const [photoMode, setPhotoMode] = useState(false);
+  const [photoHud, setPhotoHud] = useState(true);
+  const [photoFilter, setPhotoFilter] = useState('none');
 
   useEffect(() => {
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -207,7 +211,8 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
 
   return (
     <main className={styles.shell}>
-      <section className={styles.stage + (shakeKey ? " " + (shakeKey % 2 ? styles.gameShake : styles.gameShakeAlt) : "")} aria-label="Game stage" data-juice={juice}>
+      <section className={styles.stage + (shakeKey ? " " + (shakeKey % 2 ? styles.gameShake : styles.gameShakeAlt) : "")} aria-label="Game stage" data-juice={juice} data-photo-hud={photoHud}>
+        <style>{`.${styles.canvas}{filter:${photoFilter};}`}</style>
         <canvas
           ref={canvasRef}
           className={styles.canvas}
@@ -286,6 +291,20 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             </aside>
           )}
           <AudioControls audio={audio} />
+          <KeepsakeFeatures
+            engine={engine}
+            hearts={state.hearts ?? 0}
+            chapter={state.chapter}
+            rendererRef={null}
+            onPhotoMode={(enabled) => setPhotoMode(enabled)}
+            photoMode={photoMode}
+            photoHud={photoHud}
+            onPhotoHud={setPhotoHud}
+            photoFilter={photoFilter}
+            onPhotoFilter={setPhotoFilter}
+            onSetPhotoCamera={(camera) => window.dispatchEvent(new CustomEvent('allvideo:photo-camera', { detail: camera }))}
+            onNewGamePlus={onNewGamePlus}
+          />
           <div className={styles.optionsRow} aria-label="Story menus">
             <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('chapters')}>Chapters</button>
             <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('settings')}>Settings</button>

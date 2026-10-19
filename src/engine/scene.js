@@ -403,5 +403,16 @@ export function createWorldScene(canvas) {
     renderer.dispose();
   }
 
-  return { render, destroy, renderer, setGraphicsPreset(preset) { manualPreset = ['auto', 'low', 'medium', 'high'].includes(preset) ? preset : 'auto'; } };
+  return {
+    render, destroy, renderer,
+    setGraphicsPreset(preset) { manualPreset = ['auto', 'low', 'medium', 'high'].includes(preset) ? preset : 'auto'; },
+    setPhotoCamera({ x = 0, y = 6, zoom = 1 } = {}) {
+      camera.position.x = x;
+      camera.position.y = y;
+      camera.zoom = Math.max(0.65, Math.min(1.8, zoom));
+      camera.updateProjectionMatrix();
+      camera.lookAt(camera.position.x, camera.position.y - 4, 0);
+    },
+    resetPhotoCamera() { camera.zoom = 1; camera.updateProjectionMatrix(); },
+  };
 }
