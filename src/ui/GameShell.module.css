@@ -280,7 +280,7 @@
   color: #fff5dd;
   background: rgb(25 22 43 / 88%);
   box-shadow: 0 0 28px rgb(255 211 139 / 14%);
-  animation: hint-arrive 220ms ease-out, hint-fade 500ms ease-in 3.8s forwards;
+  animation: hint-arrive 220ms ease-out;
   font-size: 0.88rem;
 }
 .contextHint strong { color: #ffe2a7; white-space: nowrap; }
