@@ -44,7 +44,8 @@ export class LevelManager {
         entity.x = entity.originX + (path.axis === 'x' ? offset : 0);
         entity.y = entity.originY + (path.axis === 'y' ? offset : 0);
       }
-      if (entity.type === 'crumbling-platform' && this.playerTouches(player, entity) && entity.crumbleTimer === null) entity.crumbleTimer = entity.crumbleDelay ?? 1;\n      if (entity.type === 'crumbling-platform' && entity.crumbleTimer !== null) {
+      if (entity.type === 'crumbling-platform' && this.playerTouches(player, entity) && entity.crumbleTimer === null) entity.crumbleTimer = entity.crumbleDelay ?? 1;
+      if (entity.type === 'crumbling-platform' && entity.crumbleTimer !== null) {
         entity.crumbleTimer -= step;
         if (entity.crumbleTimer <= 0) { entity.active = false; this.emit('platform:crumbled', entity); }
       }
@@ -76,7 +77,8 @@ export class LevelManager {
         if (entity.kind === 'dark-mist' && input.pulseActive) { entity.cleared = true; entity.active = false; this.emit('hazard:cleared', entity); }
         else if (!entity.triggered) { entity.triggered = true; this.emit('hazard:contact', entity, { hazard: entity.kind }); }
       }
-      if (entity.type === 'wind-zone' && this.playerTouches(player, entity)) player.velocityX += (entity.direction ?? 1) * (entity.strength ?? 0.4) * step;\n      if (entity.type === 'spring' && entity.active && this.playerTouches(player, entity) && player.velocityY <= 0) {
+      if (entity.type === 'wind-zone' && this.playerTouches(player, entity)) player.velocityX += (entity.direction ?? 1) * (entity.strength ?? 0.4) * step;
+      if (entity.type === 'spring' && entity.active && this.playerTouches(player, entity) && player.velocityY <= 0) {
         player.velocityY = entity.impulse ?? 11; player.grounded = false; player.jumpsUsed = 1;
         this.emit('spring:launched', entity);
       }
