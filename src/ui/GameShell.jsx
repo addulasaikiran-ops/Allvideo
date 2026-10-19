@@ -65,7 +65,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           aria-label="A little more light: move with arrow keys or A and D, and jump with Space."
         />
         <div className={styles.overlay}>
-          <p className={styles.eyebrow}>CHAPTER ONE · THE QUIET MEADOW</p>
+          <p className={styles.eyebrow}>{state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT'}</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
           <p className={styles.status} role="status">
@@ -103,13 +103,35 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
               onPointerLeave={() => engine.input.setTouchJump(false)}
               onPointerCancel={() => engine.input.setTouchJump(false)}
             >Jump ✦</button>
+            <button className={styles.controlButton} type="button" aria-label="Warm Light pulse" onClick={() => { engine.input.rebindKey('pulse', 'ShiftLeft'); window.dispatchEvent(new KeyboardEvent('keydown', { code: 'ShiftLeft' })); window.dispatchEvent(new KeyboardEvent('keyup', { code: 'ShiftLeft' })); }}>✧</button>
           </div>
           {state.activeHint && state.status === 'Playing' && (
             <aside className={styles.contextHint} key={state.activeHint.skill} aria-live="polite">
               <span>{state.activeHint.text}</span><strong>{state.activeHint.input}</strong>
+              {state.activeHint.visualCue && <span aria-label="Puzzle sequence cue">Strand: {state.activeHint.visualCue}</span>}
+            </aside>
+          )}
+          {state.activeDialogue && (
+            <aside className={styles.contextHint} aria-live="polite" aria-label="Message in a bottle dialogue">
+              <strong>Message in a bottle</strong>
+              <p>{state.activeDialogue.lines[state.activeDialogue.index]}</p>
+              <div className={styles.optionsRow}>
+                <button className={styles.primaryButton} type="button" onClick={() => engine.advanceDialogue()}>
+                  {state.activeDialogue.index + 1 >= state.activeDialogue.lines.length ? 'Close message' : 'Next'}
+                </button>
+                {state.activeDialogue.skippable && <button className={styles.secondaryButton} type="button" onClick={() => engine.skipDialogue()}>Skip dialogue</button>}
+              </div>
             </aside>
           )}
           <div className={styles.optionsRow}>
+            <label className={styles.assistLabel}>
+              Chapter
+              <select value={state.chapter} onChange={(event) => engine.loadChapter(event.target.value)} aria-label="Select chapter">
+                <option value="chapter-01">1 · The Quiet Morning</option>
+                <option value="chapter-02">2 · Tangle of Worries</option>
+                <option value="chapter-03">3 · Sea of Distance</option>
+              </select>
+            </label>
             <label className={styles.assistLabel}>
               <input type="checkbox" checked={assistMode} onChange={(event) => onAssistChange(event.target.checked)} />
               Assist mode
