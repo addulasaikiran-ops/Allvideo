@@ -53,7 +53,11 @@ export class LevelManager {
         this.emit('rest:activated', entity, { heal: entity.heal ?? 1, duration: this.slowTimer, timeScale: this.slowScale, text: entity.text ?? 'Rest is progress.' });
       }
       if (['mirror', 'mirror-boss'].includes(entity.type) && !entity.triggered && input.interactPressed && this.playerTouches(player, entity)) {
-        this.emit('mirror:choice', entity, { whisper: entity.whisper, choices: entity.choices ?? [{ id: 'kind', label: 'I can be kind to myself.', kind: 'kind' }], truth: entity.truth, boss: entity.type === 'mirror-boss', cracks: entity.cracks ?? 0, requiredTruths: entity.requiredTruths ?? 1 });
+        const choices = entity.choices ?? [{ id: 'kind', label: 'I can be kind to myself.', kind: 'kind' }];
+        const availableChoices = entity.type === 'mirror-boss'
+          ? choices.filter((choice) => !(entity.answeredChoiceIds ?? []).includes(choice.id))
+          : choices;
+        this.emit('mirror:choice', entity, { whisper: entity.whisper, choices: availableChoices, truth: entity.truth, boss: entity.type === 'mirror-boss', cracks: entity.cracks ?? 0, requiredTruths: entity.requiredTruths ?? 1 });
       }
       if (entity.type === 'enemy') {
         if (entity.calmTimer > 0) entity.calmTimer = Math.max(0, entity.calmTimer - step);
@@ -140,10 +144,15 @@ export class LevelManager {
     if (!entity || entity.triggered) return false;
     const choice = (entity.choices ?? []).find((item) => item.id === choiceId);
     if (!choice) return false;
+    if (entity.type === 'mirror-boss') {
+      entity.answeredChoiceIds ??= [];
+      if (entity.answeredChoiceIds.includes(choiceId)) return false;
+      entity.answeredChoiceIds.push(choiceId);
+    }
     const kind = choice.kind ?? 'kind';
     if (kind === 'kind') {
       if (entity.type === 'mirror-boss') {
-        entity.cracks = Math.min(entity.requiredTruths ?? 3, (entity.cracks ?? 0) + 1);
+        entity.cracks = Math.min(entity.requiredTruths ?? 3, entity.answeredChoiceIds.length);
         this.emit('mirror:boss-cracked', entity, { cracks: entity.cracks, requiredTruths: entity.requiredTruths ?? 3, truth: choice.label });
         if (entity.cracks >= (entity.requiredTruths ?? 3)) entity.triggered = true;
       } else {

@@ -61,6 +61,34 @@ describe('LevelManager', () => {
   });
 });
 
+describe('Mirror of Doubt boss', () => {
+  it('requires three distinct truth choices and never counts a repeated answer twice', () => {
+    const manager = createLevelManager({ id: 'mirror', entities: [
+      { id: 'boss', type: 'mirror-boss', x: 0, y: 0, width: 3, height: 4,
+        choices: [
+          { id: 'truth-1', label: 'I have made it this far.', kind: 'kind' },
+          { id: 'truth-2', label: 'Being afraid does not make me weak.', kind: 'kind' },
+          { id: 'truth-3', label: 'I deserve patience, too.', kind: 'kind' },
+        ],
+        requiredTruths: 3, cracks: 0 },
+    ] });
+    const boss = () => manager.getSnapshot().entities.find((entity) => entity.id === 'boss');
+
+    expect(manager.resolveMirrorChoice('boss', 'truth-1')).toBe(true);
+    expect(boss().cracks).toBe(1);
+    expect(manager.resolveMirrorChoice('boss', 'truth-1')).toBe(false);
+    expect(boss().cracks).toBe(1);
+    expect(boss().triggered).toBe(false);
+
+    expect(manager.resolveMirrorChoice('boss', 'truth-2')).toBe(true);
+    expect(boss().cracks).toBe(2);
+    expect(manager.resolveMirrorChoice('boss', 'truth-3')).toBe(true);
+    expect(boss().cracks).toBe(3);
+    expect(boss().triggered).toBe(true);
+    expect(manager.resolveMirrorChoice('boss', 'truth-1')).toBe(false);
+  });
+});
+
 describe('chapter 2 and 3 mechanics', () => {
   it('untangles thorn knots only in sequence and gives a stuck hint after 20 seconds', () => {
     const manager = createLevelManager({ id: 'tangle', entities: [
