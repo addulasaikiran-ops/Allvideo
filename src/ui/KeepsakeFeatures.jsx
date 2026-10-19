@@ -10,7 +10,7 @@ function writeSave(value) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(value)); } catch { /* Saving is optional in private browsing. */ }
 }
 
-export function KeepsakeFeatures({ engine, hearts, chapter, onPhotoMode, photoMode, photoHud, onPhotoHud, photoFilter, onPhotoFilter, onSetPhotoCamera, onNewGamePlus }) {
+export function KeepsakeFeatures({ hearts, chapter, onPhotoMode, photoMode, photoHud, onPhotoHud, photoFilter, onPhotoFilter, onSetPhotoCamera, onNewGamePlus }) {
   const [save, setSave] = useState(readSave);
   const [open, setOpen] = useState(false);
   const [letter, setLetter] = useState('');
@@ -20,7 +20,7 @@ export function KeepsakeFeatures({ engine, hearts, chapter, onPhotoMode, photoMo
   const [cameraY, setCameraY] = useState(6);
   const [zoom, setZoom] = useState(1);
   const [secretOpen, setSecretOpen] = useState(false);
-  const letters = personalConfig.dailyLetters || [];
+  const letters = useMemo(() => personalConfig.dailyLetters || [], []);
   const cosmetics = personalConfig.collectibles?.cosmeticUnlocks || [];
   const fragments = save.memoryFragments || [];
   const achievements = useMemo(() => [
@@ -38,7 +38,7 @@ export function KeepsakeFeatures({ engine, hearts, chapter, onPhotoMode, photoMo
       writeSave(current);
       setSave(current);
       setLetter(letters[index]);
-    } else if (letters.length) setLetter(letters[current.letterIndex ?? 0] || letters[0]);
+    }
   }, [letters]);
   useEffect(() => {
     const onKey = (event) => {
