@@ -9,23 +9,29 @@ const initialState = {
 
 /**
  * Minimal simulation shell. It deliberately has no React or rendering dependency.
- * Rendering and fixed-step gameplay systems are added in later approved steps.
+ * The frame callback can run every frame, but UI-facing store updates are throttled
+ * to whole elapsed seconds rather than published at display refresh rate.
  */
 export function createGameEngine({ onFrame = () => {}, now = () => performance.now() } = {}) {
   const store = createStore({ ...initialState });
   let frameHandle = null;
   let previousTime = 0;
+  let elapsedSeconds = 0;
+  let lastPublishedSecond = 0;
   let running = false;
 
   function frame(timestamp) {
     if (!running) return;
     const deltaSeconds = previousTime === 0 ? 0 : Math.min((timestamp - previousTime) / 1000, 0.05);
     previousTime = timestamp;
-    store.setState((state) => ({
-      ...state,
-      elapsedSeconds: state.elapsedSeconds + deltaSeconds,
-    }));
-    onFrame({ deltaSeconds, state: store.getState() });
+    elapsedSeconds += deltaSeconds;
+
+    if (Math.floor(elapsedSeconds) > lastPublishedSecond) {
+      lastPublishedSecond = Math.floor(elapsedSeconds);
+      store.setState((state) => ({ ...state, elapsedSeconds: lastPublishedSecond }));
+    }
+
+    onFrame({ deltaSeconds, elapsedSeconds, state: store.getState() });
     frameHandle = requestAnimationFrame(frame);
   }
 
