@@ -27,7 +27,7 @@ export function createInput({target=globalThis.window,getGamepads=()=>globalThis
   read(){const pad=pollGamepad(),axis=pad?.axes?.[0]??0;const keyboard=[...bindings].reduce((sum,[,b])=>b.axis===-1&&b.keys.some(k=>downKeys.has(k))?sum-1:b.axis===1&&b.keys.some(k=>downKeys.has(k))?sum+1:sum,0);
    const held=action=>bindings.get(action)?.keys.some(k=>downKeys.has(k))??false;
    return {horizontal:Math.abs(axis)>.22?Math.sign(axis):Math.max(-1,Math.min(1,keyboard||touchAxis)),jumpPressed:this.isBuffered('jump'),jumpHeld:held('jump')||touchJumpDown||Boolean(pad?.buttons?.[0]?.pressed),
-    pausePressed:this.isBuffered('pause'),interactPressed:this.isBuffered('interact'),pulsePressed:this.isBuffered('pulse')||touchPulseDown,restPressed:this.isBuffered('rest'),victoryPressed:this.isBuffered('victory')};},
+    pausePressed:this.isBuffered('pause'),interactPressed:this.isBuffered('interact'),pulsePressed:this.isBuffered('pulse'),restPressed:this.isBuffered('rest'),victoryPressed:this.isBuffered('victory')};},
   advance(dt){for(const [a,remaining] of buffers){const next=remaining-Math.max(0,dt);if(next<=0)buffers.delete(a);else buffers.set(a,next);}},
   isBuffered(action){return (buffers.get(action)??0)>0;},consume(action){return buffers.delete(action);},
   setTouchAxis(value){const next=Math.max(-1,Math.min(1,Number(value)||0));if(next!==0)setDevice('touch');touchAxis=next;},
