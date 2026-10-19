@@ -163,7 +163,7 @@ export function createWorldScene(canvas) {
   colliderVisuals.visible = false;
   scene.add(colliderVisuals);
   const levelPalette = {
-    'static-platform': '#665174', 'moving-platform': '#719b91', 'crumbling-platform': '#ad8b73', 'light-bridge': '#a8f1e2', 'thorn-knot': '#b06f8e', 'enemy': '#9cc5ff', 'dialogue-trigger': '#a8f1e2',
+    'static-platform': '#665174', 'moving-platform': '#719b91', 'crumbling-platform': '#ad8b73', 'light-bridge': '#a8f1e2', 'thorn-knot': '#b06f8e', 'enemy': '#9cc5ff', 'dialogue-trigger': '#a8f1e2', 'clock-hand': '#ffd49a', 'pendulum': '#e5c6a0', 'rest-lantern': '#ffe0a0', 'mirror': '#d5c8f2', 'mirror-boss': '#c8b5f2', 'spikes': '#bd91b7',
     'one-way-platform': '#8cae9a', 'hazard': '#7d405e', 'switch': '#e8c77d', 'door': '#806d9f',
     'checkpoint': '#b9f2d0', 'spring': '#f5c78d', 'collectible': '#ffe7a4', 'hint': '#f3d9a5',
     'wind-zone': '#a4d7ed', 'enemy-spawner': '#9d83b5', 'cutscene-trigger': '#fff0b7', 'camera-zone': '#9ba6dc',
@@ -180,6 +180,31 @@ export function createWorldScene(canvas) {
       const edge = new THREE.Mesh(new THREE.BoxGeometry(entity.width * .96, .045, 2.24), new THREE.MeshBasicMaterial({ color: entity.type === 'light-bridge' ? (entity.bridgeGlow ?? '#a8f1e2') : '#f8dfb5', transparent: entity.type === 'light-bridge', opacity: entity.type === 'light-bridge' ? .9 : 1 }));
       edge.position.set(0, entity.height + .015, 0);
       group.add(edge);
+    } else if (entity.type === 'clock-hand') {
+      const hand = new THREE.Mesh(new THREE.BoxGeometry(entity.width ?? 3, entity.height ?? .22, .22), new THREE.MeshStandardMaterial({ color: '#ffd49a', emissive: '#80552d', emissiveIntensity: .35, roughness: .45 }));
+      hand.position.set((entity.width ?? 3) / 2, (entity.height ?? .22) / 2, .12); group.add(hand);
+      const hub = new THREE.Mesh(new THREE.SphereGeometry(.22, 10, 8), new THREE.MeshBasicMaterial({ color: '#fff0c2' })); hub.position.set(0, (entity.height ?? .22) / 2, .25); group.add(hub);
+    } else if (entity.type === 'pendulum') {
+      const cord = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, entity.height ?? 2.8, 6), new THREE.MeshStandardMaterial({ color: '#c7b6a3' }));
+      cord.position.set(0, (entity.height ?? 2.8) / 2, .1); group.add(cord);
+      const bob = new THREE.Mesh(new THREE.SphereGeometry(.34, 12, 10), new THREE.MeshStandardMaterial({ color: '#e5c6a0', emissive: '#765b4a', emissiveIntensity: .35 }));
+      bob.position.set(0, .12, .15); group.add(bob);
+      const halo = new THREE.Mesh(new THREE.SphereGeometry(.48, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffe6b6', transparent: true, opacity: .12, depthWrite: false })); halo.position.set(0, .12, .1); group.add(halo);
+    } else if (entity.type === 'rest-lantern') {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(.08, .12, .95, 8), new THREE.MeshStandardMaterial({ color: '#9a7b65' })); post.position.y = .45; group.add(post);
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(.3, 12, 10), new THREE.MeshBasicMaterial({ color: '#ffe0a0' })); glow.position.set(0, 1.08, .2); group.add(glow);
+      const aura = new THREE.Mesh(new THREE.SphereGeometry(.62, 12, 10), new THREE.MeshBasicMaterial({ color: '#ffd49a', transparent: true, opacity: .17, depthWrite: false })); aura.position.set(0, 1.08, .15); group.add(aura);
+    } else if (entity.type === 'mirror' || entity.type === 'mirror-boss') {
+      const pane = new THREE.Mesh(new THREE.BoxGeometry(entity.width ?? 1.2, entity.height ?? 2.3, .18), new THREE.MeshStandardMaterial({ color: entity.type === 'mirror-boss' ? '#b8a3e7' : '#d5c8f2', metalness: .55, roughness: .22, emissive: '#65507e', emissiveIntensity: .35, transparent: true, opacity: .88 }));
+      pane.position.set((entity.width ?? 1.2) / 2, (entity.height ?? 2.3) / 2, .1); group.add(pane);
+      const frame = new THREE.Mesh(new THREE.BoxGeometry((entity.width ?? 1.2) + .22, (entity.height ?? 2.3) + .22, .12), new THREE.MeshStandardMaterial({ color: '#806d9f', metalness: .35, roughness: .5 }));
+      frame.position.set((entity.width ?? 1.2) / 2, (entity.height ?? 2.3) / 2, 0); group.add(frame); group.children.reverse();
+      if (entity.type === 'mirror-boss') {
+        for (let i = 0; i < 3; i += 1) { const crack = new THREE.Mesh(new THREE.BoxGeometry(.045, 1.1 + i * .2, .025), new THREE.MeshBasicMaterial({ color: '#fff1d1', transparent: true, opacity: .0 })); crack.position.set(.55 + i * .45, 1.1, .22); crack.rotation.z = (i - 1) * .35; crack.userData.crackIndex = i + 1; group.add(crack); }
+      }
+    } else if (entity.type === 'spikes') {
+      const count = Math.max(3, Math.floor((entity.width ?? 2) / .35));
+      for (let i = 0; i < count; i += 1) { const spike = new THREE.Mesh(new THREE.ConeGeometry(.2, entity.height ?? .45, 5), new THREE.MeshStandardMaterial({ color: '#bd91b7', emissive: '#50324e', emissiveIntensity: .3 })); spike.position.set(-((entity.width ?? 2) / 2) + (i + .5) * (entity.width ?? 2) / count, (entity.height ?? .45) / 2, .12); group.add(spike); }
     } else if (entity.type === 'thorn-knot') {
       const vineMaterial = new THREE.MeshStandardMaterial({ color: entity.cleared ? '#8ed7b5' : '#b06f8e', roughness: .45, emissive: entity.cleared ? '#315e4b' : '#301d39' });
       for (let i = 0; i < 3; i += 1) { const vine = new THREE.Mesh(new THREE.TorusGeometry(.24 + i * .12, .045, 6, 18), vineMaterial); vine.position.set((i - 1) * .08, .55 + i * .25, .12); vine.rotation.x = Math.PI / 2; vine.rotation.z = i * .8; group.add(vine); }
@@ -232,6 +257,8 @@ export function createWorldScene(canvas) {
       let visual = levelVisualById.get(entity.id);
       if (!visual) { visual = makeLevelVisual(entity); levelVisualById.set(entity.id, visual); }
       visual.group.position.set(entity.x ?? 0, entity.y ?? 0, entity.type === 'wind-zone' || entity.type === 'camera-zone' ? -1 : .2);
+      if (entity.type === 'clock-hand' || entity.type === 'pendulum') visual.group.rotation.z = entity.angle ?? 0;
+      if (entity.type === 'mirror-boss') visual.group.children.forEach((child) => { if (child.userData.crackIndex) child.material.opacity = Math.min(0.95, (entity.cracks ?? 0) >= child.userData.crackIndex ? 0.95 : 0); });
       if (entity.type === 'thorn-knot') visual.group.children.forEach((child) => { if (child.material?.color) child.material.color.set(entity.cleared ? '#8ed7b5' : (entity.sequence === 'amber' ? '#f3c889' : entity.sequence === 'teal' ? '#8ce3d6' : '#e9a9d0')); });
       if (entity.type === 'enemy') visual.group.children.forEach((child) => { if (child.material?.opacity !== undefined) child.material.opacity = entity.calmTimer > 0 ? .38 : .85; });
       visual.group.visible = entity.active !== false && !entity.collected && !entity.cleared && !(entity.type === 'door' && entity.open);
@@ -308,6 +335,8 @@ export function createWorldScene(canvas) {
       if ((playerState.landDip ?? 0) > 0) cameraDip = Math.max(cameraDip, playerState.landDip);
       else cameraDip = Math.max(0, cameraDip - deltaSeconds * 1.4);
       camera.position.x += (playerState.x + 1 - camera.position.x) * Math.min(deltaSeconds * 2.8, 1);
+      const verticalWorld = Boolean(state?.levelSnapshot?.world?.vertical);
+      camera.position.y += ((verticalWorld ? playerState.y + 6 : 6) - camera.position.y) * Math.min(deltaSeconds * 2.4, 1);
       ambientParticles.position.x = camera.position.x * .82;
       ambientMeshes.forEach((particle) => { particle.position.y += Math.sin(t * particle.userData.drift + particle.userData.phase) * deltaSeconds * .18; particle.position.x += Math.cos(t * .2 + particle.userData.phase) * deltaSeconds * .12; });
       const parallax = state?.levelSnapshot?.parallax ?? [];
@@ -315,7 +344,7 @@ export function createWorldScene(canvas) {
       farIslands.position.x = camera.position.x * (1 - layerSpeed('distant-hills', .12));
       stars.position.x = camera.position.x * (1 - layerSpeed('morning-clouds', .24));
       foregroundGrass.position.x = camera.position.x * (1 - layerSpeed('foreground-grass', .82));
-      camera.lookAt(camera.position.x, 2 - cameraDip, 0);
+      camera.lookAt(camera.position.x, (verticalWorld ? camera.position.y - 4 : 2) - cameraDip, 0);
     }
     const level = quality.sample(deltaSeconds);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, level === 'low' ? 0.75 : level === 'medium' ? 1 : 1.5));
