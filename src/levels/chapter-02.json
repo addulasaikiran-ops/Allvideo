@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter-02",
+  "title": "Tangle of Worries",
+  "targetPlaytimeMinutes": [
+    6,
+    8
+  ],
+  "theme": {
+    "background": "#20263b",
+    "fog": "#30384a",
+    "platform": "#526b62",
+    "accent": "#f3c889",
+    "particle": "#a6d8bf",
+    "particleStyle": "fireflies",
+    "ambientParticleCount": 70
+  },
+  "world": {
+    "start": -8,
+    "end": 72,
+    "groundY": 0,
+    "spawn": {
+      "x": -6,
+      "y": 0
+    },
+    "camera": {
+      "follow": 0.12
+    }
+  },
+  "parallax": [
+    {
+      "id": "distant-hills",
+      "depth": -12,
+      "speed": 0.1,
+      "style": "blue-mist-ridges"
+    },
+    {
+      "id": "morning-clouds",
+      "depth": -9,
+      "speed": 0.2,
+      "style": "worry-clouds"
+    },
+    {
+      "id": "foreground-grass",
+      "depth": 3,
+      "speed": 0.8,
+      "style": "thorn-vines"
+    }
+  ],
+  "difficultyCurve": [
+    {
+      "phase": "introduce",
+      "from": 0,
+      "to": 18,
+      "goal": "Pulse one isolated knot; safe ground and a clear line of sight"
+    },
+    {
+      "phase": "practice",
+      "from": 18,
+      "to": 36,
+      "goal": "Untangle two knots in the indicated order while a worry wisp circles nearby"
+    },
+    {
+      "phase": "twist",
+      "from": 36,
+      "to": 54,
+      "goal": "Use a raised platform and calm two wisps before pulsing the third knot"
+    },
+    {
+      "phase": "test",
+      "from": 54,
+      "to": 72,
+      "goal": "Read the vine glow sequence and complete the final ordered knot chain"
+    }
+  ],
+  "entities": [
+    {
+      "id": "tangle-ground-a",
+      "type": "static-platform",
+      "x": -10,
+      "y": -0.5,
+      "width": 27,
+      "height": 0.5,
+      "surface": "moss"
+    },
+    {
+      "id": "tangle-start-hint",
+      "type": "hint",
+      "x": -6,
+      "y": 0,
+      "width": 3,
+      "height": 2,
+      "skill": "pulse",
+      "input": "Shift · Warm Light",
+      "text": "The thorn-knot brightens when your lantern breathes. Pulse it gently."
+    },
+    {
+      "id": "tangle-heart-a",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 5,
+      "y": 1.1,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "tangle-checkpoint-a",
+      "type": "checkpoint",
+      "x": 10,
+      "y": 0,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "knot-1",
+      "type": "thorn-knot",
+      "x": 13,
+      "y": 0,
+      "width": 1.1,
+      "height": 1.8,
+      "order": 1,
+      "sequence": "amber",
+      "stuckHintAfter": 20,
+      "hintText": "Follow the first amber strand. Pulse the knot with one bright center."
+    },
+    {
+      "id": "tangle-bridge-a",
+      "type": "static-platform",
+      "x": 17,
+      "y": 0.8,
+      "width": 3,
+      "height": 0.35,
+      "surface": "moss"
+    },
+    {
+      "id": "tangle-ground-b",
+      "type": "static-platform",
+      "x": 20,
+      "y": -0.5,
+      "width": 17,
+      "height": 0.5,
+      "surface": "moss"
+    },
+    {
+      "id": "wisp-a",
+      "type": "enemy",
+      "enemy": "worry-wisp",
+      "behavior": "circle-calm-on-pulse",
+      "x": 25,
+      "y": 1.3,
+      "width": 0.8,
+      "height": 0.8,
+      "orbitRadius": 1.4,
+      "orbitSpeed": 1.1,
+      "calmDuration": 5,
+      "contactSafe": true
+    },
+    {
+      "id": "knot-2",
+      "type": "thorn-knot",
+      "x": 29,
+      "y": 0,
+      "width": 1.1,
+      "height": 1.8,
+      "order": 2,
+      "sequence": "teal",
+      "stuckHintAfter": 20,
+      "hintText": "The teal strand is next. Earlier knots glow softly when they are settled."
+    },
+    {
+      "id": "tangle-heart-b",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 33,
+      "y": 1.4,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "tangle-checkpoint-b",
+      "type": "checkpoint",
+      "x": 35,
+      "y": 0,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "tangle-gap-platform",
+      "type": "static-platform",
+      "x": 38,
+      "y": 0.9,
+      "width": 2.8,
+      "height": 0.35,
+      "surface": "crystal"
+    },
+    {
+      "id": "tangle-platform-move",
+      "type": "moving-platform",
+      "x": 42,
+      "y": 1,
+      "width": 2.4,
+      "height": 0.35,
+      "surface": "moss",
+      "path": {
+        "axis": "y",
+        "distance": 0.8,
+        "speed": 0.65
+      }
+    },
+    {
+      "id": "tangle-ground-c",
+      "type": "static-platform",
+      "x": 45,
+      "y": -0.5,
+      "width": 15,
+      "height": 0.5,
+      "surface": "moss"
+    },
+    {
+      "id": "wisp-b",
+      "type": "enemy",
+      "enemy": "worry-wisp",
+      "behavior": "circle-calm-on-pulse",
+      "x": 48,
+      "y": 1.5,
+      "width": 0.8,
+      "height": 0.8,
+      "orbitRadius": 1.8,
+      "orbitSpeed": 1.3,
+      "calmDuration": 5,
+      "contactSafe": true
+    },
+    {
+      "id": "wisp-c",
+      "type": "enemy",
+      "enemy": "worry-wisp",
+      "behavior": "circle-calm-on-pulse",
+      "x": 52,
+      "y": 2,
+      "width": 0.8,
+      "height": 0.8,
+      "orbitRadius": 1.1,
+      "orbitSpeed": 0.8,
+      "calmDuration": 5,
+      "contactSafe": true
+    },
+    {
+      "id": "knot-3",
+      "type": "thorn-knot",
+      "x": 55,
+      "y": 0,
+      "width": 1.1,
+      "height": 1.8,
+      "order": 3,
+      "sequence": "rose",
+      "stuckHintAfter": 20,
+      "hintText": "One final knot. Let the three colors guide you: amber, teal, rose."
+    },
+    {
+      "id": "tangle-checkpoint-c",
+      "type": "checkpoint",
+      "x": 59,
+      "y": 0,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "tangle-test-platform-a",
+      "type": "static-platform",
+      "x": 61,
+      "y": 0.65,
+      "width": 2.5,
+      "height": 0.35,
+      "surface": "crystal"
+    },
+    {
+      "id": "tangle-test-platform-b",
+      "type": "static-platform",
+      "x": 65,
+      "y": 1.15,
+      "width": 2.5,
+      "height": 0.35,
+      "surface": "crystal"
+    },
+    {
+      "id": "tangle-ground-end",
+      "type": "static-platform",
+      "x": 67,
+      "y": -0.5,
+      "width": 8,
+      "height": 0.5,
+      "surface": "moss"
+    },
+    {
+      "id": "tangle-heart-c",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 68,
+      "y": 0.8,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "tangle-exit",
+      "type": "cutscene-trigger",
+      "x": 70,
+      "y": 0,
+      "width": 1,
+      "height": 2,
+      "cutscene": "chapter-two-ending"
+    }
+  ]
+}

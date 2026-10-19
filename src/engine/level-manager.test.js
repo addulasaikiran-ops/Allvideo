@@ -60,3 +60,44 @@ describe('LevelManager', () => {
     expect(manager.getSnapshot().title).toBe('Reloaded');
   });
 });
+
+describe('chapter 2 and 3 mechanics', () => {
+  it('untangles thorn knots only in sequence and gives a stuck hint after 20 seconds', () => {
+    const manager = createLevelManager({ id: 'tangle', entities: [
+      { id: 'knot-1', type: 'thorn-knot', x: 0, y: 0, width: 1, height: 1.8, order: 1, sequence: 'amber', stuckHintAfter: 20 },
+      { id: 'knot-2', type: 'thorn-knot', x: 4, y: 0, width: 1, height: 1.8, order: 2, sequence: 'teal' },
+    ] });
+    const player = { x: 0, y: 0, velocityY: 0 };
+    for (let i = 0; i < 205; i += 1) manager.update(.1, player, {});
+    expect(manager.getSnapshot().entities.find((entity) => entity.id === 'knot-1').hintShown).toBe(true);
+    manager.update(.016, player, { pulsePressed: true });
+    expect(manager.getSnapshot().clearedKnots).toEqual(['knot-1']);
+    manager.update(.016, player, { pulsePressed: true });
+    expect(manager.getSnapshot().clearedKnots).toEqual(['knot-1']);
+  });
+
+  it('forms a light bridge after enough nearby hearts have been collected', () => {
+    const manager = createLevelManager({ id: 'sea', entities: [
+      { id: 'heart-a', type: 'collectible', kind: 'heart', x: 0, y: 0, width: .5, height: .7 },
+      { id: 'heart-b', type: 'collectible', kind: 'heart', x: 2, y: 0, width: .5, height: .7 },
+      { id: 'bridge', type: 'light-bridge', x: 1, y: -1, width: 5, height: .3, requiresHearts: 2, heartRadius: 10 },
+    ] });
+    expect(manager.getPlatforms().some((platform) => platform.id === 'bridge')).toBe(false);
+    manager.update(.016, { x: 0, y: 0, velocityY: 0 }, {});
+    manager.update(.016, { x: 2, y: 0, velocityY: 0 }, {});
+    manager.update(.016, { x: 2, y: 0, velocityY: 0 }, {});
+    expect(manager.getPlatforms().some((platform) => platform.id === 'bridge')).toBe(true);
+  });
+
+  it('calms worry wisps on pulse and emits skippable dialogue events', () => {
+    const onEvent = vi.fn();
+    const manager = createLevelManager({ id: 'sea', entities: [
+      { id: 'wisp', type: 'enemy', enemy: 'worry-wisp', x: 0, y: 0, width: .8, height: .8, calmDuration: 5 },
+      { id: 'bottle', type: 'dialogue-trigger', x: 2, y: 0, width: 1, height: 1, dialogueId: 'bottle', skippable: true, lines: ['A small message'] },
+    ] }, { onEvent });
+    manager.update(.016, { x: 0, y: 0, velocityY: 0 }, { pulsePressed: true });
+    expect(manager.getSnapshot().entities.find((entity) => entity.id === 'wisp').calmTimer).toBeGreaterThan(0);
+    manager.update(.016, { x: 2, y: 0, velocityY: 0 }, {});
+    expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: 'dialogue:trigger', skippable: true, dialogueId: 'bottle' }));
+  });
+});

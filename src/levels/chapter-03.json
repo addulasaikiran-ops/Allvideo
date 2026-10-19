@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter-03",
+  "title": "Sea of Distance",
+  "targetPlaytimeMinutes": [
+    6,
+    8
+  ],
+  "theme": {
+    "background": "#142b46",
+    "fog": "#24465d",
+    "platform": "#477f83",
+    "accent": "#a8f1e2",
+    "particle": "#b9eaff",
+    "particleStyle": "sea-glints",
+    "ambientParticleCount": 90
+  },
+  "world": {
+    "start": -8,
+    "end": 76,
+    "groundY": 0,
+    "spawn": {
+      "x": -6,
+      "y": 0
+    },
+    "camera": {
+      "follow": 0.12
+    }
+  },
+  "parallax": [
+    {
+      "id": "distant-hills",
+      "depth": -12,
+      "speed": 0.08,
+      "style": "far-blue-isles"
+    },
+    {
+      "id": "morning-clouds",
+      "depth": -9,
+      "speed": 0.18,
+      "style": "sea-haze"
+    },
+    {
+      "id": "foreground-grass",
+      "depth": 3,
+      "speed": 0.7,
+      "style": "sea-spray"
+    }
+  ],
+  "difficultyCurve": [
+    {
+      "phase": "introduce",
+      "from": 0,
+      "to": 18,
+      "goal": "Hop between broad islands and collect hearts near a dormant light bridge"
+    },
+    {
+      "phase": "practice",
+      "from": 18,
+      "to": 38,
+      "goal": "Form a bridge with nearby hearts and ride a slow tide platform"
+    },
+    {
+      "phase": "twist",
+      "from": 38,
+      "to": 57,
+      "goal": "Read a spark-wisp's gentle projectile arc while crossing staggered islands"
+    },
+    {
+      "phase": "test",
+      "from": 57,
+      "to": 76,
+      "goal": "Chain bridge, tide lift, and two island jumps toward the distant shore"
+    }
+  ],
+  "entities": [
+    {
+      "id": "sea-island-start",
+      "type": "static-platform",
+      "x": -10,
+      "y": -0.5,
+      "width": 13,
+      "height": 0.5,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-start-hint",
+      "type": "hint",
+      "x": -6,
+      "y": 0,
+      "width": 3,
+      "height": 2,
+      "skill": "jump",
+      "input": "Jump · then jump again",
+      "text": "The sea is wide, but each island is close enough to reach."
+    },
+    {
+      "id": "sea-heart-a",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 3,
+      "y": 1.2,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "sea-island-2",
+      "type": "static-platform",
+      "x": 5,
+      "y": -0.2,
+      "width": 4,
+      "height": 0.35,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-heart-b",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 7,
+      "y": 1.1,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "sea-bridge-a",
+      "type": "light-bridge",
+      "x": 9,
+      "y": -0.15,
+      "width": 5,
+      "height": 0.28,
+      "surface": "light",
+      "requiresHearts": 2,
+      "heartRadius": 12,
+      "bridgeGlow": "#a8f1e2"
+    },
+    {
+      "id": "sea-island-3",
+      "type": "static-platform",
+      "x": 14,
+      "y": 0.35,
+      "width": 4,
+      "height": 0.35,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-checkpoint-a",
+      "type": "checkpoint",
+      "x": 16,
+      "y": 0.35,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "sea-message-bottle",
+      "type": "dialogue-trigger",
+      "x": 18,
+      "y": 0.35,
+      "width": 1,
+      "height": 1.4,
+      "dialogueId": "message-in-a-bottle",
+      "skippable": true,
+      "lines": [
+        "Someone folded a little courage into this bottle.",
+        "If the distance feels too wide, take it one island at a time.",
+        "— Erven"
+      ]
+    },
+    {
+      "id": "sea-tide-platform-a",
+      "type": "moving-platform",
+      "x": 22,
+      "y": 0.3,
+      "width": 2.8,
+      "height": 0.35,
+      "surface": "sea-glass",
+      "path": {
+        "axis": "y",
+        "distance": 1.1,
+        "speed": 0.55
+      }
+    },
+    {
+      "id": "sea-island-4",
+      "type": "static-platform",
+      "x": 27,
+      "y": 0.1,
+      "width": 4,
+      "height": 0.35,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-heart-c",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 29,
+      "y": 1.3,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "sea-bridge-b",
+      "type": "light-bridge",
+      "x": 31,
+      "y": 0.05,
+      "width": 5.5,
+      "height": 0.28,
+      "surface": "light",
+      "requiresHearts": 1,
+      "heartRadius": 10,
+      "bridgeGlow": "#a8f1e2"
+    },
+    {
+      "id": "sea-checkpoint-b",
+      "type": "checkpoint",
+      "x": 36,
+      "y": 0.05,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "spark-wisp-a",
+      "type": "enemy",
+      "enemy": "spark-wisp",
+      "behavior": "gentle-spark-shot",
+      "x": 40,
+      "y": 1.7,
+      "width": 0.8,
+      "height": 0.8,
+      "orbitRadius": 1.3,
+      "orbitSpeed": 0.8,
+      "projectile": "spark",
+      "projectileInterval": 3.5,
+      "projectileSpeed": 2.2,
+      "contactSafe": true
+    },
+    {
+      "id": "sea-tide-platform-b",
+      "type": "moving-platform",
+      "x": 44,
+      "y": 0.4,
+      "width": 2.4,
+      "height": 0.35,
+      "surface": "sea-glass",
+      "path": {
+        "axis": "y",
+        "distance": 1.4,
+        "speed": 0.75,
+        "phase": 1.2
+      }
+    },
+    {
+      "id": "sea-island-5",
+      "type": "static-platform",
+      "x": 49,
+      "y": 0.4,
+      "width": 4,
+      "height": 0.35,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-heart-d",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 51,
+      "y": 1.6,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "sea-heart-e",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 56.5,
+      "y": 1.35,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "sea-bridge-c",
+      "type": "light-bridge",
+      "x": 53,
+      "y": 0.3,
+      "width": 4.5,
+      "height": 0.28,
+      "surface": "light",
+      "requiresHearts": 2,
+      "heartRadius": 12,
+      "bridgeGlow": "#a8f1e2"
+    },
+    {
+      "id": "spark-wisp-b",
+      "type": "enemy",
+      "enemy": "spark-wisp",
+      "behavior": "gentle-spark-shot",
+      "x": 58,
+      "y": 1.8,
+      "width": 0.8,
+      "height": 0.8,
+      "orbitRadius": 1.6,
+      "orbitSpeed": 1.1,
+      "projectile": "spark",
+      "projectileInterval": 3,
+      "projectileSpeed": 2.4,
+      "contactSafe": true
+    },
+    {
+      "id": "sea-checkpoint-c",
+      "type": "checkpoint",
+      "x": 61,
+      "y": 0.3,
+      "width": 0.7,
+      "height": 1.8
+    },
+    {
+      "id": "sea-island-6",
+      "type": "static-platform",
+      "x": 63,
+      "y": 0.3,
+      "width": 3.5,
+      "height": 0.35,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-tide-platform-c",
+      "type": "moving-platform",
+      "x": 68,
+      "y": 0.2,
+      "width": 2.5,
+      "height": 0.35,
+      "surface": "sea-glass",
+      "path": {
+        "axis": "y",
+        "distance": 0.9,
+        "speed": 0.7
+      }
+    },
+    {
+      "id": "sea-island-end",
+      "type": "static-platform",
+      "x": 72,
+      "y": -0.5,
+      "width": 7,
+      "height": 0.5,
+      "surface": "sea-glass"
+    },
+    {
+      "id": "sea-heart-end",
+      "type": "collectible",
+      "kind": "heart",
+      "x": 74,
+      "y": 0.8,
+      "width": 0.55,
+      "height": 0.7
+    },
+    {
+      "id": "sea-exit",
+      "type": "cutscene-trigger",
+      "x": 76,
+      "y": 0,
+      "width": 1,
+      "height": 2,
+      "cutscene": "chapter-three-ending"
+    }
+  ]
+}

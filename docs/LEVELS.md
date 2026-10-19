@@ -23,3 +23,14 @@ Target: 4–6 minutes, with no text-wall tutorial. Environmental prompts are sho
 5. **Interact:** a small bell switch opens the morning door. A spring, moving ledge, crumble ledge and one-way ledge add optional traversal texture on the way out.
 
 The first obstacle is non-lethal and hazards in this chapter are safe-fail by default. The level JSON intentionally keeps the enemy spawner inactive during this tutorial; its entity type is available for later chapters.
+
+
+## Chapter 2 — Tangle of Worries
+
+Target: 6–8 minutes. Palette: midnight blue, muted sage, amber/teal/rose knot cores, and drifting firefly particles. The flow curve is **introduce → practice → twist → test** across four spatial sections. Thorn knots accept Warm Light pulses only in their numbered order. If the player remains near the next knot for 20 seconds, it gives a visual strand-color cue and a soft lantern-chime cue; an incorrect knot gently reminds the player which strand is next. Worry wisps orbit, are harmless on contact, and calm for five seconds when pulsed rather than dying. Checkpoints at the opening, practice/twist boundary, and final test are spaced to target roughly 30–45 seconds of traversal.
+
+## Chapter 3 — Sea of Distance
+
+Target: 6–8 minutes. Palette: deep ocean blue, sea-glass teal, and pale aqua light, with sea-glint ambient particles. The four-part flow curve introduces island hops, practices nearby-heart light bridges and slow tide lifts, twists with gentle spark-wisp shots, then tests the combined traversal language. Light bridges remain dormant until the configured number of collected hearts are within their radius. Tide platforms move vertically at readable, low speeds. The message-in-a-bottle dialogue is explicitly skippable. Checkpoints at the first outer island, middle sea, and far-shore approach aim for 30–45 second intervals.
+
+Chapter selection is available in the game overlay. F3 continues to show level diagnostics and F5 reloads the currently selected chapter JSON. The chapters expose typed events (`knot:untangled`, `enemy:calmed`, `enemy:projectile`, `bridge:formed`, and `dialogue:trigger`) for future audio, UI, and effects polish.
