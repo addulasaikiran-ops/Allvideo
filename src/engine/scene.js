@@ -49,7 +49,7 @@ export function createWorldScene(canvas) {
     island.rotation.z = Math.PI;
     farIslands.add(island);
   }
-  scene.add(farIslands);
+  scene.add(farIslands);\n  const foregroundGrass = new THREE.Group();\n  const grassMaterial = new THREE.MeshBasicMaterial({ color: '#5e7c68', transparent: true, opacity: 0.55 });\n  for (let i = 0; i < 70; i += 1) { const blade = new THREE.Mesh(new THREE.ConeGeometry(.08 + (i % 3) * .02, .65 + (i % 4) * .12, 4), grassMaterial); blade.position.set(-18 + i * .58, -.15, 2.8); blade.rotation.z = (i % 2 ? -.18 : .18); foregroundGrass.add(blade); }\n  scene.add(foregroundGrass);
 
   const ground = new THREE.Mesh(new THREE.BoxGeometry(40, 1, 5), makeMaterial('#39314f'));
   ground.position.set(6, -0.65, 0);
@@ -277,7 +277,7 @@ export function createWorldScene(canvas) {
       if ((playerState.landDip ?? 0) > 0) cameraDip = Math.max(cameraDip, playerState.landDip);
       else cameraDip = Math.max(0, cameraDip - deltaSeconds * 1.4);
       camera.position.x += (playerState.x + 1 - camera.position.x) * Math.min(deltaSeconds * 2.8, 1);
-      camera.lookAt(camera.position.x, 2 - cameraDip, 0);
+      const parallax = state?.levelSnapshot?.parallax ?? [];\n      const layerSpeed = (id, fallback) => parallax.find((layer) => layer.id === id)?.speed ?? fallback;\n      farIslands.position.x = camera.position.x * (1 - layerSpeed('distant-hills', .12));\n      stars.position.x = camera.position.x * (1 - layerSpeed('morning-clouds', .24));\n      foregroundGrass.position.x = camera.position.x * (1 - layerSpeed('foreground-grass', .82));\n      camera.lookAt(camera.position.x, 2 - cameraDip, 0);
     }
     const level = quality.sample(deltaSeconds);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, level === 'low' ? 0.75 : level === 'medium' ? 1 : 1.5));
