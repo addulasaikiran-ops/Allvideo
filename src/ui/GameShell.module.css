@@ -313,3 +313,13 @@
 .audioBus input { width: 100%; accent-color: #e9a9d0; }
 .audioBus button[aria-pressed="true"] { border-color: #ffb7c8; color: #ffb7c8; }
 .audioMixer p { margin: .2rem 0 0; color: #c9bdd9; font-size: .72rem; }
+
+.audioPanel { width: min(100%, 34rem); border: 1px solid rgb(255 226 167 / 24%); border-radius: .8rem; padding: .65rem .8rem; color: #f7e9d2; background: rgb(23 20 39 / 88%); backdrop-filter: blur(10px); }
+.audioPanelTop { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
+.audioPanelTop strong { margin-right: auto; color: #ffe2a7; font-size: .82rem; }
+.audioPanel button { border: 1px solid rgb(255 226 167 / 28%); border-radius: .55rem; padding: .35rem .55rem; color: inherit; background: rgb(60 48 77 / 72%); font: inherit; cursor: pointer; }
+.audioMixer { display: grid; gap: .55rem; padding-top: .7rem; }
+.audioBus { display: grid; grid-template-columns: 5.5rem minmax(5rem, 1fr) 3.8rem; align-items: center; gap: .55rem; font-size: .78rem; }
+.audioBus input { width: 100%; accent-color: #e9a9d0; }
+.audioBus button[aria-pressed="true"] { border-color: #ffb7c8; color: #ffb7c8; }
+.audioMixer p { margin: .2rem 0 0; color: #c9bdd9; font-size: .72rem; }
