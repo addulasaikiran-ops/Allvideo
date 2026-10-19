@@ -15,6 +15,10 @@ import chapterThree from '../levels/chapter-03.json';
 const CHAPTERS = {'chapter-01': chapterOne, 'chapter-02': chapterTwo, 'chapter-03': chapterThree};
 const initialPlayer=createPlayerState(); initialPlayer.levelManagedCheckpoints=true; initialPlayer.worldStart=chapterOne.world.start-2; initialPlayer.worldEnd=chapterOne.world.end+1;
 const initialState={status:'Title',elapsedSeconds:0,checkpointId:'start',chapter:'chapter-01',hearts:3,hp:3,assistMode:false,inputDevice:'keyboard',player:initialPlayer,playerTuning:{...PLAYER_CONFIG,worldStart:chapterOne.world.start-2,worldEnd:chapterOne.world.end+1},playerDebug:false,levelDebug:false,feelTestRoom:false,levelSnapshot:null,activeHint:null,activeDialogue:null,fps:0};
+export const FEEL_TEST_PLATFORMS=[
+ {x:22,y:.55,width:2.2,surface:'stone'},{x:26,y:.85,width:1.8,surface:'moss'},{x:30.8,y:.65,width:1.7,surface:'wood'},
+ {x:36,y:1.6,width:2,surface:'crystal'},{x:42.2,y:1.1,width:1.8,surface:'stone'},{x:47.5,y:2.1,width:2.1,surface:'moss'},{x:52,y:.6,width:2.4,surface:'wood'}
+];
 const copyPlayer=player=>({...player});
 function interpolatePlayer(previous,current,alpha){return{...current,x:previous.x+(current.x-previous.x)*alpha,y:previous.y+(current.y-previous.y)*alpha};}
 export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?.now?.()??Date.now(),inputTarget,requestFrame,cancelFrame,storage}={}){
