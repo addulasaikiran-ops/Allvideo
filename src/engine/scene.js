@@ -76,27 +76,32 @@ export function createWorldScene(canvas) {
   });
 
   const player = new THREE.Group();
+  const visualParts = {};
   const skin = makeMaterial('#f3c8a8');
   const cloak = makeMaterial('#d79bbd');
   const hair = makeMaterial('#3c294a');
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.55, 4, 8), cloak);
   body.position.y = 0.85;
-  player.add(body);
+  player.add(body); visualParts.body = body;
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.29, 12, 10), skin);
   head.position.set(0.02, 1.48, 0.02);
-  player.add(head);
+  player.add(head); visualParts.head = head;
   const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.62), hair);
   hairCap.position.set(0.02, 1.57, 0.04);
-  player.add(hairCap);
+  player.add(hairCap); visualParts.hair = hairCap;
   const lantern = new THREE.Mesh(
     new THREE.SphereGeometry(0.13, 10, 8),
     new THREE.MeshBasicMaterial({ color: '#ffe7a4' }),
   );
   lantern.position.set(0.52, 1.05, 0.45);
-  player.add(lantern);
+  player.add(lantern); visualParts.lantern = lantern;
   const lanternLight = new THREE.PointLight('#ffcb7d', 2.5, 5);
   lanternLight.position.copy(lantern.position);
-  player.add(lanternLight);
+  player.add(lanternLight); visualParts.lanternLight = lanternLight;
+  const trailGlow = new THREE.Mesh(new THREE.SphereGeometry(0.48, 12, 10), new THREE.MeshBasicMaterial({ color: '#ffe4a3', transparent: true, opacity: 0.16, depthWrite: false }));
+  trailGlow.position.set(-0.24, 0.55, -0.1); player.add(trailGlow); visualParts.trailGlow = trailGlow;
+  const pulseRing = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 40), new THREE.MeshBasicMaterial({ color: '#fff0b7', transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+  pulseRing.position.set(0, 0.9, 0.72); scene.add(pulseRing);
   player.position.set(-6, 0, 0.6);
   scene.add(player);
 
@@ -113,6 +118,20 @@ export function createWorldScene(canvas) {
     checkpointMarkers.add(orb);
   });
   scene.add(checkpointMarkers);
+  // Feel-test lane: close, medium, long, high, and double-jump targets.
+  const feelPlatforms = [
+    { x: 22, y: .55, width: 2.2 }, { x: 26, y: .85, width: 1.8 },
+    { x: 30.8, y: .65, width: 1.7 }, { x: 36, y: 1.6, width: 2 },
+    { x: 42.2, y: 1.1, width: 1.8 }, { x: 47.5, y: 2.1, width: 2.1 }, { x: 52, y: .6, width: 2.4 },
+  ];
+  const testLane = new THREE.Group();
+  feelPlatforms.forEach((p, i) => {
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(p.width, .32, 2.2), makeMaterial(['#6a5a82', '#5b786e', '#866d62', '#7771a0'][i % 4]));
+    slab.position.set(p.x, p.y - .16, .1); testLane.add(slab);
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(p.width * .94, .045, 2.24), new THREE.MeshBasicMaterial({ color: '#f8d9a2' }));
+    edge.position.set(p.x, p.y + .015, .1); testLane.add(edge);
+  });
+  scene.add(testLane);
 
   const quality = createQualityScaler();
   const resizeObserver = new ResizeObserver(() => {
@@ -129,13 +148,34 @@ export function createWorldScene(canvas) {
   });
   resizeObserver.observe(canvas);
 
+  let cameraDip = 0;
   function render({ player: playerState, deltaSeconds = 0 } = {}) {
     if (playerState) {
-      player.position.x = playerState.x;
-      player.position.y = playerState.y;
-      player.rotation.z = playerState.respawnFlash > 0 ? Math.sin(performance.now() * 0.025) * 0.04 : 0;
+      const t = performance.now() / 1000;
+      player.position.x = playerState.x; player.position.y = playerState.y;
+      player.rotation.z = playerState.respawnFlash > 0 ? Math.sin(t * 24) * 0.045 : 0;
+      visualParts.hair.rotation.z = Math.sin(t * 2.8) * 0.035 + (playerState.animationState === 'run' ? Math.sin(t * 13) * 0.055 : 0);
+      visualParts.head.rotation.y = Math.sin(t * 0.75) * 0.035;
+      visualParts.head.position.x = 0.02 + (playerState.animationState === 'idle' && Math.sin(t * 1.6) > 0.8 ? 0.025 : 0);
+      player.scale.set(playerState.squash ?? 1, playerState.stretch ?? 1, 1);
+      player.scale.x *= playerState.animationState === 'run' ? 1 + Math.abs(Math.sin(t * 14)) * 0.025 : 1;
+      visualParts.lantern.position.y = 1.05 + Math.sin(t * 3.2) * 0.045;
+      visualParts.lanternLight.intensity = playerState.animationState === 'pulse' ? 4.2 : 2.5;
+      trailGlow.scale.setScalar(playerState.trailScale ?? 0.65);
+      trailGlow.material.opacity = 0.11 + Math.min(0.16, (playerState.heartsCollected ?? 0) * 0.018);
+      trailGlow.position.x = -0.24 - Math.abs(playerState.velocityX ?? 0) * 0.04;
+      pulseRing.position.set(playerState.x, (playerState.y ?? 0) + 0.9, 0.72);
+      if ((playerState.pulseRadius ?? 0) > 0) {
+        pulseRing.scale.setScalar(Math.max(0.1, playerState.pulseRadius));
+        pulseRing.material.opacity = Math.max(0, 0.65 * (1 - (playerState.pulseTimer ?? 0) / 0.42));
+      } else if ((playerState.respawnFlash ?? 0) > 0) {
+        pulseRing.scale.setScalar(1 + (0.42 - playerState.respawnFlash) * 7);
+        pulseRing.material.opacity = Math.min(0.55, playerState.respawnFlash * 1.4);
+      } else pulseRing.material.opacity = 0;
+      if ((playerState.landDip ?? 0) > 0) cameraDip = Math.max(cameraDip, playerState.landDip);
+      else cameraDip = Math.max(0, cameraDip - deltaSeconds * 1.4);
       camera.position.x += (playerState.x + 1 - camera.position.x) * Math.min(deltaSeconds * 2.8, 1);
-      camera.lookAt(camera.position.x, 2, 0);
+      camera.lookAt(camera.position.x, 2 - cameraDip, 0);
     }
     const level = quality.sample(deltaSeconds);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, level === 'low' ? 0.75 : level === 'medium' ? 1 : 1.5));
@@ -144,6 +184,7 @@ export function createWorldScene(canvas) {
 
   function destroy() {
     resizeObserver.disconnect();
+    pulseRing.geometry.dispose(); pulseRing.material.dispose();
     scene.traverse((object) => {
       if (object.geometry) object.geometry.dispose();
       if (object.material) {
