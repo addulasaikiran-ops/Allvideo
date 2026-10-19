@@ -231,9 +231,14 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
           {state.status === 'Playing' ? (
-            <p className={styles.status} role="status">
-              You are not alone. Checkpoint: {state.checkpointId} · Health: {state.hp ?? 3}/5
-            </p>
+            <>
+              <p className={styles.status} role="status">
+                You are not alone. Checkpoint: {state.checkpointId} · Health: {state.hp ?? 3}/5
+              </p>
+              <p className={styles.playingGuide}>
+                Move with ← → or A / D. Jump with Space. Shift sends a Warm Light pulse near glowing puzzles.
+              </p>
+            </>
           ) : (
             <p className={styles.welcomeHint}>
               No rush, no lives to lose. Take the journey at your own pace.
