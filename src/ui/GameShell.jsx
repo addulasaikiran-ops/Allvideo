@@ -226,7 +226,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
         />
         <div className={styles.gameFeelLayer} aria-hidden="true">{feelFx.map((fx) => <span key={fx.id} className={styles.feelFx + (fx.label ? " " + styles.floatLabel : "") + (fx.particles ? " " + styles.sparkleBurst : "")} style={{ "--fx-x": (fx.x ?? 50) + "%", "--fx-y": (fx.y ?? 42) + "%" }}>{fx.label}{fx.particles && <span className={styles.sparkleGlyphs}>✦ · ✧ · ✦</span>}</span>)}</div>
         <CompanionPresence chapter={ending ? 'chapter-08' : fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} hearts={state.hearts} />
-        {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
+        {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay + (state.status === 'Playing' ? '' : ' ' + styles.welcomeOverlay)}>
           <p className={styles.eyebrow}>{state.status === 'Playing' ? (state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT') : 'A LITTLE MORE LIGHT'}</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
@@ -288,7 +288,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               onPointerLeave={() => engine.input.setTouchJump(false)}
               onPointerCancel={() => engine.input.setTouchJump(false)}
             >Jump ✦</button>
-            <button className={styles.controlButton} type="button" aria-label="Warm Light pulse" onPointerDown={() => engine.input.setTouchPulse(true)} onPointerUp={() => engine.input.setTouchPulse(false)} onPointerLeave={() => engine.input.setTouchPulse(false)} onPointerCancel={() => engine.input.setTouchPulse(false)}>✧</button>
+            <button className={styles.controlButton} type="button" aria-label="Warm Light pulse" onPointerDown={() => engine.input.setTouchPulse(true)} onPointerUp={() => engine.input.setTouchPulse(false)} onPointerLeave={() => engine.input.setTouchPulse(false)} onPointerCancel={() => engine.input.setTouchPulse(false)}>Light ✧</button>
           </div>
           {state.activeHint && state.status === 'Playing' && (
             <aside className={styles.contextHint} key={state.activeHint.skill} aria-live="polite">
@@ -430,9 +430,9 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
           )}
           {showHelp && (
             <aside className={styles.help} aria-label="Controls and accessibility">
-              <p><strong>Keyboard:</strong> Arrow keys or A/D move; Space, W, or Up jump; Shift Warm Light; E/Enter interact; R rest; V victory.</p>
+              <p><strong>Keyboard:</strong> Arrow keys or A/D move; Space, W, or Up jump; Shift sends a Warm Light pulse for nearby light cues and puzzles; E/Enter interact; R rest; V victory.</p>
               <p><strong>Gamepad:</strong> Left stick to move; primary face button to jump.</p>
-              <p><strong>Touch:</strong> Hold the arrows to move and Jump to leap. Assist mode increases jump height.</p>
+              <p><strong>Touch:</strong> Hold the arrows to move, Jump to leap, and Light to send a Warm Light pulse. Assist mode increases jump height.</p>
               <p><strong>Gentle play:</strong> Falling returns you to the last checkpoint. No lives or progress are lost.</p>
             </aside>
           )}
