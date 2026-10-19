@@ -222,7 +222,10 @@ export function MemoryLane({ onExit }) {
           {collected.length === 0 ? <div className={styles.empty}><span aria-hidden="true">✧</span><p>No fragments yet. Take a gentle walk and collect a memory to begin your gallery.</p><button type="button" onClick={() => { setScreen('walk'); setIntro(false); }}>Return to the walk</button></div> : (
             <div className={styles.cards}>{collected.map((memory) => (
               <button className={styles.memoryCard} type="button" key={memory.id} onClick={() => revisit(memory.id)}>
-                <span className={styles.cardArt} style={{ '--memory-accent': memory.accent }}>{memory.illustration === 'rain' ? '☂' : memory.illustration === 'meal' ? '♡' : memory.illustration === 'stars' ? '✦' : '✧'}</span>
+                <span className={styles.cardArt} style={{ '--memory-accent': memory.accent }}>
+                  <span aria-hidden="true">{memory.illustration === 'rain' ? '☂' : memory.illustration === 'meal' ? '♡' : memory.illustration === 'stars' ? '✦' : '✧'}</span>
+                  {memory.photo && <img className={styles.cardPhoto} src={memory.photo} alt={`Photo for ${memory.title}`} onError={(event) => { event.currentTarget.hidden = true; }} />}
+                </span>
                 <span className={styles.cardTitle}>{memory.title}</span><span className={styles.cardDate}>{memory.date || 'A day to keep'}</span><span className={styles.cardCaption}>{memory.caption}</span>
                 {memory.photo && <span className={styles.photoPath}>Photo: {memory.photo}</span>}
               </button>
