@@ -5,6 +5,7 @@ import { personalConfig } from '../story/personal.config.js';
 import { MemoryLane } from './MemoryLane.jsx';
 import { FearBoss } from './FearBoss.jsx';
 import { Ending } from './Ending.jsx';
+import { CompanionPresence } from './CompanionPresence.jsx';
 import { PLAYER_CONFIG_LIMITS } from '../engine/player/player.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import styles from './GameShell.module.css';
@@ -124,6 +125,7 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
           className={styles.canvas}
           aria-label="A little more light: move with arrow keys or A and D, and jump with Space."
         />
+        <CompanionPresence chapter={ending ? 'chapter-08' : fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} hearts={state.hearts} />
         {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
           <p className={styles.eyebrow}>{state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT'}</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
