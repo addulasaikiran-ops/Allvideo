@@ -99,6 +99,7 @@ export function GameShell() {
   return (
     <GameSurface
       canvasRef={canvasRef}
+      onGraphicsPreset={(preset) => rendererRef.current?.setGraphicsPreset(preset)}
       engine={engine}
       assistMode={assistMode}
       onAssistChange={setAssistMode}
@@ -114,7 +115,7 @@ export function GameShell() {
   );
 }
 
-function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
+function GameSurface({ canvasRef, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
 
   return (
@@ -207,6 +208,12 @@ function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, 
                 <option value="chapter-06">6 · Memory Lane</option>
                 <option value="chapter-07">7 · Fear — Reach</option>
                 <option value="chapter-08">8 · The Ending</option>
+              </select>
+            </label>
+            <label className={styles.assistLabel}>
+              Graphics
+              <select defaultValue="auto" aria-label="Graphics quality" onChange={(event) => onGraphicsPreset(event.target.value)}>
+                <option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
               </select>
             </label>
             <label className={styles.assistLabel}>
