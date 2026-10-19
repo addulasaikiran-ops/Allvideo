@@ -1,19 +1,18 @@
 import { createStore } from './store.js';
+import { createInput } from './input.js';
+import { createPlayerState, stepPlayer } from './physics.js';
 
 const initialState = {
   status: 'ready',
   elapsedSeconds: 0,
   checkpointId: 'start',
   assistMode: false,
+  player: createPlayerState(),
 };
 
-/**
- * Minimal simulation shell. It deliberately has no React or rendering dependency.
- * The frame callback can run every frame, but UI-facing store updates are throttled
- * to whole elapsed seconds rather than published at display refresh rate.
- */
-export function createGameEngine({ onFrame = () => {}, now = () => performance.now() } = {}) {
-  const store = createStore({ ...initialState });
+export function createGameEngine({ onFrame = () => {}, now = () => performance.now(), inputTarget } = {}) {
+  const store = createStore({ ...initialState, player: createPlayerState() });
+  const input = createInput({ target: inputTarget ?? globalThis.window });
   let frameHandle = null;
   let previousTime = 0;
   let elapsedSeconds = 0;
@@ -26,17 +25,25 @@ export function createGameEngine({ onFrame = () => {}, now = () => performance.n
     previousTime = timestamp;
     elapsedSeconds += deltaSeconds;
 
+    const current = store.getState();
+    stepPlayer(current.player, input.read(), deltaSeconds, current.assistMode);
+
     if (Math.floor(elapsedSeconds) > lastPublishedSecond) {
       lastPublishedSecond = Math.floor(elapsedSeconds);
-      store.setState((state) => ({ ...state, elapsedSeconds: lastPublishedSecond }));
+      store.setState((state) => ({
+        ...state,
+        elapsedSeconds: lastPublishedSecond,
+        checkpointId: state.player.checkpointId,
+      }));
     }
 
-    onFrame({ deltaSeconds, elapsedSeconds, state: store.getState() });
+    onFrame({ deltaSeconds, elapsedSeconds, player: current.player, state: store.getState() });
     frameHandle = requestAnimationFrame(frame);
   }
 
   return {
     store,
+    input,
     start() {
       if (running || typeof requestAnimationFrame !== 'function') return;
       running = true;
@@ -53,18 +60,21 @@ export function createGameEngine({ onFrame = () => {}, now = () => performance.n
       previousTime = 0;
       store.setState((state) => ({ ...state, status: 'paused' }));
     },
-    resetToCheckpoint(checkpointId = store.getState().checkpointId) {
-      store.setState((state) => ({
-        ...state,
-        status: 'playing',
-        checkpointId,
-      }));
+    resetToCheckpoint() {
+      const player = store.getState().player;
+      player.x = player.checkpointX;
+      player.y = 0;
+      player.velocityY = 0;
+      player.grounded = true;
+      player.respawnFlash = 0.45;
+      store.setState((state) => ({ ...state, status: 'playing' }));
     },
     setAssistMode(enabled) {
       store.setState((state) => ({ ...state, assistMode: Boolean(enabled) }));
     },
     destroy() {
       this.stop();
+      input.destroy();
     },
   };
 }
