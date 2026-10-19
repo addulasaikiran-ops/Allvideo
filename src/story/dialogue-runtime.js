@@ -17,7 +17,8 @@ export function createDialogueRuntime({ story = chapters, variables = {}, catalo
       him: personalConfig.names.boyfriend,
     };
     const override = line.fragmentId && personalConfig.personalization?.sheSaysOverrides?.[line.fragmentId];
-    const messages = { ...narrativeMessages, ...(catalog ?? {}), [line.textKey]: catalog?.[line.textKey] ?? line.fallback ?? line.textKey };\n    return { ...line, text: localize(line.textKey, vars, messages), ...(override ? { text: override } : {}) };
+    const messages = { ...narrativeMessages, ...(catalog ?? {}), [line.textKey]: catalog?.[line.textKey] ?? line.fallback ?? line.textKey };
+    return { ...line, text: localize(line.textKey, vars, messages), ...(override ? { text: override } : {}) };
   };
   const snapshot = () => ({
     ...state, variables: { ...state.variables }, history: [...state.history],
