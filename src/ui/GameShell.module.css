@@ -100,6 +100,58 @@
   line-height: 1.5;
 }
 
+/* Gameplay is a HUD, not a second title screen. Keep the world visible. */
+.playingEyebrow {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgb(15 14 27 / 82%);
+  color: var(--color-text);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.overlay:has(.playingEyebrow) {
+  min-height: 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: clamp(0.5rem, 1.5vw, 1rem);
+  background: linear-gradient(180deg, rgb(18 16 34 / 24%), transparent 35%);
+  text-align: left;
+}
+
+.overlay:has(.playingEyebrow) .playingGuide,
+.overlay:has(.playingEyebrow) .status,
+.overlay:has(.playingEyebrow) .controlRow,
+.overlay:has(.playingEyebrow) .contextHint,
+.overlay:has(.playingEyebrow) .optionsRow,
+.overlay:has(.playingEyebrow) .advancedTools {
+  align-self: center;
+  max-width: min(100%, 42rem);
+}
+
+.advancedTools {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .overlay:has(.playingEyebrow) {
+    padding: 0.5rem;
+  }
+
+  .overlay:has(.playingEyebrow) .playingGuide {
+    max-width: 100%;
+    font-size: 0.8rem;
+  }
+}
+
 .welcomeControls {
   display: flex;
   flex-wrap: wrap;
