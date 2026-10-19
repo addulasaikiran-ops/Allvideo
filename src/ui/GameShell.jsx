@@ -6,14 +6,10 @@ import styles from './GameShell.module.css';
 
 export function GameShell() {
   const canvasRef = useRef(null);
-  const [engine, setEngine] = useState(null);
+  const [engine] = useState(() => createGameEngine());
   const [showHelp, setShowHelp] = useState(false);
 
-  useEffect(() => {
-    const gameEngine = createGameEngine();
-    setEngine(gameEngine);
-    return () => gameEngine.destroy();
-  }, []);
+  useEffect(() => () => engine.destroy(), [engine]);
 
   return (
     <GameSurface
@@ -26,7 +22,7 @@ export function GameShell() {
 }
 
 function GameSurface({ canvasRef, engine, showHelp, onToggleHelp }) {
-  const state = useEngineStore(engine?.store ?? emptyStore);
+  const state = useEngineStore(engine.store);
 
   return (
     <main className={styles.shell}>
@@ -41,7 +37,7 @@ function GameSurface({ canvasRef, engine, showHelp, onToggleHelp }) {
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
           <p className={styles.status} role="status">Journey status: {state.status}</p>
-          <button className={styles.primaryButton} type="button" onClick={() => engine?.start()}>
+          <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
             Begin gently
           </button>
           <button className={styles.secondaryButton} type="button" onClick={onToggleHelp} aria-expanded={showHelp}>
@@ -62,8 +58,3 @@ function GameSurface({ canvasRef, engine, showHelp, onToggleHelp }) {
     </main>
   );
 }
-
-const emptyStore = {
-  getState: () => ({ status: 'ready', elapsedSeconds: 0, checkpointId: 'start', assistMode: false }),
-  subscribe: () => () => {},
-};
