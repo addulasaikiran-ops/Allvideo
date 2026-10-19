@@ -1,20 +1,30 @@
-# Asset TODO
+# Asset inventory and TODO
 
-This repository intentionally contains no third-party or personal media yet. Do not present the placeholders below as finished art or sound.
+This repository includes some licensed audio, synthesized sound fallbacks, and intentionally empty personal-photo slots. Do not present missing or empty media as finished content.
 
-## Placeholder inventory
+## Current audio inventory
 
-| Placeholder / target | Purpose | Current state | License-safe source to consider |
+| Asset | Purpose | Current state | Next step |
 |---|---|---|---|
-| `public/assets/placeholders/hero-placeholder.svg` | Temporary heroine silhouette for the first playable prototype | Not created yet; create a clearly labelled geometric placeholder when the renderer is implemented | Original project-created SVG; no external license required |
-| `public/assets/placeholders/world-placeholder.svg` | Temporary parallax/level art | Not created yet; create simple original geometric layers when needed | Original project-created SVG; no external license required |
-| `public/assets/placeholders/boss-placeholder.svg` | Temporary nonviolent finale character silhouette | Not created yet; create a clearly labelled geometric placeholder when the finale is implemented | Original project-created SVG; no external license required |
-| `public/audio/placeholders/ambient-placeholder.md` | Documents where ambience/music will be connected before real audio exists | Not created yet; do not ship fabricated or silent files as finished audio | Original audio, or CC0 / appropriately licensed tracks from Freesound (verify each asset's individual license) or Pixabay (verify current terms) |
-| `public/personal/` | Owner-provided photos | Intentionally empty; never populate with sample private data | Photos supplied by the owner with appropriate rights and consent |
+| `public/audio/music/cc0-cathedral-forest-loop.ogg` | Base soundtrack used by all eight chapters | **Broken: file is 0 bytes** | Restore the original CC0 file from the documented source or replace it with a reviewed, license-verified track. Confirm non-zero size and browser playback before release. |
+| `public/audio/music/cc0-dark-shrine-loop.ogg` | Tension/boss music layer | Present (678,630 bytes) | Verify transitions and relative loudness on desktop and mobile. |
+| `public/audio/sfx/kenney-*.ogg` | UI and movement effects | Present for the referenced Kenney clips | Keep attribution/license notes alongside the files. |
+| `jump.ogg`, `warm-light.ogg`, `checkpoint.ogg`, `heartbeat.ogg` | Optional effect slots in the audio manifest | Not present | Synthesized fallbacks are available; add files only after license review and browser verification. |
+
+Audio provenance and CC0 notes: [OPEN-GAME-ART-CC0-LICENSE.md](../public/audio/music/OPEN-GAME-ART-CC0-LICENSE.md) and [KENNEY-RPG-AUDIO-LICENSE.md](../public/audio/sfx/KENNEY-RPG-AUDIO-LICENSE.md).
+
+## Visual and personal content
+
+| Asset / location | Purpose | Current state | Next step |
+|---|---|---|---|
+| `public/assets/placeholders/` | Lightweight visual placeholders | Inspect each asset before release | Replace only when approved artwork is ready. |
+| `public/personal/` | Owner-provided photos | Intentionally empty | Add only photos supplied with appropriate rights and consent. |
+| `src/story/personal.config.js` | Names, dates, photos, and personal messages | Uses neutral fictional defaults | Review every value before gifting; never commit private content unintentionally. |
 
 ## Rules for future assets
-- Use original placeholder SVGs or clearly named code-generated geometry until real art is approved.
-- Never download an asset just because it appears in a search result; verify the creator, license, attribution requirements, and redistribution rights.
-- Record the source URL, creator, license, and attribution text for each adopted third-party asset.
-- Do not commit real names, dates, messages, or photos. Neutral sample values belong in the single configuration file and must be obviously fictional.
-- Keep placeholders visibly identifiable in development notes and replace them only with approved assets.
+
+- Verify creator, source URL, license, attribution requirements, and redistribution rights before adding media.
+- Do not download an asset just because it appears in search results; inspect its individual license.
+- Record source, creator, license, and attribution beside adopted third-party assets.
+- Never commit real names, dates, messages, or photos unless the owner explicitly chooses to add them.
+- Do not ship a zero-byte or silent file as finished music. If an asset is unavailable, label the limitation clearly and test the fallback.
