@@ -294,7 +294,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               onPointerCancel={() => engine.input.setTouchJump(false)}
             >Jump ✦</button>
             <button className={styles.controlButton} type="button" aria-label="Warm Light pulse" onPointerDown={() => engine.input.setTouchPulse(true)} onPointerUp={() => engine.input.setTouchPulse(false)} onPointerLeave={() => engine.input.setTouchPulse(false)} onPointerCancel={() => engine.input.setTouchPulse(false)}>Light ✧</button>
-          </div>
+          </div>}
           {state.activeHint && state.status === 'Playing' && (
             <aside className={styles.contextHint} key={state.activeHint.skill} aria-live="polite">
               <span>{state.activeHint.text}</span><strong>{state.activeHint.input}</strong>
