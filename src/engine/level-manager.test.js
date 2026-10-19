@@ -112,7 +112,7 @@ describe('chapter 4 and 5 mechanics', () => {
     manager.update(0.016, { x: 0, y: 0, velocityY: 0 }, { interactPressed: true });
     expect(manager.getTimeScale()).toBe(0.45);
     expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: 'rest:activated', heal: 1, duration: 4 }));
-    manager.update(4.1, { x: 0, y: 0, velocityY: 0 }, {});
+    for (let i = 0; i < 41; i += 1) manager.update(0.1, { x: 0, y: 0, velocityY: 0 }, {});
     expect(manager.getTimeScale()).toBe(1);
   });
 
