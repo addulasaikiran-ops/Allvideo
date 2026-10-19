@@ -331,8 +331,8 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
               )}
             </aside>
           )}
-          {state.status === 'Playing' && <AudioControls audio={audio} />}
-          {state.status === 'Playing' && <KeepsakeFeatures
+          {state.status === 'Playing' && showAdvancedOptions && <AudioControls audio={audio} />}
+          {state.status === 'Playing' && showAdvancedOptions && <KeepsakeFeatures
             engine={engine}
             hearts={state.hearts ?? 0}
             chapter={state.chapter}
@@ -346,7 +346,7 @@ function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, o
             onSetPhotoCamera={(camera) => window.dispatchEvent(new CustomEvent('allvideo:photo-camera', { detail: camera }))}
             onNewGamePlus={onNewGamePlus}
           />}
-          {state.status === 'Playing' && <div className={styles.optionsRow} aria-label="Story menus">
+          {state.status === 'Playing' && showAdvancedOptions && <div className={styles.optionsRow} aria-label="Story menus">
             <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('chapters')}>Chapters</button>
             <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('settings')}>Settings</button>
             <button className={styles.secondaryButton} type="button" onClick={() => setActiveScreen('gallery')}>Memories</button>
