@@ -53,6 +53,7 @@ export function createWorldScene(canvas) {
 
   const ground = new THREE.Mesh(new THREE.BoxGeometry(40, 1, 5), makeMaterial('#39314f'));
   ground.position.set(6, -0.65, 0);
+  ground.visible = false;
   scene.add(ground);
 
   const platformMaterial = makeMaterial('#665174');
@@ -66,12 +67,14 @@ export function createWorldScene(canvas) {
   platforms.forEach(({ x, y, width }) => {
     const platform = new THREE.Mesh(new THREE.BoxGeometry(width, 0.32, 2.2), platformMaterial);
     platform.position.set(x, y, 0.1);
+    platform.visible = false;
     scene.add(platform);
     const glow = new THREE.Mesh(
       new THREE.BoxGeometry(width * 0.96, 0.045, 2.25),
       new THREE.MeshBasicMaterial({ color: '#f5c78d' }),
     );
     glow.position.set(x, y + 0.18, 0.1);
+    glow.visible = false;
     scene.add(glow);
   });
 
