@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Allvideo — A Little More Light",
+  "short_name": "A Little More Light",
+  "description": "A gentle story-platformer about love, patience, light, and understanding.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#171526",
+  "theme_color": "#171526",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
