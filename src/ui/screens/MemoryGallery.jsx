@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Button, Panel } from '../design-system.jsx';
 import { personalConfig } from '../../story/personal.config.js';
 import { chapters, cutscenes, journalEntries, sheSaysFragments, localize } from '../../story/narrative.js';
-import { createCutsceneSequencer } from '../../story/cutscene-sequencer.js';\nimport { createDialogueRuntime } from '../../story/dialogue-runtime.js';\nimport styles from './Screens.module.css';
+import { createCutsceneSequencer } from '../../story/cutscene-sequencer.js';
+import { createDialogueRuntime } from '../../story/dialogue-runtime.js';
+import styles from './Screens.module.css';
 
 const cueLabel = (step) => {
   if (!step) return 'Ready when you are.';
@@ -38,13 +40,17 @@ export default function MemoryGallery({ onClose }) {
     replay ? controller.replay() : controller.start();
     setPlaybackController(controller);
   };
-  const [playbackController, setPlaybackController] = useState(null);\n  const [dialogueRuntime] = useState(() => createDialogueRuntime());\n  const [storyChapter, setStoryChapter] = useState(chapters[0].id);\n  const [dialogue, setDialogue] = useState(null);
+  const [playbackController, setPlaybackController] = useState(null);
+  const [dialogueRuntime] = useState(() => createDialogueRuntime());
+  const [storyChapter, setStoryChapter] = useState(chapters[0].id);
+  const [dialogue, setDialogue] = useState(null);
   const revealFragment = (fragment) => setFoundFragments((all) => all.includes(fragment.id) ? all : [...all, fragment.id]);
 
   return <main className={styles.screen}>
     <header className={styles.header}><p className={styles.kicker}>KEEPSAKES</p><h1>Memory Gallery</h1><p>Little moments, held gently.</p></header>
     <nav className={styles.actions} aria-label="Memory gallery sections">
-      <Button variant={tab === 'story' ? 'primary' : 'secondary'} onClick={() => setTab('story')}>Read chapters</Button>\n      <Button variant={tab === 'memories' ? 'primary' : 'secondary'} onClick={() => setTab('memories')}>Memories</Button>
+      <Button variant={tab === 'story' ? 'primary' : 'secondary'} onClick={() => setTab('story')}>Read chapters</Button>
+      <Button variant={tab === 'memories' ? 'primary' : 'secondary'} onClick={() => setTab('memories')}>Memories</Button>
       <Button variant={tab === 'cutscenes' ? 'primary' : 'secondary'} onClick={() => setTab('cutscenes')}>Replay scenes</Button>
       <Button variant={tab === 'journal' ? 'primary' : 'secondary'} onClick={() => setTab('journal')}>Things she learned</Button>
       <Button variant={tab === 'fragments' ? 'primary' : 'secondary'} onClick={() => setTab('fragments')}>Her words</Button>
