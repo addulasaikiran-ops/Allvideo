@@ -106,7 +106,7 @@ export class LevelManager {
   }
 
   getSnapshot() {
-    return { id: this.level.id, title: this.level.title, entities: this.entities.map((entity) => ({ ...entity })), switches: [...this.switches], elapsed: this.elapsed };
+    return { id: this.level.id, title: this.level.title, parallax: clone(this.level.parallax ?? []), entities: this.entities.map((entity) => ({ ...entity })), switches: [...this.switches], elapsed: this.elapsed };
   }
 
   hotReload(level) {
