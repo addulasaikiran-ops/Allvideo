@@ -12,6 +12,7 @@ import { createAudioSystem } from '../audio/audio-system.js';
 import { AudioControls } from './AudioControls.jsx';
 import { ScreenOutlet } from './design-system.jsx';
 import styles from './GameShell.module.css';
+import { createGameFeel } from '../engine/game-feel.js';
 
 export function GameShell() {
   const canvasRef = useRef(null);
@@ -176,15 +177,43 @@ export function GameShell() {
 function GameSurface({ canvasRef, audio, onGraphicsPreset, engine, assistMode, onAssistChange, showHelp, memoryLane, fearBoss, ending, onSelectChapter, onExitEnding, onNewGamePlus, onToggleHelp }) {
   const state = useEngineStore(engine.store);
   const [activeScreen, setActiveScreen] = useState(null);
+  const [juice, setJuice] = useState(() => { try { return localStorage.getItem('allvideo.juice') || 'Full'; } catch { return 'Full'; } });
+  const [feelFx, setFeelFx] = useState([]);
+  const [shakeKey, setShakeKey] = useState(0);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const feel = createGameFeel({ eventBus: engine.eventBus, getJuice: () => juice, reducedMotion,
+      onEffect: (effect) => {
+        if (effect.shake) setShakeKey((key) => key + 1);
+        if (effect.label || effect.particles) {
+          const id = String(Date.now()) + '-' + String(Math.random());
+          setFeelFx((items) => [...items.slice(-12), { ...effect, id }]);
+          window.setTimeout(() => setFeelFx((items) => items.filter((item) => item.id !== id)), 900);
+        }
+      },
+      onHitStop: (duration) => engine.levelManager.hitStop?.(duration),
+      onSlowMoment: (duration, scale) => engine.levelManager.slowMoment?.(duration, scale),
+    });
+    return () => feel.destroy();
+  }, [engine, juice]);
+
+  useEffect(() => {
+    const readJuice = () => { try { setJuice(localStorage.getItem('allvideo.juice') || 'Full'); } catch { /* Use the default when storage is blocked. */ } };
+    window.addEventListener('storage', readJuice);
+    const refresh = window.setInterval(readJuice, 1000);
+    return () => { window.removeEventListener('storage', readJuice); window.clearInterval(refresh); };
+  }, []);
 
   return (
     <main className={styles.shell}>
-      <section className={styles.stage} aria-label="Game stage">
+      <section className={styles.stage + (shakeKey ? " " + (shakeKey % 2 ? styles.gameShake : styles.gameShakeAlt) : "")} aria-label="Game stage" data-juice={juice}>
         <canvas
           ref={canvasRef}
           className={styles.canvas}
           aria-label="A little more light: move with arrow keys or A and D, and jump with Space."
         />
+        <div className={styles.gameFeelLayer} aria-hidden="true">{feelFx.map((fx) => <span key={fx.id} className={styles.feelFx + (fx.label ? " " + styles.floatLabel : "") + (fx.particles ? " " + styles.sparkleBurst : "")} style={{ "--fx-x": (fx.x ?? 50) + "%", "--fx-y": (fx.y ?? 42) + "%" }}>{fx.label}{fx.particles && <span className={styles.sparkleGlyphs}>✦ · ✧ · ✦</span>}</span>)}</div>
         <CompanionPresence chapter={ending ? 'chapter-08' : fearBoss ? 'chapter-07' : memoryLane ? 'chapter-06' : state.chapter} hearts={state.hearts} />
         {ending ? <Ending onExit={onExitEnding} onNewGamePlus={onNewGamePlus} collectedHearts={state.hearts} /> : fearBoss ? <FearBoss onExit={() => onSelectChapter('chapter-05')} /> : memoryLane ? <MemoryLane onExit={() => onSelectChapter('chapter-05')} /> : <div className={styles.overlay}>
           <p className={styles.eyebrow}>{state.levelSnapshot?.title ? state.levelSnapshot.title.toUpperCase() : 'A LITTLE MORE LIGHT'}</p>
