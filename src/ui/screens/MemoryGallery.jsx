@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Button, Panel } from '../design-system.jsx';
 import { personalConfig } from '../../story/personal.config.js';
-import { cutscenes, journalEntries, sheSaysFragments, localize } from '../../story/narrative.js';
-import { createCutsceneSequencer } from '../../story/cutscene-sequencer.js';\nimport { createDialogueRuntime } from '../../story/dialogue-runtime.js';\nimport { chapters } from '../../story/narrative.js';
-import styles from './Screens.module.css';
+import { chapters, cutscenes, journalEntries, sheSaysFragments, localize } from '../../story/narrative.js';
+import { createCutsceneSequencer } from '../../story/cutscene-sequencer.js';\nimport { createDialogueRuntime } from '../../story/dialogue-runtime.js';\nimport styles from './Screens.module.css';
 
 const cueLabel = (step) => {
   if (!step) return 'Ready when you are.';
