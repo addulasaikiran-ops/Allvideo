@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+@font-face { font-family: "Allvideo Humanist"; src: local("Aptos"), local("Arial"); font-style: normal; font-weight: 400 700; font-display: swap; }
+@font-face { font-family: "Allvideo Display"; src: local("Georgia"); font-style: normal; font-weight: 400 700; font-display: swap; }
 
 :root {
   color-scheme: dark;
@@ -7,7 +8,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --font-display: 'Manrope', 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Allvideo Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Allvideo Humanist', 'Trebuchet MS', system-ui, sans-serif;
+  --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-6: 1.5rem;
+  --radius-panel: 1.25rem; --radius-control: 999px; --motion-fast: 180ms; --motion-screen: 320ms;
+  font-variant-numeric: tabular-nums;
   --color-background: #171526;
   --color-text: #fff8f0;
   --color-muted: #d0c8dc;
