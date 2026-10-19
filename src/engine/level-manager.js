@@ -112,6 +112,10 @@ export class LevelManager {
         entity.triggered = true;
         this.emit(entity.type === 'dialogue-trigger' ? 'dialogue:trigger' : 'cutscene:trigger', entity, { cutscene: entity.cutscene, dialogueId: entity.dialogueId, lines: entity.lines ?? [], skippable: entity.skippable ?? false });
       }
+      if (['clock-hand', 'pendulum'].includes(entity.type) && this.playerTouches(player, entity) && !entity.contactCooldown) {
+        entity.contactCooldown = 0.8;
+        this.emit('hazard:contact', entity, { hazard: entity.type, gentle: true, rhythm: entity.period ?? 5 });
+      }
       if (entity.type === 'spikes' && this.playerTouches(player, entity) && !entity.contactCooldown) {
         entity.contactCooldown = 0.8;
         this.emit('hazard:contact', entity, { hazard: 'spikes', gentle: true });
