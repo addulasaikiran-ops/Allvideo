@@ -1,4 +1,4 @@
-export function createQualityScaler({ targetFps = 60, sampleSize = 90 } = {}) {
+export function createQualityScaler({ targetFps = 50, sampleSize = 90 } = {}) {
   let frames = 0;
   let totalMs = 0;
   let quality = 'high';
