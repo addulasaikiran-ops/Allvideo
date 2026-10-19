@@ -46,8 +46,8 @@ export class LevelManager {
       if (entity.type === 'enemy' && entity.behavior === 'patrol') {
         entity.x = entity.originX + Math.sin(this.elapsed * (entity.patrolSpeed ?? 0.7) + entity.phase) * (entity.patrolDistance ?? 2);
       }
-      if (entity.type === 'rest-lantern' && !entity.triggered && input.interactPressed && this.playerTouches(player, entity)) {
-        entity.triggered = true;
+      if (entity.type === 'rest-lantern' && (entity.restCooldown ?? 0) <= 0 && input.interactPressed && this.playerTouches(player, entity)) {
+        entity.restCooldown = entity.restCooldownDuration ?? 3;
         this.slowTimer = entity.slowDuration ?? 4;
         this.slowScale = entity.slowScale ?? 0.45;
         this.emit('rest:activated', entity, { heal: entity.heal ?? 1, duration: this.slowTimer, timeScale: this.slowScale, text: entity.text ?? 'Rest is progress.' });
@@ -121,6 +121,7 @@ export class LevelManager {
         this.emit('hazard:contact', entity, { hazard: 'spikes', gentle: true });
       }
       if (entity.contactCooldown > 0) entity.contactCooldown = Math.max(0, entity.contactCooldown - realStep);
+      if (entity.restCooldown > 0) entity.restCooldown = Math.max(0, entity.restCooldown - realStep);
       if (entity.type === 'hazard' && entity.active && !entity.safe && this.playerTouches(player, entity)) {
         if (entity.kind === 'dark-mist' && input.pulseActive) { entity.cleared = true; entity.active = false; this.emit('hazard:cleared', entity); }
         else if (!entity.triggered) { entity.triggered = true; this.emit('hazard:contact', entity, { hazard: entity.kind }); }
