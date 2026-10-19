@@ -1,6 +1,6 @@
 /**
- * Audio asset manifest. Replace these public URLs with commissioned/licensed audio.
- * Music streams through HTMLAudioElement; short effects are synthesized until assets arrive.
+ * Audio asset manifest. Bundled third-party clips are documented beside the assets.
+ * Music streams through HTMLAudioElement; missing optional effects retain synthesized fallbacks.
  */
 export const AUDIO_MANIFEST = Object.freeze({
   chapters: {
