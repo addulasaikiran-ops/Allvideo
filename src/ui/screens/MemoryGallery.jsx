@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Panel } from '../design-system.jsx';
 import { personalConfig } from '../../story/personal.config.js';
 import { cutscenes, journalEntries, sheSaysFragments, localize } from '../../story/narrative.js';
-import { createCutsceneSequencer } from '../../story/cutscene-sequencer.js';
+import { createCutsceneSequencer } from '../../story/cutscene-sequencer.js';\nimport { createDialogueRuntime } from '../../story/dialogue-runtime.js';\nimport { chapters } from '../../story/narrative.js';
 import styles from './Screens.module.css';
 
 const cueLabel = (step) => {
@@ -39,17 +39,30 @@ export default function MemoryGallery({ onClose }) {
     replay ? controller.replay() : controller.start();
     setPlaybackController(controller);
   };
-  const [playbackController, setPlaybackController] = useState(null);
+  const [playbackController, setPlaybackController] = useState(null);\n  const [dialogueRuntime] = useState(() => createDialogueRuntime());\n  const [storyChapter, setStoryChapter] = useState(chapters[0].id);\n  const [dialogue, setDialogue] = useState(null);
   const revealFragment = (fragment) => setFoundFragments((all) => all.includes(fragment.id) ? all : [...all, fragment.id]);
 
   return <main className={styles.screen}>
     <header className={styles.header}><p className={styles.kicker}>KEEPSAKES</p><h1>Memory Gallery</h1><p>Little moments, held gently.</p></header>
     <nav className={styles.actions} aria-label="Memory gallery sections">
-      <Button variant={tab === 'memories' ? 'primary' : 'secondary'} onClick={() => setTab('memories')}>Memories</Button>
+      <Button variant={tab === 'story' ? 'primary' : 'secondary'} onClick={() => setTab('story')}>Read chapters</Button>\n      <Button variant={tab === 'memories' ? 'primary' : 'secondary'} onClick={() => setTab('memories')}>Memories</Button>
       <Button variant={tab === 'cutscenes' ? 'primary' : 'secondary'} onClick={() => setTab('cutscenes')}>Replay scenes</Button>
       <Button variant={tab === 'journal' ? 'primary' : 'secondary'} onClick={() => setTab('journal')}>Things she learned</Button>
       <Button variant={tab === 'fragments' ? 'primary' : 'secondary'} onClick={() => setTab('fragments')}>Her words</Button>
     </nav>
+    {tab === 'story' && <Panel className={styles.memoryCard}>
+      <h2>Eight little chapters</h2>
+      <label>Choose a chapter <select value={storyChapter} onChange={(event) => { setStoryChapter(event.target.value); setDialogue(null); }}>{chapters.map((chapter) => <option key={chapter.id} value={chapter.id}>{localize(chapter.titleKey)}</option>)}</select></label>
+      <div className={styles.actions}><Button onClick={() => setDialogue(dialogueRuntime.start(storyChapter))}>Begin / restart chapter</Button></div>
+      {dialogue && <>
+        <p className={styles.kicker}>{dialogue.speaker ? dialogue.speaker : chapters.find((chapter) => chapter.id === storyChapter)?.titleKey}</p>
+        <h3>{dialogue.activeLine?.speaker === 'heroine' ? personalConfig.names.heroine : dialogue.activeLine?.speaker === 'him' ? personalConfig.names.boyfriend : 'A quiet voice'}</h3>
+        <p aria-live="polite">{dialogue.activeLine?.text ?? 'That chapter has reached its last page. You can begin it again or choose another.'}</p>
+        {dialogue.activeLine?.emotion && <p><em>Feeling: {dialogue.activeLine.emotion}</em></p>}
+        {dialogue.choices?.length && dialogue.activeLine === dialogue.lines?.at(-1) ? <div className={styles.actions}>{dialogue.choices.map((choice) => <Button key={choice.id} onClick={() => setDialogue(dialogueRuntime.choose(choice.id))}>{choice.label}</Button>)}</div> : <div className={styles.actions}><Button onClick={() => setDialogue(dialogueRuntime.advance())} disabled={!dialogue.activeLine}>Next line →</Button></div>}
+        {dialogue.fragmentId && dialogue.sheSays && <p>✦ A hidden fragment has appeared in Her words.</p>}
+      </>}
+    </Panel>}
     {tab === 'memories' && item && <Panel className={styles.memoryCard}>
       <div className={styles.memoryArt} style={{ '--memory-accent': item.accent }} aria-hidden="true">{['✿','☂','❀','☾'][index % 4]}</div>
       <p className={styles.kicker}>{String(index + 1).padStart(2, '0')} / {String(memories.length).padStart(2, '0')}</p>
