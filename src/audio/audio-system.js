@@ -146,7 +146,7 @@ export function createAudioSystem({ AudioContextClass = globalThis.AudioContext 
     if (!settings[name]) return;
     settings[name].muted = Boolean(muted);
     const gain = name === 'master' ? master : buses[name];
-    if (gain && context) setGain(gain, settings[name].muted ? 0 : settings[name].level, context.currentTime, 0.06);
+    if (gain && context) setGain(gain, settings[name].muted ? 0 : settings[name].level * (name === 'music' && dialogueActive ? 0.42 : 1), context.currentTime, 0.06);
   }
   function setChapter(next) {
     if (!AUDIO_MANIFEST.chapters[next] || next === chapter) return;
