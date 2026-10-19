@@ -149,6 +149,10 @@ export class LevelManager {
 
   hitStop(duration = 0.05) { const safeDuration = Math.max(0, Math.min(0.12, Number(duration) || 0)); if (safeDuration <= 0) return; this.slowTimer = Math.max(this.slowTimer, safeDuration); this.slowScale = 0; }
 
+  slowMoment(duration = 0.45, scale = 0.68) { this.slowTimer = Math.max(this.slowTimer, Math.max(0, Math.min(1.5, duration))); this.slowScale = Math.max(0.25, Math.min(1, Number(scale) || 0.68)); }
+
+  hitStop(duration = 0.05) { const safeDuration = Math.max(0, Math.min(0.12, Number(duration) || 0)); if (safeDuration <= 0) return; this.slowTimer = Math.max(this.slowTimer, safeDuration); this.slowScale = 0; }
+
   resolveMirrorChoice(entityId, choiceId) {
     const entity = this.entities.find((item) => item.id === entityId && ['mirror', 'mirror-boss'].includes(item.type));
     if (!entity || entity.triggered) return false;
