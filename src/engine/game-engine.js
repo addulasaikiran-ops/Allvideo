@@ -11,8 +11,10 @@ import {createLevelManager} from './level-manager.js';
 import chapterOne from '../levels/chapter-01.json';
 import chapterTwo from '../levels/chapter-02.json';
 import chapterThree from '../levels/chapter-03.json';
+import chapterFour from '../levels/chapter-04.json';
+import chapterFive from '../levels/chapter-05.json';
 
-const CHAPTERS = {'chapter-01': chapterOne, 'chapter-02': chapterTwo, 'chapter-03': chapterThree};
+const CHAPTERS = {'chapter-01': chapterOne, 'chapter-02': chapterTwo, 'chapter-03': chapterThree, 'chapter-04': chapterFour, 'chapter-05': chapterFive};
 const initialPlayer=createPlayerState(); initialPlayer.levelManagedCheckpoints=true; initialPlayer.worldStart=chapterOne.world.start-2; initialPlayer.worldEnd=chapterOne.world.end+1;
 const initialState={status:'Title',elapsedSeconds:0,checkpointId:'start',chapter:'chapter-01',hearts:3,hp:3,assistMode:false,inputDevice:'keyboard',player:initialPlayer,playerTuning:{...PLAYER_CONFIG,worldStart:chapterOne.world.start-2,worldEnd:chapterOne.world.end+1},playerDebug:false,levelDebug:false,feelTestRoom:false,levelSnapshot:null,activeHint:null,activeDialogue:null,fps:0};
 export const FEEL_TEST_PLATFORMS=[
@@ -29,14 +31,14 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
  const uiBridge=createStoreBridge({store,eventBus,input});
  let elapsedSeconds=0,publishSecond=0,previousPlayer=copyPlayer(store.getState().player),fpsFrames=0,fpsElapsed=0,fps=0;
  let activeLevel=chapterOne;
- const levelManager=createLevelManager(activeLevel,{onEvent:event=>{eventBus.emit(event.type,event);if(event.type==='dialogue:trigger')store.setState(s=>({...s,activeDialogue:{id:event.dialogueId,lines:event.lines??[],index:0,skippable:event.skippable!==false}}));if(event.type==='puzzle:hint')store.setState(s=>({...s,activeHint:{skill:'puzzle-'+event.id,text:event.text,input:event.input,visualCue:event.visualCue,audioCue:event.audioCue}}));}});
+ const levelManager=createLevelManager(activeLevel,{onEvent:event=>{eventBus.emit(event.type,event);if(event.type==='dialogue:trigger')store.setState(s=>({...s,activeDialogue:{id:event.dialogueId,lines:event.lines??[],index:0,skippable:event.skippable!==false}}));if(event.type==='mirror:choice')store.setState(s=>({...s,activeDialogue:{id:event.id,sourceId:event.id,lines:[event.whisper??'A doubtful thought flickers in the glass.'],index:0,choices:event.choices??[],boss:Boolean(event.boss),cracks:event.cracks??0,requiredTruths:event.requiredTruths??1,truth:event.truth}}));if(event.type==='rest:activated')store.setState(s=>({...s,hp:Math.min(3,(s.hp??3)+(event.heal??1)),activeHint:{skill:'rest-'+event.id,text:event.text??'Rest is progress.',input:'Time slows. You are safe to breathe.'}}));if(event.type==='puzzle:hint')store.setState(s=>({...s,activeHint:{skill:'puzzle-'+event.id,text:event.text,input:event.input,visualCue:event.visualCue,audioCue:event.audioCue}}));}});
  store.setState(state=>({...state,levelSnapshot:levelManager.getSnapshot()}));
  stateMachine.subscribe(({current})=>store.setState(state=>({...state,status:current})));
  const loop=createGameLoop({now,...(requestFrame?{requestFrame}:{}),...(cancelFrame?{cancelFrame}:{}),
  update(dt){input.advance(dt);const current=store.getState();previousPlayer=copyPlayer(current.player);const controls=input.read();
   if(controls.pausePressed&&current.status==='Playing'){input.consume('pause');stateMachine.transition('Paused');loop.stop();return;}
   for(const action of ['jump','interact','pulse','rest','victory'])if(controls[action+'Pressed'])input.consume(action);
-  if(current.status==='Playing'||current.status==='Title')stepPlayer(current.player,controls,dt,current.assistMode,current.playerTuning,current.feelTestRoom?FEEL_TEST_PLATFORMS:levelManager.getPlatforms());
+  if(current.status==='Playing'||current.status==='Title')stepPlayer(current.player,controls,dt*levelManager.getTimeScale(),current.assistMode,current.playerTuning,current.feelTestRoom?FEEL_TEST_PLATFORMS:levelManager.getPlatforms());
   const levelEvents=levelManager.update(dt,current.player,{interactPressed:controls.interactPressed,pulsePressed:controls.pulsePressed,pulseActive:current.player.pulseTimer>0});
   for(const event of current.player.events??[]){eventBus.emit(event.type,event);if(event.type==='player:jump'){const skill=event.kind==='double'?'double-jump':'jump';levelManager.markSkillUsed(skill);store.setState(s=>({...s,activeHint:s.activeHint?.skill===skill?null:s.activeHint}));}if(event.type==='warm-light:pulse'){levelManager.markSkillUsed('pulse');store.setState(s=>({...s,activeHint:s.activeHint?.skill==='pulse'?null:s.activeHint}));}}
   if(Math.abs(controls.horizontal)>.05)levelManager.markSkillUsed('move');
@@ -56,6 +58,7 @@ export function createGameEngine({onFrame=()=>{},now=()=>globalThis.performance?
  loadChapter,
  advanceDialogue(){store.setState(s=>{if(!s.activeDialogue)return s;const nextIndex=s.activeDialogue.index+1;if(nextIndex>=s.activeDialogue.lines.length)return{...s,activeDialogue:null};return{...s,activeDialogue:{...s.activeDialogue,index:nextIndex}};});},
  skipDialogue(){store.setState(s=>({...s,activeDialogue:null}));},
+ chooseDialogueChoice(entityId,choiceId){const resolved=levelManager.resolveMirrorChoice(entityId,choiceId);store.setState(s=>({...s,activeDialogue:null,activeHint:resolved?{skill:'mirror-'+entityId,text:'Kindness is a truth, too.',input:'Keep going at your own pace.'}:s.activeHint,levelSnapshot:levelManager.getSnapshot()}));return resolved;},
  resetToCheckpoint(){const p=store.getState().player;p.x=p.checkpointX;p.y=p.checkpointY??0;p.velocityY=0;p.velocityX=0;p.grounded=true;p.deathTimer=0;p.respawnFlash=.45;if(stateMachine.getState()==='Paused')transition('Playing',{source:'checkpoint-reset'});store.setState(s=>({...s,checkpointId:p.checkpointId}));},
  setAssistMode(enabled){store.setState(s=>({...s,assistMode:Boolean(enabled)}));},
  setPlayerDebug(enabled){store.setState(s=>({...s,playerDebug:Boolean(enabled)}));},togglePlayerDebug(){store.setState(s=>({...s,playerDebug:!s.playerDebug}));},
