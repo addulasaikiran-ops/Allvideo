@@ -101,3 +101,47 @@ describe('chapter 2 and 3 mechanics', () => {
     expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: 'dialogue:trigger', skippable: true, dialogueId: 'bottle' }));
   });
 });
+
+
+describe('chapter 4 and 5 mechanics', () => {
+  it('activates a rest lantern, heals once, and slows the simulation briefly', () => {
+    const onEvent = vi.fn();
+    const manager = createLevelManager({ id: 'tower', entities: [
+      { id: 'rest', type: 'rest-lantern', x: 0, y: 0, width: 1, height: 2, heal: 1, slowDuration: 4, slowScale: 0.45 },
+    ] }, { onEvent });
+    manager.update(0.016, { x: 0, y: 0, velocityY: 0 }, { interactPressed: true });
+    expect(manager.getTimeScale()).toBe(0.45);
+    expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: 'rest:activated', heal: 1, duration: 4 }));
+    manager.update(4.1, { x: 0, y: 0, velocityY: 0 }, {});
+    expect(manager.getTimeScale()).toBe(1);
+  });
+
+  it('moves clock hazards in a deterministic readable rhythm and emits gentle contact cues', () => {
+    const onEvent = vi.fn();
+    const manager = createLevelManager({ id: 'tower', entities: [
+      { id: 'hand', type: 'clock-hand', x: 0, y: 0, width: 3, height: 0.3, period: 4, amplitude: 1 },
+    ] }, { onEvent });
+    manager.update(0.5, { x: 0, y: 0, velocityY: 0 }, {});
+    expect(Number.isFinite(manager.getSnapshot().entities[0].angle)).toBe(true);
+    expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: 'hazard:contact', hazard: 'clock-hand', gentle: true }));
+  });
+
+  it('accepts kind replies and cracks the giant mirror over several answers', () => {
+    const manager = createLevelManager({ id: 'mirror', entities: [
+      { id: 'echo', type: 'mirror', x: 0, y: 0, width: 1, height: 2, choices: [{ id: 'kind', label: 'I can learn.', kind: 'kind' }] },
+      { id: 'boss', type: 'mirror-boss', x: 5, y: 0, width: 3, height: 4, requiredTruths: 3, choices: [
+        { id: 'truth-1', label: 'I have come this far.', kind: 'kind' },
+        { id: 'truth-2', label: 'I deserve patience.', kind: 'kind' },
+        { id: 'truth-3', label: 'I can begin again.', kind: 'kind' },
+      ] },
+    ] });
+    manager.update(0.016, { x: 0, y: 0, velocityY: 0 }, { interactPressed: true });
+    expect(manager.resolveMirrorChoice('echo', 'kind')).toBe(true);
+    expect(manager.getSnapshot().entities.find((entity) => entity.id === 'echo').triggered).toBe(true);
+    expect(manager.resolveMirrorChoice('boss', 'truth-1')).toBe(true);
+    expect(manager.resolveMirrorChoice('boss', 'truth-2')).toBe(true);
+    expect(manager.resolveMirrorChoice('boss', 'truth-3')).toBe(true);
+    expect(manager.getSnapshot().entities.find((entity) => entity.id === 'boss').cracks).toBe(3);
+    expect(manager.getSnapshot().entities.find((entity) => entity.id === 'boss').triggered).toBe(true);
+  });
+});
