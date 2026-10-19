@@ -21,6 +21,7 @@ export const personalConfig = Object.freeze({
     ending: 'We can take the next little step together.',
   },
   gameplay: { collectedHearts: 3 },
+  personalization: { nickname: '', insideJoke: '', sheSaysOverrides: {} },
   memoryScenes: [
     { id: 'first-meeting', title: 'The First Hello', date: '', caption: 'Two ordinary paths crossed, and the day became a little brighter.', detail: 'A small beginning, with room for every good thing that followed.', photo: '', illustration: 'meeting', accent: '#f3c28e' },
     { id: 'rainy-umbrella', title: 'Under One Umbrella', date: '', caption: 'Rain tapped above us while the world grew quiet underneath.', detail: 'There was enough shelter for both of us.', photo: '', illustration: 'rain', accent: '#9ccfe0' },
