@@ -1,27 +1,48 @@
 import { useEffect, useRef, useState } from 'react';
 import { createGameEngine } from '../engine/game-engine.js';
+import { createWorldScene } from '../engine/scene.js';
 import { personalConfig } from '../story/personal.config.js';
 import { useEngineStore } from './use-engine-store.js';
 import styles from './GameShell.module.css';
 
 export function GameShell() {
   const canvasRef = useRef(null);
-  const [engine] = useState(() => createGameEngine());
+  const rendererRef = useRef(null);
+  const [assistMode, setAssistMode] = useState(false);
+  const [engine] = useState(() => createGameEngine({
+    onFrame: (frame) => rendererRef.current?.render(frame),
+  }));
   const [showHelp, setShowHelp] = useState(false);
 
-  useEffect(() => () => engine.destroy(), [engine]);
+  useEffect(() => {
+    if (!canvasRef.current) return undefined;
+    const world = createWorldScene(canvasRef.current);
+    rendererRef.current = world;
+    world.render({ player: engine.store.getState().player, deltaSeconds: 0 });
+    return () => {
+      rendererRef.current = null;
+      world.destroy();
+      engine.destroy();
+    };
+  }, [engine]);
+
+  useEffect(() => {
+    engine.setAssistMode(assistMode);
+  }, [assistMode, engine]);
 
   return (
     <GameSurface
       canvasRef={canvasRef}
       engine={engine}
+      assistMode={assistMode}
+      onAssistChange={setAssistMode}
       showHelp={showHelp}
       onToggleHelp={() => setShowHelp((visible) => !visible)}
     />
   );
 }
 
-function GameSurface({ canvasRef, engine, showHelp, onToggleHelp }) {
+function GameSurface({ canvasRef, engine, assistMode, onAssistChange, showHelp, onToggleHelp }) {
   const state = useEngineStore(engine.store);
 
   return (
@@ -30,23 +51,66 @@ function GameSurface({ canvasRef, engine, showHelp, onToggleHelp }) {
         <canvas
           ref={canvasRef}
           className={styles.canvas}
-          aria-label="Allvideo game world. Use the game controls below to begin."
+          aria-label="A little more light: move with arrow keys or A and D, and jump with Space."
         />
         <div className={styles.overlay}>
-          <p className={styles.eyebrow}>A LITTLE MORE LIGHT</p>
+          <p className={styles.eyebrow}>CHAPTER ONE · THE QUIET MEADOW</p>
           <h1>{personalConfig.names.heroine} and {personalConfig.names.boyfriend}</h1>
           <p className={styles.message}>{personalConfig.messages.opening}</p>
-          <p className={styles.status} role="status">Journey status: {state.status}</p>
+          <p className={styles.status} role="status">
+            {state.status === 'playing' ? 'You are not alone.' : 'A gentle journey is waiting.'}
+            {' '}Checkpoint: {state.checkpointId}
+          </p>
           <button className={styles.primaryButton} type="button" onClick={() => engine.start()}>
-            Begin gently
+            {state.status === 'playing' ? 'Journey started' : 'Begin gently'}
           </button>
-          <button className={styles.secondaryButton} type="button" onClick={onToggleHelp} aria-expanded={showHelp}>
-            {showHelp ? 'Hide controls' : 'Controls and accessibility'}
-          </button>
+          <div className={styles.controlRow} aria-label="Touch movement controls">
+            <button
+              className={styles.controlButton}
+              type="button"
+              aria-label="Move left"
+              onPointerDown={() => engine.input.setTouchAxis(-1)}
+              onPointerUp={() => engine.input.setTouchAxis(0)}
+              onPointerLeave={() => engine.input.setTouchAxis(0)}
+              onPointerCancel={() => engine.input.setTouchAxis(0)}
+            >←</button>
+            <button
+              className={styles.controlButton}
+              type="button"
+              aria-label="Move right"
+              onPointerDown={() => engine.input.setTouchAxis(1)}
+              onPointerUp={() => engine.input.setTouchAxis(0)}
+              onPointerLeave={() => engine.input.setTouchAxis(0)}
+              onPointerCancel={() => engine.input.setTouchAxis(0)}
+            >→</button>
+            <button
+              className={styles.jumpButton}
+              type="button"
+              aria-label="Jump"
+              onPointerDown={() => engine.input.setTouchJump(true)}
+              onPointerUp={() => engine.input.setTouchJump(false)}
+              onPointerLeave={() => engine.input.setTouchJump(false)}
+              onPointerCancel={() => engine.input.setTouchJump(false)}
+            >Jump ✦</button>
+          </div>
+          <div className={styles.optionsRow}>
+            <label className={styles.assistLabel}>
+              <input type="checkbox" checked={assistMode} onChange={(event) => onAssistChange(event.target.checked)} />
+              Assist mode
+            </label>
+            <button className={styles.secondaryButton} type="button" onClick={() => engine.resetToCheckpoint()}>
+              Return to checkpoint
+            </button>
+            <button className={styles.secondaryButton} type="button" onClick={onToggleHelp} aria-expanded={showHelp}>
+              {showHelp ? 'Hide help' : 'Controls'}
+            </button>
+          </div>
           {showHelp && (
             <aside className={styles.help} aria-label="Controls and accessibility">
-              <p><strong>Keyboard:</strong> Arrow keys or A/D to move; Space to jump (gameplay controls arrive with the first playable level).</p>
-              <p><strong>Accessibility:</strong> Assist mode and reduced-motion settings will be added before the first complete level.</p>
+              <p><strong>Keyboard:</strong> Arrow keys or A/D to move; Space, W, or Up to jump.</p>
+              <p><strong>Gamepad:</strong> Left stick to move; primary face button to jump.</p>
+              <p><strong>Touch:</strong> Hold the arrows to move and Jump to leap. Assist mode increases jump height.</p>
+              <p><strong>Gentle play:</strong> Falling returns you to the last checkpoint. No lives or progress are lost.</p>
             </aside>
           )}
         </div>
