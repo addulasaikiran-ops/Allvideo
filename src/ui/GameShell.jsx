@@ -77,6 +77,7 @@ export function GameShell() {
         }
       },
       onHitStop: (duration) => engine.levelManager.hitStop?.(duration),
+      onSlowMoment: (duration, scale) => engine.levelManager.slowMoment?.(duration, scale),
     });
     return () => feel.destroy();
   }, [engine, juice]);
